@@ -29,7 +29,7 @@ pub fn parse(tokens: &[Token]) -> Result<(Expr, &[Token]), String> {
             } else {
                 Err("Unmatched left parenthesis".to_string())
             }
-        },
+        }
         [Token::Quote] => {
             let (expr, remaining) = parse(rest)?;
             Ok((Expr::Quote(Box::new(expr)), remaining))
@@ -44,51 +44,94 @@ mod tests {
 
     #[test]
     fn test_parse() {
-        let tokens = lex("(+ 1 2)");
-        let parsed = parse(&tokens).unwrap().0;
+        let tokens_int = lex("(+ 1 2)");
+        let parsed = parse(&tokens_int).unwrap().0;
         assert_eq!(
             parsed,
+            Expr::List(vec![
+                Expr::String("+".to_string()),
+                Expr::Integer(1),
+                Expr::Integer(2),
+            ])
+        );
+
+        let tokens_float = lex("(+ 1.0 2.5)");
+        let parsed = parse(&tokens_float).unwrap().0;
+        assert_eq!(
+            parsed,
+            Expr::List(vec![
+                Expr::String("+".to_string()),
+                Expr::Float(1.0),
+                Expr::Float(2.5),
+            ])
+        );
+
+        let tokens_complex = lex("(cos (* 3.14159 1))");
+        let parsed = parse(&tokens_complex).unwrap().0;
+        assert_eq!(
+            parsed,
+            Expr::List(vec![
+                Expr::String("cos".to_string()),
                 Expr::List(vec![
-                    Expr::String("+".to_string()),
+                    Expr::String("*".to_string()),
+                    Expr::Float(3.14159),
                     Expr::Integer(1),
-                    Expr::Integer(2),
-                ])
+                ]),
+            ])
         );
 
-        let tokens = lex("(+ 1.0 2.5)");
-        let parsed = parse(&tokens).unwrap().0;
+        let tokens_quote = lex("'(1 2 3)");
+        let parsed = parse(&tokens_quote).unwrap().0;
         assert_eq!(
             parsed,
+            Expr::Quote(Box::new(Expr::List(vec![
+                Expr::Integer(1),
+                Expr::Integer(2),
+                Expr::Integer(3),
+            ])))
+        );
+
+        let tokens_lot = lex("(+ (* 3
+            (+ (* 2 4)
+               (+ 3 5)
+            )
+         )
+         (+ (- 10 7)
+            6
+         )
+        )");
+        let parsed = parse(&tokens_lot).unwrap().0;
+        assert_eq!(
+            parsed,
+            Expr::List(vec![
+                Expr::String("+".to_string()),
                 Expr::List(vec![
-                    Expr::String("+".to_string()),
-                    Expr::Float(1.0),
-                    Expr::Float(2.5),
-                ])
-        );
-
-        let tokens = lex("(cos (* 3.14159 1))");
-        let parsed = parse(&tokens).unwrap().0;
-        assert_eq!(
-            parsed,
-                Expr::List(vec![
-                    Expr::String("cos".to_string()),
-                    Expr::List(vec![
-                        Expr::String("*".to_string()),
-                        Expr::Float(3.14159),
-                        Expr::Integer(1),
-                    ]),
-                ])
-        );
-
-        let tokens = lex("'(1 2 3)");
-        let parsed = parse(&tokens).unwrap().0;
-        assert_eq!(
-            parsed,
-                Expr::Quote(Box::new(Expr::List(vec![
-                    Expr::Integer(1),
-                    Expr::Integer(2),
+                    Expr::String("*".to_string()),
                     Expr::Integer(3),
-                ])))
-        );
+                    Expr::List(vec![
+                        Expr::String("+".to_string()),
+                        Expr::List(vec![
+                            Expr::String("*".to_string()),
+                            Expr::Integer(2),
+                            Expr::Integer(4),
+                        ]),
+                        Expr::List(vec![
+                            Expr::String("+".to_string()),
+                            Expr::Integer(3),
+                            Expr::Integer(5),
+                        ]),
+                    ]),
+                ]),
+                Expr::List(vec![
+                    Expr::String("+".to_string()),
+                    Expr::List(vec![
+                        Expr::String("-".to_string()),
+                        Expr::Integer(10),
+                        Expr::Integer(7),
+                    ]),
+                    Expr::Integer(6),
+                ]),
+            ])
+        );        
     }
 }

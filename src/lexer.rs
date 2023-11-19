@@ -9,26 +9,43 @@ pub enum Token {
 }
 
 pub fn lex(program: &str) -> Vec<Token> {
-    let program2 = program.replace("(", " ( ").replace(")", " ) ").replace("'", " ' ");
-    let words: Vec<String> = program2.split_whitespace().map(|s| s.to_string()).collect();
-
     let mut tokens: Vec<Token> = Vec::new();
-    for word in words {
-        match word.as_str() {
-            "(" => tokens.push(Token::LParen),
-            ")" => tokens.push(Token::RParen),
-            "'" => tokens.push(Token::Quote),
-            _ => {
-                let token = word
-                    .parse::<i64>()
-                    .map(Token::Integer)
-                    .or_else(|_| word.parse::<f64>().map(Token::Float))
-                    .unwrap_or_else(|_| Token::String(word.clone()));
-                tokens.push(token);
+    let mut temp_string = String::new();
+
+    for ch in program.chars() {
+        match ch {
+            '(' => {
+                finalize_token(&mut tokens, &mut temp_string);
+                tokens.push(Token::LParen);
             }
+            ')' => {
+                finalize_token(&mut tokens, &mut temp_string);
+                tokens.push(Token::RParen);
+            }
+            '\'' => {
+                finalize_token(&mut tokens, &mut temp_string);
+                tokens.push(Token::Quote);
+            }
+            whitespace if whitespace.is_whitespace() => {
+                finalize_token(&mut tokens, &mut temp_string)
+            }
+            _ => temp_string.push(ch),
         }
     }
+    finalize_token(&mut tokens, &mut temp_string);
     tokens
+}
+
+fn finalize_token(tokens: &mut Vec<Token>, temp_string: &mut String) {
+    if !temp_string.is_empty() {
+        let token = temp_string
+            .parse::<i64>()
+            .map(Token::Integer)
+            .or_else(|_| temp_string.parse::<f64>().map(Token::Float))
+            .unwrap_or_else(|_| Token::String(temp_string.clone()));
+        tokens.push(token);
+        temp_string.clear();
+    }
 }
 
 #[cfg(test)]
@@ -85,6 +102,50 @@ mod tests {
                 Token::Integer(1),
                 Token::Integer(2),
                 Token::Integer(3),
+                Token::RParen,
+            ]
+        );
+
+        let tokens_lot = lex("(+ (* 3
+            (+ (* 2 4)
+               (+ 3 5)
+            )
+         )
+         (+ (- 10 7)
+            6
+         )
+      )");
+        assert_eq!(
+            tokens_lot,
+            vec![
+                Token::LParen,
+                Token::String("+".to_string()),
+                Token::LParen,
+                Token::String("*".to_string()),
+                Token::Integer(3),
+                Token::LParen,
+                Token::String("+".to_string()),
+                Token::LParen,
+                Token::String("*".to_string()),
+                Token::Integer(2),
+                Token::Integer(4),
+                Token::RParen,
+                Token::LParen,
+                Token::String("+".to_string()),
+                Token::Integer(3),
+                Token::Integer(5),
+                Token::RParen,
+                Token::RParen,
+                Token::RParen,
+                Token::LParen,
+                Token::String("+".to_string()),
+                Token::LParen,
+                Token::String("-".to_string()),
+                Token::Integer(10),
+                Token::Integer(7),
+                Token::RParen,
+                Token::Integer(6),
+                Token::RParen,
                 Token::RParen,
             ]
         );
