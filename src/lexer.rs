@@ -1,3 +1,6 @@
+use std::iter::Peekable;
+use std::str::Chars;
+
 #[derive(PartialEq, Debug)]
 pub enum Token {
     Integer(i64),
@@ -9,43 +12,47 @@ pub enum Token {
 }
 
 pub fn lex(program: &str) -> Vec<Token> {
+    let mut chars = program.chars().peekable();
     let mut tokens: Vec<Token> = Vec::new();
-    let mut temp_string = String::new();
-
-    for ch in program.chars() {
+    while let Some(&ch) = chars.peek() {
         match ch {
             '(' => {
-                finalize_token(&mut tokens, &mut temp_string);
                 tokens.push(Token::LParen);
+                chars.next();
             }
             ')' => {
-                finalize_token(&mut tokens, &mut temp_string);
                 tokens.push(Token::RParen);
+                chars.next();
             }
             '\'' => {
-                finalize_token(&mut tokens, &mut temp_string);
                 tokens.push(Token::Quote);
+                chars.next();
             }
             whitespace if whitespace.is_whitespace() => {
-                finalize_token(&mut tokens, &mut temp_string)
+                chars.next();
             }
-            _ => temp_string.push(ch),
+            _ => {
+                tokens.push(finalize_token(&mut chars));
+            }
         }
     }
-    finalize_token(&mut tokens, &mut temp_string);
     tokens
 }
 
-fn finalize_token(tokens: &mut Vec<Token>, temp_string: &mut String) {
-    if !temp_string.is_empty() {
-        let token = temp_string
-            .parse::<i64>()
-            .map(Token::Integer)
-            .or_else(|_| temp_string.parse::<f64>().map(Token::Float))
-            .unwrap_or_else(|_| Token::String(temp_string.clone()));
-        tokens.push(token);
-        temp_string.clear();
+fn finalize_token(chars: &mut Peekable<Chars>) -> Token {
+    let mut token_string = String::new();
+    while let Some(&ch) = chars.peek() {
+        if ch.is_whitespace() || ch == '(' || ch == ')' || ch == '\'' {
+            break;
+        }
+        token_string.push(ch);
+        chars.next();
     }
+    token_string
+        .parse::<i64>()
+        .map(Token::Integer)
+        .or_else(|_| token_string.parse::<f64>().map(Token::Float))
+        .unwrap_or_else(|_| Token::String(token_string))
 }
 
 #[cfg(test)]
@@ -53,10 +60,10 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_lex() {
-        let tokens_int = lex("(+ 1 2)");
+    fn test_lex_integer() {
+        let tokens = lex("(+ 1 2)");
         assert_eq!(
-            tokens_int,
+            tokens,
             vec![
                 Token::LParen,
                 Token::String("+".to_string()),
@@ -65,10 +72,13 @@ mod tests {
                 Token::RParen,
             ]
         );
+    }
 
-        let tokens_float = lex("(+ 1.0 2.5)");
+    #[test]
+    fn test_lex_float() {
+        let tokens = lex("(+ 1.0 2.5)");
         assert_eq!(
-            tokens_float,
+            tokens,
             vec![
                 Token::LParen,
                 Token::String("+".to_string()),
@@ -77,10 +87,13 @@ mod tests {
                 Token::RParen,
             ]
         );
+    }
 
-        let tokens_complex = lex("(cos (* 3.14159 1))");
+    #[test]
+    fn test_lex_complex() {
+        let tokens = lex("(cos (* 3.14159 1))");
         assert_eq!(
-            tokens_complex,
+            tokens,
             vec![
                 Token::LParen,
                 Token::String("cos".to_string()),
@@ -92,10 +105,13 @@ mod tests {
                 Token::RParen,
             ]
         );
+    }
 
-        let tokens_quote = lex("'(1 2 3)");
+    #[test]
+    fn test_lex_quote() {
+        let tokens = lex("'(1 2 3)");
         assert_eq!(
-            tokens_quote,
+            tokens,
             vec![
                 Token::Quote,
                 Token::LParen,
@@ -105,8 +121,11 @@ mod tests {
                 Token::RParen,
             ]
         );
+    }
 
-        let tokens_lot = lex("(+ (* 3
+    #[test]
+    fn test_lex_long() {
+        let tokens = lex("(+ (* 3
             (+ (* 2 4)
                (+ 3 5)
             )
@@ -116,7 +135,7 @@ mod tests {
          )
       )");
         assert_eq!(
-            tokens_lot,
+            tokens,
             vec![
                 Token::LParen,
                 Token::String("+".to_string()),

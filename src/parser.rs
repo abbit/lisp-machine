@@ -43,9 +43,9 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_parse() {
-        let tokens_int = lex("(+ 1 2)");
-        let parsed = parse(&tokens_int).unwrap().0;
+    fn test_parse_int() {
+        let tokens = lex("(+ 1 2)");
+        let parsed = parse(&tokens).unwrap().0;
         assert_eq!(
             parsed,
             Expr::List(vec![
@@ -54,9 +54,12 @@ mod tests {
                 Expr::Integer(2),
             ])
         );
+    }
 
-        let tokens_float = lex("(+ 1.0 2.5)");
-        let parsed = parse(&tokens_float).unwrap().0;
+    #[test]
+    fn test_parse_float() {
+        let tokens = lex("(+ 1.0 2.5)");
+        let parsed = parse(&tokens).unwrap().0;
         assert_eq!(
             parsed,
             Expr::List(vec![
@@ -65,9 +68,12 @@ mod tests {
                 Expr::Float(2.5),
             ])
         );
+    }
 
-        let tokens_complex = lex("(cos (* 3.14159 1))");
-        let parsed = parse(&tokens_complex).unwrap().0;
+    #[test]
+    fn test_parse_complex() {
+        let tokens = lex("(cos (* 3.14159 1))");
+        let parsed = parse(&tokens).unwrap().0;
         assert_eq!(
             parsed,
             Expr::List(vec![
@@ -79,9 +85,12 @@ mod tests {
                 ]),
             ])
         );
+    }
 
-        let tokens_quote = lex("'(1 2 3)");
-        let parsed = parse(&tokens_quote).unwrap().0;
+    #[test]
+    fn test_parse_quote() {
+        let tokens = lex("'(1 2 3)");
+        let parsed = parse(&tokens).unwrap().0;
         assert_eq!(
             parsed,
             Expr::Quote(Box::new(Expr::List(vec![
@@ -90,8 +99,11 @@ mod tests {
                 Expr::Integer(3),
             ])))
         );
+    }
 
-        let tokens_lot = lex("(+ (* 3
+    #[test]
+    fn test_parse_long() {
+        let tokens = lex("(+ (* 3
             (+ (* 2 4)
                (+ 3 5)
             )
@@ -100,7 +112,7 @@ mod tests {
             6
          )
         )");
-        let parsed = parse(&tokens_lot).unwrap().0;
+        let parsed = parse(&tokens).unwrap().0;
         assert_eq!(
             parsed,
             Expr::List(vec![
@@ -132,6 +144,6 @@ mod tests {
                     Expr::Integer(6),
                 ]),
             ])
-        );        
+        );
     }
 }
