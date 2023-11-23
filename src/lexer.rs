@@ -1,3 +1,4 @@
+use core::fmt;
 use std::iter::Peekable;
 use std::str::Chars;
 
@@ -5,7 +6,7 @@ use std::str::Chars;
 pub enum Token {
     Integer(i64),
     Float(f64),
-    String(String),
+    Symbol(String),
     LParen,
     RParen,
     Quote,
@@ -16,6 +17,16 @@ pub enum LexicalError {
     UnexpectedEOF,
     UnexpectedRParen,
     UnclosedString,
+}
+
+impl fmt::Display for LexicalError {
+    fn fmt(&self, f: &mut fmt::Formatter) -> std::fmt::Result {
+        match self {
+            LexicalError::UnexpectedEOF => write!(f, "unexpected EOF"),
+            LexicalError::UnexpectedRParen => write!(f, "unexpected ')'"),
+            LexicalError::UnclosedString => write!(f, "unclosed string"),
+        }
+    }
 }
 
 pub fn lex(program: &str) -> Vec<Result<Token, LexicalError>> {
@@ -107,7 +118,7 @@ fn finalize_token(chars: &mut Peekable<Chars>) -> Result<Token, LexicalError> {
             .parse::<i64>()
             .map(Token::Integer)
             .or_else(|_| token_string.parse::<f64>().map(Token::Float))
-            .unwrap_or_else(|_| Token::String(token_string)))
+            .unwrap_or_else(|_| Token::Symbol(token_string)))
     }
 }
 
@@ -122,9 +133,9 @@ mod tests {
             tokens,
             vec![
                 Ok(Token::LParen),
-                Ok(Token::String("cos".to_string())),
+                Ok(Token::Symbol("cos".to_string())),
                 Ok(Token::LParen),
-                Ok(Token::String("*".to_string())),
+                Ok(Token::Symbol("*".to_string())),
                 Ok(Token::Float(3.14159)),
                 Ok(Token::Integer(1)),
                 Ok(Token::RParen),
@@ -156,28 +167,28 @@ mod tests {
             tokens,
             vec![
                 Ok(Token::LParen),
-                Ok(Token::String("+".to_string())),
+                Ok(Token::Symbol("+".to_string())),
                 Ok(Token::LParen),
-                Ok(Token::String("*".to_string())),
+                Ok(Token::Symbol("*".to_string())),
                 Ok(Token::Integer(3)),
                 Ok(Token::LParen),
-                Ok(Token::String("+".to_string())),
+                Ok(Token::Symbol("+".to_string())),
                 Ok(Token::LParen),
-                Ok(Token::String("*".to_string())),
+                Ok(Token::Symbol("*".to_string())),
                 Ok(Token::Integer(2)),
                 Ok(Token::Integer(4)),
                 Ok(Token::RParen),
                 Ok(Token::LParen),
-                Ok(Token::String("+".to_string())),
+                Ok(Token::Symbol("+".to_string())),
                 Ok(Token::Integer(3)),
                 Ok(Token::Integer(5)),
                 Ok(Token::RParen),
                 Ok(Token::RParen),
                 Ok(Token::RParen),
                 Ok(Token::LParen),
-                Ok(Token::String("+".to_string())),
+                Ok(Token::Symbol("+".to_string())),
                 Ok(Token::LParen),
-                Ok(Token::String("-".to_string())),
+                Ok(Token::Symbol("-".to_string())),
                 Ok(Token::Integer(10)),
                 Ok(Token::Integer(7)),
                 Ok(Token::RParen),
@@ -195,7 +206,7 @@ mod tests {
             result,
             vec![
                 Ok(Token::LParen),
-                Ok(Token::String("+".to_string())),
+                Ok(Token::Symbol("+".to_string())),
                 Ok(Token::Integer(1)),
                 Ok(Token::Integer(2)),
                 Err(LexicalError::UnexpectedEOF)
@@ -210,8 +221,8 @@ mod tests {
             result,
             vec![
                 Ok(Token::LParen),
-                Ok(Token::String("display".to_string())),
-                Ok(Token::String("Hello, world!".to_string())),
+                Ok(Token::Symbol("display".to_string())),
+                Ok(Token::Symbol("Hello, world!".to_string())),
                 Ok(Token::RParen),
             ]
         );
@@ -224,7 +235,7 @@ mod tests {
             result,
             vec![
                 Ok(Token::LParen),
-                Ok(Token::String("display".to_string())),
+                Ok(Token::Symbol("display".to_string())),
                 Err(LexicalError::UnclosedString),
             ]
         );
@@ -237,7 +248,7 @@ mod tests {
             result,
             vec![
                 Ok(Token::LParen),
-                Ok(Token::String("+".to_string())),
+                Ok(Token::Symbol("+".to_string())),
                 Ok(Token::Integer(1)),
                 Ok(Token::Integer(2)),
                 Ok(Token::RParen),
@@ -249,9 +260,6 @@ mod tests {
     #[test]
     fn test_void() {
         let result = lex("");
-        assert_eq!(
-            result,
-            vec![]
-        );
+        assert_eq!(result, vec![]);
     }
 }

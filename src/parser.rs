@@ -1,15 +1,6 @@
-mod lexer;
-use lexer::*;
+use core::fmt;
 
-#[derive(PartialEq, Debug)]
-pub enum Expr {
-    Integer(i64),
-    Float(f64),
-    String(String),
-    List(Vec<Expr>),
-    Quote(Box<Expr>),
-    Void
-}
+use crate::{ast::Expr, lexer::*};
 
 #[derive(Debug, PartialEq)]
 pub enum ParseError {
@@ -17,7 +8,18 @@ pub enum ParseError {
     UnexpectedToken,
 }
 
-pub fn parse(tokens: &[Result<Token, LexicalError>]) -> Result<(Expr, &[Result<Token, LexicalError>]), ParseError> {
+impl fmt::Display for ParseError {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            ParseError::LexError(e) => write!(f, "{}", e),
+            ParseError::UnexpectedToken => write!(f, "Unexpected token"),
+        }
+    }
+}
+
+pub fn parse(
+    tokens: &[Result<Token, LexicalError>],
+) -> Result<(Expr, &[Result<Token, LexicalError>]), ParseError> {
     if tokens.is_empty() {
         return Ok((Expr::Void, tokens));
     }
@@ -25,7 +27,7 @@ pub fn parse(tokens: &[Result<Token, LexicalError>]) -> Result<(Expr, &[Result<T
     match item {
         [Ok(Token::Integer(i))] => Ok((Expr::Integer(*i), rest)),
         [Ok(Token::Float(f))] => Ok((Expr::Float(*f), rest)),
-        [Ok(Token::String(s))] => Ok((Expr::String(s.clone()), rest)),
+        [Ok(Token::Symbol(s))] => Ok((Expr::Symbol(s.clone()), rest)),
         [Ok(Token::LParen)] => {
             let mut sub_exprs = vec![];
             let mut rem = rest;
@@ -44,13 +46,18 @@ pub fn parse(tokens: &[Result<Token, LexicalError>]) -> Result<(Expr, &[Result<T
             let (expr, remaining) = parse(rest)?;
             Ok((Expr::Quote(Box::new(expr)), remaining))
         }
-        [Err(LexicalError::UnexpectedEOF)] => Err(ParseError::LexError(LexicalError::UnexpectedEOF)),
-        [Err(LexicalError::UnclosedString)] => Err(ParseError::LexError(LexicalError::UnclosedString)),
-        [Err(LexicalError::UnexpectedRParen)] => Err(ParseError::LexError(LexicalError::UnexpectedRParen)),
-        _ => Err(ParseError::UnexpectedToken)
+        [Err(LexicalError::UnexpectedEOF)] => {
+            Err(ParseError::LexError(LexicalError::UnexpectedEOF))
+        }
+        [Err(LexicalError::UnclosedString)] => {
+            Err(ParseError::LexError(LexicalError::UnclosedString))
+        }
+        [Err(LexicalError::UnexpectedRParen)] => {
+            Err(ParseError::LexError(LexicalError::UnexpectedRParen))
+        }
+        _ => Err(ParseError::UnexpectedToken),
     }
 }
-
 
 #[cfg(test)]
 mod tests {
@@ -63,9 +70,9 @@ mod tests {
         assert_eq!(
             parsed,
             Expr::List(vec![
-                Expr::String("cos".to_string()),
+                Expr::Symbol("cos".to_string()),
                 Expr::List(vec![
-                    Expr::String("*".to_string()),
+                    Expr::Symbol("*".to_string()),
                     Expr::Float(3.14159),
                     Expr::Integer(1),
                 ]),
@@ -102,28 +109,28 @@ mod tests {
         assert_eq!(
             parsed,
             Expr::List(vec![
-                Expr::String("+".to_string()),
+                Expr::Symbol("+".to_string()),
                 Expr::List(vec![
-                    Expr::String("*".to_string()),
+                    Expr::Symbol("*".to_string()),
                     Expr::Integer(3),
                     Expr::List(vec![
-                        Expr::String("+".to_string()),
+                        Expr::Symbol("+".to_string()),
                         Expr::List(vec![
-                            Expr::String("*".to_string()),
+                            Expr::Symbol("*".to_string()),
                             Expr::Integer(2),
                             Expr::Integer(4),
                         ]),
                         Expr::List(vec![
-                            Expr::String("+".to_string()),
+                            Expr::Symbol("+".to_string()),
                             Expr::Integer(3),
                             Expr::Integer(5),
                         ]),
                     ]),
                 ]),
                 Expr::List(vec![
-                    Expr::String("+".to_string()),
+                    Expr::Symbol("+".to_string()),
                     Expr::List(vec![
-                        Expr::String("-".to_string()),
+                        Expr::Symbol("-".to_string()),
                         Expr::Integer(10),
                         Expr::Integer(7),
                     ]),
@@ -150,8 +157,8 @@ mod tests {
         assert_eq!(
             parsed,
             Expr::List(vec![
-                Expr::String("display".to_string()),
-                Expr::String("Hello, world!".to_string()),
+                Expr::Symbol("display".to_string()),
+                Expr::Symbol("Hello, world!".to_string()),
             ])
         );
     }
@@ -173,7 +180,7 @@ mod tests {
         assert_eq!(
             parsed,
             Expr::List(vec![
-                Expr::String("+".to_string()),
+                Expr::Symbol("+".to_string()),
                 Expr::Integer(1),
                 Expr::Integer(2),
             ])
@@ -188,9 +195,6 @@ mod tests {
     fn test_void() {
         let tokens = lex("");
         let parsed = parse(&tokens).unwrap().0;
-        assert_eq!(
-            parsed,
-            Expr::Void
-        );
+        assert_eq!(parsed, Expr::Void);
     }
 }
