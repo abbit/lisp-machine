@@ -64,8 +64,9 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_parse_complex() {
-        let tokens = lex("(cos (* 3.14159 1))");
+    fn parse_complex() {
+        let lexer = Lexer::new("(cos (* 3.14159 1))");
+        let tokens: Vec<_> = lexer.collect();
         let parsed = parse(&tokens).unwrap().0;
         assert_eq!(
             parsed,
@@ -81,8 +82,9 @@ mod tests {
     }
 
     #[test]
-    fn test_parse_quote() {
-        let tokens = lex("'(1 2 3)");
+    fn parse_quote() {
+        let lexer = Lexer::new("'(1 2 3)");
+        let tokens: Vec<_> = lexer.collect();
         let parsed = parse(&tokens).unwrap().0;
         assert_eq!(
             parsed,
@@ -95,16 +97,9 @@ mod tests {
     }
 
     #[test]
-    fn test_parse_long() {
-        let tokens = lex("(+ (* 3
-            (+ (* 2 4)
-               (+ 3 5)
-            )
-         )
-         (+ (- 10 7)
-            6
-         )
-        )");
+    fn parse_long() {
+        let lexer = Lexer::new("(+ (* 3 (+ (* 2 4)  (+ 3 5))) (+ (- 10 7) 6))");
+        let tokens: Vec<_> = lexer.collect();
         let parsed = parse(&tokens).unwrap().0;
         assert_eq!(
             parsed,
@@ -141,8 +136,9 @@ mod tests {
     }
 
     #[test]
-    fn test_unexpected_eof() {
-        let tokens = lex("(+ 1 2");
+    fn parse_unexpected_eof() {
+        let lexer = Lexer::new("(+ 1 2");
+        let tokens: Vec<_> = lexer.collect();
         let parsed = parse(&tokens);
         assert_eq!(
             parsed,
@@ -151,8 +147,9 @@ mod tests {
     }
 
     #[test]
-    fn test_string() {
-        let tokens = lex(r#"(display "Hello, world!")"#);
+    fn parse_string() {
+        let lexer = Lexer::new(r#"(display "Hello, world!")"#);
+        let tokens: Vec<_> = lexer.collect();
         let parsed = parse(&tokens).unwrap().0;
         assert_eq!(
             parsed,
@@ -164,8 +161,9 @@ mod tests {
     }
 
     #[test]
-    fn test_unclosed_string() {
-        let tokens = lex(r#"(display "hello)"#);
+    fn parse_unclosed_string() {
+        let lexer = Lexer::new(r#"(display "hello)"#);
+        let tokens: Vec<_> = lexer.collect();
         let parsed = parse(&tokens);
         assert_eq!(
             parsed,
@@ -174,8 +172,9 @@ mod tests {
     }
 
     #[test]
-    fn test_unexpected_close_paren() {
-        let tokens = lex("(+ 1 2))");
+    fn parse_unexpected_close_paren() {
+        let lexer = Lexer::new("(+ 1 2))");
+        let tokens: Vec<_> = lexer.collect();
         let (parsed, remaining) = parse(&tokens).unwrap();
         assert_eq!(
             parsed,
@@ -192,9 +191,36 @@ mod tests {
     }
 
     #[test]
-    fn test_void() {
-        let tokens = lex("");
+    fn parse_void() {
+        let lexer = Lexer::new("");
+        let tokens: Vec<_> = lexer.collect();
         let parsed = parse(&tokens).unwrap().0;
         assert_eq!(parsed, Expr::Void);
     }
+
+    #[test]
+    fn parse_two_parens() {
+        let lexer = Lexer::new("(define pi 314)
+                                                    (+ pi 1)");
+        let tokens: Vec<_> = lexer.collect();
+        let (parsed1, remaining1) = parse(&tokens).unwrap();
+        let (parsed2, _) = parse(remaining1).unwrap();
+        assert_eq!(
+            parsed1,
+            Expr::List(vec![
+                Expr::Symbol("define".to_string()),
+                Expr::Symbol("pi".to_string()),
+                Expr::Integer(314),
+            ])
+        );
+        assert_eq!(
+            parsed2,
+            Expr::List(vec![
+                Expr::Symbol("+".to_string()),
+                Expr::Symbol("pi".to_string()),
+                Expr::Integer(1),
+            ])
+        );
+    }
+    
 }

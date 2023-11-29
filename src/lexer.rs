@@ -29,54 +29,79 @@ impl fmt::Display for LexicalError {
     }
 }
 
-pub fn lex(program: &str) -> Vec<Result<Token, LexicalError>> {
-    let mut chars = program.chars().peekable();
-    let mut tokens: Vec<Result<Token, LexicalError>> = Vec::new();
-    let mut open_paren_count = 0;
-    let mut has_error = false;
-    while let Some(&ch) = chars.peek() {
-        if has_error {
-            break;
-        }
-        let result = match ch {
-            '(' => {
-                open_paren_count += 1;
-                chars.next();
-                Ok(Token::LParen)
-            }
-            ')' => {
-                open_paren_count -= 1;
-                chars.next();
-                if open_paren_count < 0 {
-                    Err(LexicalError::UnexpectedRParen)
-                } else {
-                    Ok(Token::RParen)
-                }
-            }
-            '\'' => {
-                chars.next();
-                Ok(Token::Quote)
-            }
-            _ if ch.is_whitespace() => {
-                chars.next();
-                continue;
-            }
-            _ => finalize_token(&mut chars),
-        };
-        if let Err(_) = &result {
-            has_error = true;
-        }
-        tokens.push(result);
-    }
+pub type LexResult = Result<Token, LexicalError>;
 
-    if open_paren_count > 0 && !has_error {
-        tokens.push(Err(LexicalError::UnexpectedEOF));
-    }
-
-    tokens
+pub struct Lexer<'a> {
+    chars: Peekable<Chars<'a>>,
+    open_paren_count: i32,
+    has_error: bool,
 }
 
-fn finalize_token(chars: &mut Peekable<Chars>) -> Result<Token, LexicalError> {
+impl<'a> Lexer<'a> {
+    pub fn new(program: &'a str) -> Self {
+        Lexer {
+            chars: program.chars().peekable(),
+            open_paren_count: 0,
+            has_error: false,
+        }
+    }
+}
+
+impl<'a> Iterator for Lexer<'a> {
+    type Item = LexResult;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        if self.has_error {
+            return None;
+        }
+
+        match self.chars.peek() {
+            Some(&ch) => {
+                let result = match ch {
+                    '(' => {
+                        self.open_paren_count += 1;
+                        self.chars.next();
+                        Ok(Token::LParen)
+                    }
+                    ')' => {
+                        self.open_paren_count -= 1;
+                        self.chars.next();
+                        if self.open_paren_count < 0 {
+                            Err(LexicalError::UnexpectedRParen)
+                        } else {
+                            Ok(Token::RParen)
+                        }
+                    }
+                    '\'' => {
+                        self.chars.next();
+                        Ok(Token::Quote)
+                    }
+                    _ if ch.is_whitespace() => {
+                        self.chars.next();
+                        return self.next();
+                    }
+                    _ => finalize_token(&mut self.chars),
+                };
+
+                if let Err(_) = &result {
+                    self.has_error = true;
+                }
+
+                Some(result)
+            }
+            None => {
+                if self.open_paren_count > 0 && !self.has_error {
+                    self.has_error = true;
+                    Some(Err(LexicalError::UnexpectedEOF))
+                } else {
+                    None
+                }
+            }
+        }
+    }
+}
+
+fn finalize_token(chars: &mut Peekable<Chars>) -> LexResult {
     let mut token_string = String::new();
     let mut is_string = false;
     while let Some(&ch) = chars.peek() {
@@ -127,8 +152,9 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_lex_complex() {
-        let tokens = lex("(cos (* 3.14159 1))");
+    fn lex_complex() {
+        let lexer = Lexer::new("(cos (* 3.14159 1))");
+        let tokens: Vec<_> = lexer.collect();
         assert_eq!(
             tokens,
             vec![
@@ -145,8 +171,9 @@ mod tests {
     }
 
     #[test]
-    fn test_lex_quote() {
-        let tokens = lex("'(1 2 3)");
+    fn lex_quote() {
+        let lexer = Lexer::new("'(1 2 3)");
+        let tokens: Vec<_> = lexer.collect();
         assert_eq!(
             tokens,
             vec![
@@ -161,8 +188,9 @@ mod tests {
     }
 
     #[test]
-    fn test_lex_long() {
-        let tokens = lex("(+ (* 3 (+ (* 2 4)  (+ 3 5))) (+ (- 10 7) 6))");
+    fn lex_long() {
+        let lexer = Lexer::new("(+ (* 3 (+ (* 2 4)  (+ 3 5))) (+ (- 10 7) 6))");
+        let tokens: Vec<_> = lexer.collect();
         assert_eq!(
             tokens,
             vec![
@@ -200,10 +228,11 @@ mod tests {
     }
 
     #[test]
-    fn test_unexpected_eof() {
-        let result = lex("(+ 1 2");
+    fn lex_unexpected_eof() {
+        let lexer = Lexer::new("(+ 1 2");
+        let tokens: Vec<_> = lexer.collect();
         assert_eq!(
-            result,
+            tokens,
             vec![
                 Ok(Token::LParen),
                 Ok(Token::Symbol("+".to_string())),
@@ -215,10 +244,11 @@ mod tests {
     }
 
     #[test]
-    fn test_string() {
-        let result = lex(r#"(display "Hello, world!")"#);
+    fn lex_string() {
+        let lexer = Lexer::new(r#"(display "Hello, world!")"#);
+        let tokens: Vec<_> = lexer.collect();
         assert_eq!(
-            result,
+            tokens,
             vec![
                 Ok(Token::LParen),
                 Ok(Token::Symbol("display".to_string())),
@@ -229,10 +259,11 @@ mod tests {
     }
 
     #[test]
-    fn test_unclosed_string() {
-        let result = lex(r#"(display "hello)"#);
+    fn lex_unclosed_string() {
+        let lexer = Lexer::new(r#"(display "hello)"#);
+        let tokens: Vec<_> = lexer.collect();
         assert_eq!(
-            result,
+            tokens,
             vec![
                 Ok(Token::LParen),
                 Ok(Token::Symbol("display".to_string())),
@@ -242,10 +273,11 @@ mod tests {
     }
 
     #[test]
-    fn test_unexpected_close_paren() {
-        let result = lex("(+ 1 2))");
+    fn lex_unexpected_close_paren() {
+        let lexer = Lexer::new("(+ 1 2))");
+        let tokens: Vec<_> = lexer.collect();
         assert_eq!(
-            result,
+            tokens,
             vec![
                 Ok(Token::LParen),
                 Ok(Token::Symbol("+".to_string())),
@@ -258,8 +290,31 @@ mod tests {
     }
 
     #[test]
-    fn test_void() {
-        let result = lex("");
-        assert_eq!(result, vec![]);
+    fn lex_void() {
+        let lexer = Lexer::new("");
+        let tokens: Vec<_> = lexer.collect();
+        assert_eq!(tokens, vec![]);
+    }
+
+    #[test]
+    fn lex_two_parens() {
+        let lexer = Lexer::new("(define pi 314)
+                                                    (+ pi 1)");
+        let tokens: Vec<_> = lexer.collect();
+        assert_eq!(
+            tokens,
+            vec![
+                Ok(Token::LParen),
+                Ok(Token::Symbol("define".to_string())),
+                Ok(Token::Symbol("pi".to_string())),
+                Ok(Token::Integer(314)),
+                Ok(Token::RParen),
+                Ok(Token::LParen), 
+                Ok(Token::Symbol("+".to_string())), 
+                Ok(Token::Symbol("pi".to_string())), 
+                Ok(Token::Integer(1)), 
+                Ok(Token::RParen)
+            ]
+        );
     }
 }

@@ -2,7 +2,7 @@ use crate::{
     ast::{Expr, Procedure},
     debug,
     environment::EnvRef,
-    lexer::lex,
+    lexer::Lexer,
     parser::parse,
 };
 
@@ -26,7 +26,8 @@ impl std::fmt::Display for EvalError {
 pub type EvalResult = Result<Expr, EvalError>;
 
 pub fn eval(source: &str, env: &mut EnvRef) -> EvalResult {
-    let tokens = lex(source);
+    let lexer = Lexer::new(source);
+    let tokens: Vec<_> = lexer.collect();
     match parse(&tokens) {
         Ok((expr, _)) => eval_expr(&expr, env),
         Err(err) => Err(EvalError::ParseError(err.to_string())),
