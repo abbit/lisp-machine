@@ -17,7 +17,7 @@ pub enum Expr {
 }
 
 pub trait Procedure {
-    fn apply(&self, args: &Vec<Expr>, env: &mut EnvRef) -> EvalResult;
+    fn apply(&self, args: &[Expr], env: &mut EnvRef) -> EvalResult;
 }
 
 #[derive(Debug, PartialEq, Clone)]
@@ -33,7 +33,7 @@ pub enum ProcedureType {
 }
 
 impl ProcedureData {
-    pub fn new_atomic(name: String, procedure: fn(&Vec<Expr>, &mut EnvRef) -> EvalResult) -> Self {
+    pub fn new_atomic(name: String, procedure: fn(&[Expr], &mut EnvRef) -> EvalResult) -> Self {
         ProcedureData {
             name: Some(name),
             data: ProcedureType::Atomic(AtomicProcedure(procedure)),
@@ -58,7 +58,7 @@ impl ProcedureData {
 }
 
 impl Procedure for ProcedureData {
-    fn apply(&self, args: &Vec<Expr>, env: &mut EnvRef) -> EvalResult {
+    fn apply(&self, args: &[Expr], env: &mut EnvRef) -> EvalResult {
         match &self.data {
             ProcedureType::Atomic(primitive) => primitive.apply(args, env),
             ProcedureType::Compound(user_defined) => user_defined.apply(args, env),
@@ -80,10 +80,10 @@ impl fmt::Display for ProcedureData {
 }
 
 #[derive(Debug, PartialEq, Clone)]
-pub struct AtomicProcedure(fn(&Vec<Expr>, &mut EnvRef) -> EvalResult);
+pub struct AtomicProcedure(fn(&[Expr], &mut EnvRef) -> EvalResult);
 
 impl Procedure for AtomicProcedure {
-    fn apply(&self, args: &Vec<Expr>, env: &mut EnvRef) -> EvalResult {
+    fn apply(&self, args: &[Expr], env: &mut EnvRef) -> EvalResult {
         (self.0)(args, env)
     }
 }
@@ -96,7 +96,7 @@ pub struct CompoundProcedure {
 }
 
 impl Procedure for CompoundProcedure {
-    fn apply(&self, args: &Vec<Expr>, args_env: &mut EnvRef) -> EvalResult {
+    fn apply(&self, args: &[Expr], args_env: &mut EnvRef) -> EvalResult {
         let mut eval_env = self.env.clone().extend();
 
         for (i, param) in self.params.iter().enumerate() {

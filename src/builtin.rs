@@ -12,7 +12,7 @@ pub enum ModifyEnv {
     Set,
 }
 
-fn modify_env(args: &Vec<Expr>, env: &mut EnvRef, mod_env: ModifyEnv) -> EvalResult {
+fn modify_env(args: &[Expr], env: &mut EnvRef, mod_env: ModifyEnv) -> EvalResult {
     if args.len() != 2 {
         return Err(EvalError::RuntimeError(format!(
             "expected 2 arguments for define, got {}",
@@ -38,11 +38,11 @@ fn modify_env(args: &Vec<Expr>, env: &mut EnvRef, mod_env: ModifyEnv) -> EvalRes
 
     match mod_env_result {
         Ok(_) => Ok(Expr::Void),
-        Err(err) => Err(EvalError::RuntimeError(format!("{}", err))),
+        Err(err) => Err(EvalError::RuntimeError(err.to_string())),
     }
 }
 
-fn define_procedure(args: &Vec<Expr>, env: &mut EnvRef) -> EvalResult {
+fn define_procedure(args: &[Expr], env: &mut EnvRef) -> EvalResult {
     debug!("defining procedure: {:?}", args);
 
     let name_and_params = match args.get(0) {
@@ -93,11 +93,11 @@ fn define_procedure(args: &Vec<Expr>, env: &mut EnvRef) -> EvalResult {
 
     match env.add(name, procedure) {
         Ok(_) => Ok(Expr::Void),
-        Err(err) => Err(EvalError::RuntimeError(format!("{}", err))),
+        Err(err) => Err(EvalError::RuntimeError(err.to_string())),
     }
 }
 
-pub fn define(args: &Vec<Expr>, env: &mut EnvRef) -> EvalResult {
+pub fn define(args: &[Expr], env: &mut EnvRef) -> EvalResult {
     match args.get(0) {
         // define a variable
         Some(Expr::Symbol(_)) => modify_env(args, env, ModifyEnv::Add),
@@ -109,11 +109,11 @@ pub fn define(args: &Vec<Expr>, env: &mut EnvRef) -> EvalResult {
     }
 }
 
-pub fn set(args: &Vec<Expr>, env: &mut EnvRef) -> EvalResult {
+pub fn set(args: &[Expr], env: &mut EnvRef) -> EvalResult {
     modify_env(args, env, ModifyEnv::Set)
 }
 
-pub fn lambda(list: &Vec<Expr>, env: &mut EnvRef) -> EvalResult {
+pub fn lambda(list: &[Expr], env: &mut EnvRef) -> EvalResult {
     let params = match list.get(0) {
         Some(Expr::List(params)) => params
             .iter()
@@ -146,12 +146,12 @@ pub fn lambda(list: &Vec<Expr>, env: &mut EnvRef) -> EvalResult {
     Ok(procedure)
 }
 
-pub fn begin(args: &Vec<Expr>, env: &mut EnvRef) -> EvalResult {
+pub fn begin(args: &[Expr], env: &mut EnvRef) -> EvalResult {
     args.iter()
         .try_fold(Expr::Void, |_, expr| eval_expr(expr, env))
 }
 
-pub fn list(args: &Vec<Expr>, env: &mut EnvRef) -> EvalResult {
+pub fn list(args: &[Expr], env: &mut EnvRef) -> EvalResult {
     let list = args
         .iter()
         .map(|expr| eval_expr(expr, env))
@@ -160,7 +160,7 @@ pub fn list(args: &Vec<Expr>, env: &mut EnvRef) -> EvalResult {
     Ok(Expr::List(list))
 }
 
-pub fn apply(args: &Vec<Expr>, env: &mut EnvRef) -> EvalResult {
+pub fn apply(args: &[Expr], env: &mut EnvRef) -> EvalResult {
     let operator = args.get(0).ok_or(EvalError::RuntimeError(
         "expected procedure as first argument for apply".to_string(),
     ))?;
@@ -192,7 +192,7 @@ pub fn apply(args: &Vec<Expr>, env: &mut EnvRef) -> EvalResult {
 }
 
 fn binary_op(
-    args: &Vec<Expr>,
+    args: &[Expr],
     env: &mut EnvRef,
     op: fn((Expr, Expr), &mut EnvRef) -> EvalResult,
     first_arg_default: Option<&Expr>,
@@ -217,7 +217,7 @@ fn binary_op(
     })
 }
 
-pub fn add(args: &Vec<Expr>, env: &mut EnvRef) -> EvalResult {
+pub fn add(args: &[Expr], env: &mut EnvRef) -> EvalResult {
     binary_op(
         args,
         env,
@@ -236,7 +236,7 @@ pub fn add(args: &Vec<Expr>, env: &mut EnvRef) -> EvalResult {
     )
 }
 
-pub fn sub(args: &Vec<Expr>, env: &mut EnvRef) -> EvalResult {
+pub fn sub(args: &[Expr], env: &mut EnvRef) -> EvalResult {
     binary_op(
         args,
         env,
@@ -252,7 +252,7 @@ pub fn sub(args: &Vec<Expr>, env: &mut EnvRef) -> EvalResult {
     )
 }
 
-pub fn mult(args: &Vec<Expr>, env: &mut EnvRef) -> EvalResult {
+pub fn mult(args: &[Expr], env: &mut EnvRef) -> EvalResult {
     binary_op(
         args,
         env,
@@ -268,7 +268,7 @@ pub fn mult(args: &Vec<Expr>, env: &mut EnvRef) -> EvalResult {
     )
 }
 
-pub fn divide(args: &Vec<Expr>, env: &mut EnvRef) -> EvalResult {
+pub fn divide(args: &[Expr], env: &mut EnvRef) -> EvalResult {
     binary_op(
         args,
         env,
@@ -284,6 +284,6 @@ pub fn divide(args: &Vec<Expr>, env: &mut EnvRef) -> EvalResult {
     )
 }
 
-pub fn exit(_: &Vec<Expr>, _: &mut EnvRef) -> EvalResult {
+pub fn exit(_: &[Expr], _: &mut EnvRef) -> EvalResult {
     std::process::exit(0);
 }

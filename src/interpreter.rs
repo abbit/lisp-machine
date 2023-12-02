@@ -46,7 +46,7 @@ pub fn eval_expr(expr: &Expr, env: &mut EnvRef) -> EvalResult {
             // evaluate the first expression in the list
             let operator = eval_expr(&list[0], env)?;
             // collect the remaining expressions in the list
-            let operands = list.iter().skip(1).map(|expr| expr.clone()).collect();
+            let operands: Vec<_> = list.iter().skip(1).cloned().collect();
 
             eval_call(&operator, &operands, env)
         }
@@ -68,7 +68,7 @@ fn eval_symbol(symbol: &str, env: &mut EnvRef) -> EvalResult {
     }
 }
 
-fn eval_call(operator: &Expr, args: &Vec<Expr>, env: &mut EnvRef) -> EvalResult {
+fn eval_call(operator: &Expr, args: &[Expr], env: &mut EnvRef) -> EvalResult {
     debug!("eval_call: {} with args {:?}", operator, args);
 
     let procedure = match operator {
@@ -83,7 +83,7 @@ fn eval_call(operator: &Expr, args: &Vec<Expr>, env: &mut EnvRef) -> EvalResult 
     match procedure {
         Expr::Procedure(proc) => {
             debug!("calling {} with args {:?}", proc, args);
-            proc.apply(&args, env)
+            proc.apply(args, env)
         }
         _ => Err(EvalError::RuntimeError(
             "expected procedure in call".to_string(),

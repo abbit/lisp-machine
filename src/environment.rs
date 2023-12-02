@@ -58,7 +58,7 @@ pub struct EnvRef(Rc<RefCell<Env>>);
 macro_rules! new_environment(
     { $($key:expr => $value:expr),* } => {
         {
-            let mut env = crate::environment::EnvRef::new();
+            let mut env = crate::environment::EnvRef::default();
             $(
                 env.add($key, Expr::Procedure(ProcedureData::new_atomic($key.to_string(), $value))).unwrap();
             )*
@@ -86,6 +86,12 @@ impl EnvRef {
 
     pub fn set(&mut self, name: &str, val: Expr) -> Result<(), String> {
         self.0.borrow_mut().set(name, val)
+    }
+}
+
+impl Default for EnvRef {
+    fn default() -> Self {
+        EnvRef::new()
     }
 }
 
