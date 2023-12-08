@@ -83,7 +83,7 @@ impl<'a> Iterator for Lexer<'a> {
                     _ => finalize_token(&mut self.chars),
                 };
 
-                if let Err(_) = &result {
+                if result.is_err() {
                     self.has_error = true;
                 }
 
@@ -123,18 +123,18 @@ fn finalize_token(chars: &mut Peekable<Chars>) -> LexResult {
             chars.next();
             continue;
         }
-        if is_string || (!is_string && !ch.is_whitespace()) {
+        if is_string || !ch.is_whitespace() {
             token_string.push(ch);
         }
         chars.next();
     }
-    if is_string {
-        return Err(LexicalError::UnclosedString);
+    if is_string { 
+        Err(LexicalError::UnclosedString)
     } else {
         if token_string
             .trim_start_matches('(')
             .trim_end_matches(')')
-            .contains("\"")
+            .contains('"')
         {
             return Err(LexicalError::UnclosedString);
         }
@@ -143,7 +143,7 @@ fn finalize_token(chars: &mut Peekable<Chars>) -> LexResult {
             .parse::<i64>()
             .map(Token::Integer)
             .or_else(|_| token_string.parse::<f64>().map(Token::Float))
-            .unwrap_or_else(|_| Token::Symbol(token_string)))
+            .unwrap_or(Token::Symbol(token_string)))
     }
 }
 

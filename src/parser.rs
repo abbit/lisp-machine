@@ -17,9 +17,11 @@ impl fmt::Display for ParseError {
     }
 }
 
+pub type ParseResult<'a> = Result<(Expr, &'a [Result<Token, LexicalError>]), ParseError>;
+
 pub fn parse(
     tokens: &[Result<Token, LexicalError>],
-) -> Result<(Expr, &[Result<Token, LexicalError>]), ParseError> {
+) -> ParseResult {
     if tokens.is_empty() {
         return Ok((Expr::Void, tokens));
     }
