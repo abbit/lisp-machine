@@ -10,6 +10,8 @@ pub enum Token {
     LParen,
     RParen,
     Quote,
+    Boolean(bool),
+    String(String),
 }
 
 #[derive(PartialEq, Debug)]
@@ -54,7 +56,7 @@ impl<'a> Iterator for Lexer<'a> {
         if self.has_error {
             return None;
         }
-
+    
         match self.chars.peek() {
             Some(&ch) => {
                 let result = match ch {
@@ -82,68 +84,66 @@ impl<'a> Iterator for Lexer<'a> {
                     }
                     _ => finalize_token(&mut self.chars),
                 };
-
                 if result.is_err() {
                     self.has_error = true;
                 }
-
                 Some(result)
             }
-            None => {
-                if self.open_paren_count > 0 && !self.has_error {
+            None => match (self.open_paren_count > 0, self.open_paren_count < 0) {
+                (true, _) => {
                     self.has_error = true;
                     Some(Err(LexicalError::UnexpectedEOF))
-                } else {
-                    None
                 }
-            }
+                (_, true) => {
+                    self.has_error = true;
+                    Some(Err(LexicalError::UnexpectedRParen))
+                }
+                _ => None,
+            },
         }
     }
+    
 }
 
 fn finalize_token(chars: &mut Peekable<Chars>) -> LexResult {
     let mut token_string = String::new();
     let mut is_string = false;
+
     while let Some(&ch) = chars.peek() {
-        if ch == '"' {
-            chars.next();
-            if is_string {
-                is_string = false;
-                break;
-            } else {
-                is_string = true;
-                continue;
+        match ch {
+            '"' => {
+                if is_string {
+                    chars.next();
+                    return Ok(Token::String(token_string));
+                } else {
+                    is_string = true;
+                }
             }
-        }
-        if !is_string && (ch.is_whitespace() || ch == '(' || ch == ')' || ch == '\'') {
-            break;
-        }
-        if is_string && ch.is_whitespace() {
-            token_string.push(ch);
-            chars.next();
-            continue;
-        }
-        if is_string || !ch.is_whitespace() {
-            token_string.push(ch);
+            _ if is_string => {
+                token_string.push(ch);
+            }
+            _ if ch.is_whitespace() || ch == '(' || ch == ')' || ch == '\'' => {
+                break;
+            }
+            _ => {
+                token_string.push(ch);
+            }
         }
         chars.next();
     }
-    if is_string { 
+
+    if is_string {
         Err(LexicalError::UnclosedString)
     } else {
-        if token_string
-            .trim_start_matches('(')
-            .trim_end_matches(')')
-            .contains('"')
-        {
-            return Err(LexicalError::UnclosedString);
+        match token_string.trim() {
+            "#t" => Ok(Token::Boolean(true)),
+            "#f" => Ok(Token::Boolean(false)),
+            _ => Ok(token_string
+                .parse::<i64>()
+                .map(Token::Integer)
+                .or_else(|_| token_string.parse::<f64>().map(Token::Float))
+                .unwrap_or(Token::Symbol(token_string))),
         }
-
-        Ok(token_string
-            .parse::<i64>()
-            .map(Token::Integer)
-            .or_else(|_| token_string.parse::<f64>().map(Token::Float))
-            .unwrap_or(Token::Symbol(token_string)))
     }
 }
 
@@ -252,7 +252,7 @@ mod tests {
             vec![
                 Ok(Token::LParen),
                 Ok(Token::Symbol("display".to_string())),
-                Ok(Token::Symbol("Hello, world!".to_string())),
+                Ok(Token::String("Hello, world!".to_string())),
                 Ok(Token::RParen),
             ]
         );
@@ -298,8 +298,10 @@ mod tests {
 
     #[test]
     fn lex_two_parens() {
-        let lexer = Lexer::new("(define pi 314)
-                                                    (+ pi 1)");
+        let lexer = Lexer::new(
+            "(define pi 314)
+                                                    (+ pi 1)",
+        );
         let tokens: Vec<_> = lexer.collect();
         assert_eq!(
             tokens,
@@ -309,11 +311,26 @@ mod tests {
                 Ok(Token::Symbol("pi".to_string())),
                 Ok(Token::Integer(314)),
                 Ok(Token::RParen),
-                Ok(Token::LParen), 
-                Ok(Token::Symbol("+".to_string())), 
-                Ok(Token::Symbol("pi".to_string())), 
-                Ok(Token::Integer(1)), 
+                Ok(Token::LParen),
+                Ok(Token::Symbol("+".to_string())),
+                Ok(Token::Symbol("pi".to_string())),
+                Ok(Token::Integer(1)),
                 Ok(Token::RParen)
+            ]
+        );
+    }
+
+    #[test]
+    fn lex_boolean() {
+        let lexer = Lexer::new("(not #f)");
+        let tokens: Vec<_> = lexer.collect();
+        assert_eq!(
+            tokens,
+            vec![
+                Ok(Token::LParen),
+                Ok(Token::Symbol("not".to_string())),
+                Ok(Token::Boolean(false)),
+                Ok(Token::RParen),
             ]
         );
     }

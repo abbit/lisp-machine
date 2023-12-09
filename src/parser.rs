@@ -19,9 +19,7 @@ impl fmt::Display for ParseError {
 
 pub type ParseResult<'a> = Result<(Expr, &'a [Result<Token, LexicalError>]), ParseError>;
 
-pub fn parse(
-    tokens: &[Result<Token, LexicalError>],
-) -> ParseResult {
+pub fn parse(tokens: &[Result<Token, LexicalError>]) -> ParseResult {
     if tokens.is_empty() {
         return Ok((Expr::Void, tokens));
     }
@@ -30,6 +28,7 @@ pub fn parse(
         [Ok(Token::Integer(i))] => Ok((Expr::Integer(*i), rest)),
         [Ok(Token::Float(f))] => Ok((Expr::Float(*f), rest)),
         [Ok(Token::Symbol(s))] => Ok((Expr::Symbol(s.clone()), rest)),
+        [Ok(Token::String(s))] => Ok((Expr::String(s.clone()), rest)),
         [Ok(Token::LParen)] => {
             let mut sub_exprs = vec![];
             let mut rem = rest;
@@ -48,6 +47,7 @@ pub fn parse(
             let (expr, remaining) = parse(rest)?;
             Ok((Expr::Quote(Box::new(expr)), remaining))
         }
+        [Ok(Token::Boolean(b))] => Ok((Expr::Boolean(*b), rest)), // Handle Boolean literals
         [Err(LexicalError::UnexpectedEOF)] => {
             Err(ParseError::LexError(LexicalError::UnexpectedEOF))
         }
@@ -157,7 +157,7 @@ mod tests {
             parsed,
             Expr::List(vec![
                 Expr::Symbol("display".to_string()),
-                Expr::Symbol("Hello, world!".to_string()),
+                Expr::String("Hello, world!".to_string()),
             ])
         );
     }
@@ -202,8 +202,10 @@ mod tests {
 
     #[test]
     fn parse_two_parens() {
-        let lexer = Lexer::new("(define pi 314)
-                                                    (+ pi 1)");
+        let lexer = Lexer::new(
+            "(define pi 314)
+                                                    (+ pi 1)",
+        );
         let tokens: Vec<_> = lexer.collect();
         let (parsed1, remaining1) = parse(&tokens).unwrap();
         let (parsed2, _) = parse(remaining1).unwrap();
@@ -224,5 +226,18 @@ mod tests {
             ])
         );
     }
-    
+
+    #[test]
+    fn parse_boolean() {
+        let lexer = Lexer::new("(not #t)");
+        let tokens: Vec<_> = lexer.collect();
+        let parsed = parse(&tokens).unwrap().0;
+        assert_eq!(
+            parsed,
+            Expr::List(vec![
+                Expr::Symbol("not".to_string()),
+                Expr::Boolean(true),
+            ])
+        );
+    }
 }

@@ -10,10 +10,12 @@ pub enum Expr {
     Integer(i64),
     Float(f64),
     Symbol(String),
+    String(String),
     List(Vec<Expr>),
     Quote(Box<Expr>),
     Void,
     Procedure(ProcedureData),
+    Boolean(bool)
 }
 
 pub trait Procedure {
@@ -122,7 +124,9 @@ impl fmt::Display for Expr {
             Expr::Integer(int) => write!(f, "{}", int),
             Expr::Float(float) => write!(f, "{}", float),
             Expr::Symbol(symbol) => write!(f, "{}", symbol),
+            Expr::String(string) => write!(f, "{}", string),
             Expr::Procedure(proc) => write!(f, "{}", proc),
+            Expr::Boolean(bool) => write!(f, "{}", bool),
             Expr::List(list) => {
                 write!(f, "(")?;
                 for expr in list[..list.len() - 1].iter() {

@@ -32,7 +32,7 @@
 
 - [x] `boolean` (#t, #f, #true, #false)
 - [x] `number` (integer, float)
-- [ ] `string`
+- [x] `string`
 - [x] `symbol`
 - [ ] `list`
 - [ ] `pair` (`improper list`)

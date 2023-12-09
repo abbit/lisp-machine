@@ -42,6 +42,8 @@ pub fn eval_expr(expr: &Expr, env: &mut EnvRef) -> EvalResult {
         Expr::Integer(int) => Ok(Expr::Integer(*int)),
         Expr::Float(float) => Ok(Expr::Float(*float)),
         Expr::Symbol(symbol) => eval_symbol(symbol, env),
+        Expr::String(string) => eval_symbol(string, env),
+        Expr::Boolean(bool) => Ok(Expr::Boolean(*bool)),
         Expr::List(list) => {
             // evaluate the first expression in the list
             let operator = eval_expr(&list[0], env)?;
