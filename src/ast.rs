@@ -11,6 +11,7 @@ pub enum Expr {
     Float(f64),
     Symbol(String),
     String(String),
+    Char(char),
     List(Vec<Expr>),
     Quote(Box<Expr>),
     Void,
@@ -125,6 +126,7 @@ impl fmt::Display for Expr {
             Expr::Float(float) => write!(f, "{}", float),
             Expr::Symbol(symbol) => write!(f, "{}", symbol),
             Expr::String(string) => write!(f, "{}", string),
+            Expr::Char(char) => write!(f, "{}", char),
             Expr::Procedure(proc) => write!(f, "{}", proc),
             Expr::Boolean(bool) => write!(f, "{}", bool),
             Expr::List(list) => {

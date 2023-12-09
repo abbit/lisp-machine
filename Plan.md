@@ -36,7 +36,7 @@
 - [x] `symbol`
 - [ ] `list`
 - [ ] `pair` (`improper list`)
-- [ ] `char`
+- [x] `char`
 - [ ] `port`
 - [x] `procedure`
 

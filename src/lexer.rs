@@ -12,6 +12,7 @@ pub enum Token {
     Quote,
     Boolean(bool),
     String(String),
+    Char(char),
 }
 
 #[derive(PartialEq, Debug)]
@@ -138,6 +139,9 @@ fn finalize_token(chars: &mut Peekable<Chars>) -> LexResult {
         match token_string.trim() {
             "#t" => Ok(Token::Boolean(true)),
             "#f" => Ok(Token::Boolean(false)),
+            _ if token_string.starts_with("#\\") && token_string.len() == 3 => {
+                Ok(Token::Char(token_string.chars().nth(2).unwrap()))
+            }
             _ => Ok(token_string
                 .parse::<i64>()
                 .map(Token::Integer)
@@ -330,6 +334,21 @@ mod tests {
                 Ok(Token::LParen),
                 Ok(Token::Symbol("not".to_string())),
                 Ok(Token::Boolean(false)),
+                Ok(Token::RParen),
+            ]
+        );
+    }
+
+    #[test]
+    fn lex_char() {
+        let lexer = Lexer::new("(not #\\e)");
+        let tokens: Vec<_> = lexer.collect();
+        assert_eq!(
+            tokens,
+            vec![
+                Ok(Token::LParen),
+                Ok(Token::Symbol("not".to_string())),
+                Ok(Token::Char('e')),
                 Ok(Token::RParen),
             ]
         );

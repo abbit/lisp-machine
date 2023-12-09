@@ -43,6 +43,7 @@ pub fn eval_expr(expr: &Expr, env: &mut EnvRef) -> EvalResult {
         Expr::Float(float) => Ok(Expr::Float(*float)),
         Expr::Symbol(symbol) => eval_symbol(symbol, env),
         Expr::String(string) => eval_symbol(string, env),
+        Expr::Char(char) => Ok(Expr::Char(*char)),
         Expr::Boolean(bool) => Ok(Expr::Boolean(*bool)),
         Expr::List(list) => {
             // evaluate the first expression in the list

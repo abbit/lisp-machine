@@ -29,6 +29,7 @@ pub fn parse(tokens: &[Result<Token, LexicalError>]) -> ParseResult {
         [Ok(Token::Float(f))] => Ok((Expr::Float(*f), rest)),
         [Ok(Token::Symbol(s))] => Ok((Expr::Symbol(s.clone()), rest)),
         [Ok(Token::String(s))] => Ok((Expr::String(s.clone()), rest)),
+        [Ok(Token::Char(c))] => Ok((Expr::Char(*c), rest)),
         [Ok(Token::LParen)] => {
             let mut sub_exprs = vec![];
             let mut rem = rest;
@@ -237,6 +238,20 @@ mod tests {
             Expr::List(vec![
                 Expr::Symbol("not".to_string()),
                 Expr::Boolean(true),
+            ])
+        );
+    }
+
+    #[test]
+    fn parse_char() {
+        let lexer = Lexer::new("(not #\\e)");
+        let tokens: Vec<_> = lexer.collect();
+        let parsed = parse(&tokens).unwrap().0;
+        assert_eq!(
+            parsed,
+            Expr::List(vec![
+                Expr::Symbol("not".to_string()),
+                Expr::Char('e'),
             ])
         );
     }
