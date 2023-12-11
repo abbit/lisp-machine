@@ -46,7 +46,10 @@ pub fn parse(tokens: &[Result<Token, LexicalError>]) -> ParseResult {
         }
         [Ok(Token::Quote)] => {
             let (expr, remaining) = parse(rest)?;
-            Ok((Expr::Quote(Box::new(expr)), remaining))
+            Ok((
+                Expr::List(vec![Expr::Symbol("quote".to_string()), expr]),
+                remaining,
+            ))
         }
         [Ok(Token::Boolean(b))] => Ok((Expr::Boolean(*b), rest)),
         [Err(LexicalError::UnexpectedEOF)] => {
@@ -91,11 +94,10 @@ mod tests {
         let parsed = parse(&tokens).unwrap().0;
         assert_eq!(
             parsed,
-            Expr::Quote(Box::new(Expr::List(vec![
-                Expr::Integer(1),
-                Expr::Integer(2),
-                Expr::Integer(3),
-            ])))
+            Expr::List(vec![
+                Expr::Symbol("quote".to_string()),
+                Expr::List(vec![Expr::Integer(1), Expr::Integer(2), Expr::Integer(3)]),
+            ])
         );
     }
 

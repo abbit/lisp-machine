@@ -53,7 +53,6 @@ pub fn eval_expr(expr: &Expr, env: &mut EnvRef) -> EvalResult {
 
             eval_call(&operator, &operands, env)
         }
-        Expr::Quote(_) => todo!(),
     }
 }
 

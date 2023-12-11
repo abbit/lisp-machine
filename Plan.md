@@ -34,7 +34,7 @@
 - [x] `number` (integer, float)
 - [x] `string`
 - [x] `symbol`
-- [ ] `list`
+- [x] `list`
 - [ ] `pair` (`improper list`)
 - [x] `char`
 - [ ] `port`

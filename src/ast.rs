@@ -13,7 +13,6 @@ pub enum Expr {
     String(String),
     Char(char),
     List(Vec<Expr>),
-    Quote(Box<Expr>),
     Void,
     Procedure(ProcedureData),
     Boolean(bool)
@@ -137,9 +136,6 @@ impl fmt::Display for Expr {
                 // write last element without trailing space
                 write!(f, "{}", list.last().unwrap())?;
                 write!(f, ")")
-            }
-            Expr::Quote(expr) => {
-                write!(f, "'{}", expr)
             }
         }
     }
