@@ -48,7 +48,7 @@ pub fn parse(tokens: &[Result<Token, LexicalError>]) -> ParseResult {
             let (expr, remaining) = parse(rest)?;
             Ok((Expr::Quote(Box::new(expr)), remaining))
         }
-        [Ok(Token::Boolean(b))] => Ok((Expr::Boolean(*b), rest)), // Handle Boolean literals
+        [Ok(Token::Boolean(b))] => Ok((Expr::Boolean(*b), rest)),
         [Err(LexicalError::UnexpectedEOF)] => {
             Err(ParseError::LexError(LexicalError::UnexpectedEOF))
         }

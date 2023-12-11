@@ -20,6 +20,7 @@ pub enum LexicalError {
     UnexpectedEOF,
     UnexpectedRParen,
     UnclosedString,
+    UnexpectedToken,
 }
 
 impl fmt::Display for LexicalError {
@@ -28,6 +29,7 @@ impl fmt::Display for LexicalError {
             LexicalError::UnexpectedEOF => write!(f, "unexpected EOF"),
             LexicalError::UnexpectedRParen => write!(f, "unexpected ')'"),
             LexicalError::UnclosedString => write!(f, "unclosed string"),
+            LexicalError::UnexpectedToken => write!(f, "unexpected token"),
         }
     }
 }
@@ -142,12 +144,31 @@ fn finalize_token(chars: &mut Peekable<Chars>) -> LexResult {
             _ if token_string.starts_with("#\\") && token_string.len() == 3 => {
                 Ok(Token::Char(token_string.chars().nth(2).unwrap()))
             }
+            _ if token_string.starts_with("#\\") && token_string.len() > 3 => {
+                handle_char_literal(&token_string)
+            }
             _ => Ok(token_string
                 .parse::<i64>()
                 .map(Token::Integer)
                 .or_else(|_| token_string.parse::<f64>().map(Token::Float))
                 .unwrap_or(Token::Symbol(token_string))),
         }
+    }
+}
+
+
+fn handle_char_literal(symbol: &str) -> LexResult {
+    match symbol {
+        "#\\alarm" => Ok(Token::Char('\x07')),
+        "#\\backspace" => Ok(Token::Char('\x08')),
+        "#\\delete" => Ok(Token::Char('\x7F')),
+        "#\\escape" => Ok(Token::Char('\x1B')),
+        "#\\newline" => Ok(Token::Char('\n')),
+        "#\\null" => Ok(Token::Char('\0')),
+        "#\\return" => Ok(Token::Char('\r')),
+        "#\\space" => Ok(Token::Char(' ')),
+        "#\\tab" => Ok(Token::Char('\t')),
+        _ => Err(LexicalError::UnexpectedToken),
     }
 }
 
@@ -349,6 +370,21 @@ mod tests {
                 Ok(Token::LParen),
                 Ok(Token::Symbol("not".to_string())),
                 Ok(Token::Char('e')),
+                Ok(Token::RParen),
+            ]
+        );
+    }
+
+    #[test]
+    fn lex_char_literal() {
+        let lexer = Lexer::new("(not #\\alarm)");
+        let tokens: Vec<_> = lexer.collect();
+        assert_eq!(
+            tokens,
+            vec![
+                Ok(Token::LParen),
+                Ok(Token::Symbol("not".to_string())),
+                Ok(Token::Char('\x07')),
                 Ok(Token::RParen),
             ]
         );
