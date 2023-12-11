@@ -13,6 +13,7 @@ pub enum Token {
     Boolean(bool),
     String(String),
     Char(char),
+    Dot // " . "
 }
 
 #[derive(PartialEq, Debug)]
@@ -20,7 +21,7 @@ pub enum LexicalError {
     UnexpectedEOF,
     UnexpectedRParen,
     UnclosedString,
-    UnexpectedToken,
+    UnexpectedChar,
 }
 
 impl fmt::Display for LexicalError {
@@ -29,7 +30,7 @@ impl fmt::Display for LexicalError {
             LexicalError::UnexpectedEOF => write!(f, "unexpected EOF"),
             LexicalError::UnexpectedRParen => write!(f, "unexpected ')'"),
             LexicalError::UnclosedString => write!(f, "unclosed string"),
-            LexicalError::UnexpectedToken => write!(f, "unexpected token"),
+            LexicalError::UnexpectedChar => write!(f, "unexpected char"),
         }
     }
 }
@@ -168,7 +169,7 @@ fn handle_char_literal(symbol: &str) -> LexResult {
         "#\\return" => Ok(Token::Char('\r')),
         "#\\space" => Ok(Token::Char(' ')),
         "#\\tab" => Ok(Token::Char('\t')),
-        _ => Err(LexicalError::UnexpectedToken),
+        _ => Err(LexicalError::UnexpectedChar),
     }
 }
 
