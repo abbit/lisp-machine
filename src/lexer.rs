@@ -123,6 +123,10 @@ fn finalize_token(chars: &mut Peekable<Chars>) -> LexResult {
                     is_string = true;
                 }
             }
+            '.' => {
+                chars.next();
+                return Ok(Token::Dot);
+            }
             _ if is_string => {
                 token_string.push(ch);
             }
@@ -156,6 +160,8 @@ fn finalize_token(chars: &mut Peekable<Chars>) -> LexResult {
         }
     }
 }
+
+
 
 
 fn handle_char_literal(symbol: &str) -> LexResult {
@@ -387,6 +393,23 @@ mod tests {
                 Ok(Token::Symbol("not".to_string())),
                 Ok(Token::Char('\x07')),
                 Ok(Token::RParen),
+            ]
+        );
+    }
+
+    #[test]
+    fn lex_dot() {
+        let lexer = Lexer::new("'(3 . 4)");
+        let tokens: Vec<_> = lexer.collect();
+        assert_eq!(
+            tokens,
+            vec![
+                Ok(Token::Quote),
+                Ok(Token::LParen),
+                Ok(Token::Integer(3)),
+                Ok(Token::Dot),
+                Ok(Token::Integer(4)),
+                Ok(Token::RParen)
             ]
         );
     }
