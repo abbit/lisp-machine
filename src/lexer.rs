@@ -78,6 +78,13 @@ impl<'a> Iterator for Lexer<'a> {
                             Ok(Token::RParen)
                         }
                     }
+                    '.' => match self.chars.clone().nth(1) {
+                        Some(next_ch) if next_ch.is_whitespace() => {
+                            self.chars.next();
+                            Ok(Token::Dot)
+                        }
+                        _ => finalize_token(&mut self.chars),
+                    },
                     '\'' => {
                         self.chars.next();
                         Ok(Token::Quote)
@@ -123,10 +130,6 @@ fn finalize_token(chars: &mut Peekable<Chars>) -> LexResult {
                     is_string = true;
                 }
             }
-            '.' => {
-                chars.next();
-                return Ok(Token::Dot);
-            }
             _ if is_string => {
                 token_string.push(ch);
             }
@@ -160,6 +163,7 @@ fn finalize_token(chars: &mut Peekable<Chars>) -> LexResult {
         }
     }
 }
+
 
 
 
