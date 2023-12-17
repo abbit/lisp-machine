@@ -4,6 +4,7 @@ use std::str::Chars;
 
 #[derive(PartialEq, Debug)]
 pub enum Token {
+    Comment(String),
     Integer(i64),
     Float(f64),
     Symbol(String),
@@ -89,6 +90,11 @@ impl<'a> Iterator for Lexer<'a> {
                         self.chars.next();
                         Ok(Token::Quote)
                     }
+                    ';' => {
+                        self.chars.next();
+                        let comment = consume_until_newline(&mut self.chars);
+                        Ok(Token::Comment(comment))
+                    }
                     _ if ch.is_whitespace() => {
                         self.chars.next();
                         return self.next();
@@ -164,9 +170,17 @@ fn finalize_token(chars: &mut Peekable<Chars>) -> LexResult {
     }
 }
 
-
-
-
+fn consume_until_newline(chars: &mut Peekable<Chars>) -> String {
+    let mut comment = String::new();
+    while let Some(&ch) = chars.peek() {
+        if ch == '\n' {
+            break;
+        }
+        comment.push(ch);
+        chars.next();
+    }
+    comment
+}
 
 fn handle_char_literal(symbol: &str) -> LexResult {
     match symbol {
@@ -414,6 +428,20 @@ mod tests {
                 Ok(Token::Dot),
                 Ok(Token::Integer(4)),
                 Ok(Token::RParen)
+            ]
+        );
+    }
+
+    #[test]
+    fn lex_multiple_comments() {
+        let lexer = Lexer::new("; this is a comment\n; this is another comment");
+        let tokens: Vec<_> = lexer.collect();
+
+        assert_eq!(
+            tokens,
+            vec![
+                Ok(Token::Comment(" this is a comment".to_string())),
+                Ok(Token::Comment(" this is another comment".to_string())),
             ]
         );
     }
