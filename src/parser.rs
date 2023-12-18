@@ -25,6 +25,9 @@ pub fn parse(tokens: &[Result<Token, LexicalError>]) -> ParseResult {
     }
     let (item, rest) = tokens.split_at(1);
     match item {
+        [Ok(Token::Comment(_s))] => {
+            parse(rest)
+        }
         [Ok(Token::Integer(i))] => Ok((Expr::Integer(*i), rest)),
         [Ok(Token::Float(f))] => Ok((Expr::Float(*f), rest)),
         [Ok(Token::Symbol(s))] => Ok((Expr::Symbol(s.clone()), rest)),
@@ -257,4 +260,19 @@ mod tests {
             ])
         );
     }
+
+#[test]
+fn parse_comment() {
+    let lexer = Lexer::new("; this is a comment\n(+ 1 2)");
+    let tokens: Vec<_> = lexer.collect();
+    let parsed = parse(&tokens).unwrap().0;
+    assert_eq!(
+        parsed,
+        Expr::List(vec![
+            Expr::Symbol("+".to_string()),
+            Expr::Integer(1),
+            Expr::Integer(2),
+        ])
+    );
+}
 }
