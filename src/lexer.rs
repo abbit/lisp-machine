@@ -4,6 +4,7 @@ use std::str::Chars;
 
 #[derive(PartialEq, Debug)]
 pub enum Token {
+    Eof,
     Comment(String),
     Integer(i64),
     Float(f64),

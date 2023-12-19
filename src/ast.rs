@@ -1,9 +1,14 @@
 use core::fmt;
 
+use super::list::{List, ListKind};
+
 use crate::{
-    environment::EnvRef,
-    interpreter::{eval_expr, EvalError, EvalResult},
+    //environment::EnvRef,
+    //interpreter::{eval_expr, EvalError, EvalResult},
+    list::{DisplayList, ListLocation},
 };
+
+use std::collections::VecDeque;
 
 #[derive(PartialEq, Debug, Clone)]
 pub enum Expr {
@@ -12,13 +17,62 @@ pub enum Expr {
     Symbol(String),
     String(String),
     Char(char),
-    List(Vec<Expr>),
+    List(List),
     Void,
-    Procedure(ProcedureData),
+    //Procedure(ProcedureData),
     Boolean(bool)
 }
 
-pub trait Procedure {
+pub type Exprs = VecDeque<Expr>;
+
+macro_rules! exprs {
+    ($($x:expr),*) => {{
+        #[allow(unused_mut)]
+        let mut exprs = $crate::ast::Exprs::new();
+        $(
+            exprs.push_back($x);
+        )*
+        exprs
+    }};
+    ($($x:expr,)*) => (exprs![$($x),*])
+}
+pub(crate) use exprs;
+
+type ExprIntoResult<T> = Result<T, Expr>;
+
+impl Expr {
+    pub fn new_empty_list() -> Self {
+        Expr::List(List::new_proper(Exprs::new()))
+    }
+
+    pub fn new_dotted_list(list: Exprs) -> Self {
+        Expr::List(List::new_dotted(list))
+    }
+
+    pub fn new_proper_list(list: Exprs) -> Self {
+        Expr::List(List::new_proper(list))
+    }
+
+    pub fn new_list(list: Exprs, kind: ListKind) -> Self {
+        if list.is_empty() {
+            return Expr::new_empty_list();
+        }
+
+        match kind {
+            ListKind::Proper => Expr::new_proper_list(list),
+            ListKind::Dotted => Expr::new_dotted_list(list),
+        }
+    }
+
+    pub fn into_list(self) -> ExprIntoResult<List> {
+        match self {
+            Expr::List(list) => Ok(list),
+            _ => Err(self),
+        }
+    }
+}
+
+/*pub trait Procedure {
     fn apply(&self, args: &[Expr], env: &mut EnvRef) -> EvalResult;
 }
 
@@ -115,7 +169,7 @@ impl Procedure for CompoundProcedure {
 
         eval_expr(&self.body, &mut eval_env)
     }
-}
+}*/
 
 impl fmt::Display for Expr {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
@@ -126,17 +180,9 @@ impl fmt::Display for Expr {
             Expr::Symbol(symbol) => write!(f, "{}", symbol),
             Expr::String(string) => write!(f, "{}", string),
             Expr::Char(char) => write!(f, "{}", char),
-            Expr::Procedure(proc) => write!(f, "{}", proc),
+            //Expr::Procedure(proc) => write!(f, "{}", proc),
             Expr::Boolean(bool) => write!(f, "{}", bool),
-            Expr::List(list) => {
-                write!(f, "(")?;
-                for expr in list[..list.len() - 1].iter() {
-                    write!(f, "{} ", expr)?;
-                }
-                // write last element without trailing space
-                write!(f, "{}", list.last().unwrap())?;
-                write!(f, ")")
-            }
+            Expr::List(list) => list.fmt_with_location(f, ListLocation::Outer),
         }
     }
 }
