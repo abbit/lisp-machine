@@ -321,33 +321,29 @@ mod tests {
         assert_eq!(parsed, vec![Expr::Void]);
     }
 
-    /*#[test]
-    fn parse_two_parens() {
-        let lexer = Lexer::new(
-            "(define pi 314)
-                                                    (+ pi 1)",
-        );
-        let tokens: Vec<_> = lexer.collect();
-        let answer = tokens.into_iter().peekable();
-        let (parsed1, remaining1) = parse(answer).unwrap();
-        let (parsed2, _) = parse(remaining1).unwrap();
-        assert_eq!(
-            parsed1,
+    #[test]
+fn parse_two_parens() {
+    let lexer = Lexer::new(
+        "(define pi 314)
+        (+ pi 1)",
+    );
+    let tokens: Vec<_> = lexer.collect();
+    let answer1 = tokens.into_iter().peekable();
+    let parsed1 = parse(answer1).unwrap();
+    assert_eq!(
+        parsed1,
+        vec![Expr::new_proper_list(exprs![
+            Expr::Symbol("define".to_string()),
+            Expr::Symbol("pi".to_string()),
+            Expr::Integer(314),
+        ]),
             Expr::new_proper_list(exprs![
-                Expr::Symbol("define".to_string()),
-                Expr::Symbol("pi".to_string()),
-                Expr::Integer(314),
-            ])
-        );
-        assert_eq!(
-            parsed2,
-            Expr::new_proper_list(exprs![
-                Expr::Symbol("+".to_string()),
-                Expr::Symbol("pi".to_string()),
-                Expr::Integer(1),
-            ])
-        );
-    }*/
+            Expr::Symbol("+".to_string()),
+            Expr::Symbol("pi".to_string()),
+            Expr::Integer(1),]
+    )]);
+}
+
 
     #[test]
     fn parse_boolean() {
