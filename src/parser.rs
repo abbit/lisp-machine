@@ -384,4 +384,20 @@ fn parse_two_parens() {
             ])]
         );
     }
+
+    #[test]
+    fn parse_dotted_list() {
+        let lexer = Lexer::new("(f x . y)");
+        let tokens: Vec<_> = lexer.collect();
+        let answer = tokens.into_iter().peekable();
+        let parsed = parse(answer).unwrap();
+        assert_eq!(
+            parsed,
+            vec![Expr::new_dotted_list(exprs![
+                Expr::Symbol("f".to_string()),
+                Expr::Symbol("x".to_string()),
+                Expr::Symbol("y".to_string()),
+            ])]
+        );
+    }
 }
