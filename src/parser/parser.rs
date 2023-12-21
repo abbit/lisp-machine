@@ -1,4 +1,4 @@
-use super::lexer::{LexResult, LexicalError, Token};
+use super::lexer::{LexResult, Lexer, LexicalError, Token};
 use crate::expr::{exprs, Expr, Exprs, ListKind};
 use std::iter::Peekable;
 
@@ -161,6 +161,11 @@ impl<I: Iterator<Item = LexResult>> Iterator for Parser<I> {
     fn next(&mut self) -> Option<Self::Item> {
         self.parse_expr()
     }
+}
+
+pub fn parse_str(string: &str) -> Result<Exprs, ParseError> {
+    let tokens = Lexer::new(string).peekable();
+    parse(tokens)
 }
 
 fn parse<I: Iterator<Item = LexResult>>(tokens: Peekable<I>) -> Result<Exprs, ParseError> {
