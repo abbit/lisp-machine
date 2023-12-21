@@ -11,7 +11,10 @@ pub enum Token {
     Symbol(String),
     LParen,
     RParen,
-    Quote,
+    Quote,           // '
+    Quasiquote,      // `
+    Unquote,         // ,
+    UnquoteSplicing, // ,@
     Boolean(bool),
     String(String),
     Char(char),
@@ -91,6 +94,20 @@ impl<'a> Iterator for Lexer<'a> {
                         self.chars.next();
                         Ok(Token::Quote)
                     }
+                    '`' => {
+                        self.chars.next();
+                        Ok(Token::Quasiquote)
+                    }
+                    ',' => {
+                        self.chars.next();
+                        match self.chars.clone().nth(0) {
+                            Some('@') => {
+                                self.chars.next();
+                                Ok(Token::UnquoteSplicing)
+                            }
+                            _ => Ok(Token::Unquote),
+                        }
+                    }
                     ';' => {
                         self.chars.next();
                         let comment = consume_until_newline(&mut self.chars);
@@ -120,6 +137,7 @@ impl<'a> Iterator for Lexer<'a> {
             },
         }
     }
+    
     
 }
 
@@ -443,6 +461,72 @@ mod tests {
             vec![
                 Ok(Token::Comment(" this is a comment".to_string())),
                 Ok(Token::Comment(" this is another comment".to_string())),
+            ]
+        );
+    }
+
+    #[test]
+    fn lex_unquote_splicing() {
+        let lexer = Lexer::new(",@(quote (1 2 3))");
+        let tokens: Vec<_> = lexer.collect();
+
+        assert_eq!(
+            tokens,
+            vec![
+                Ok(Token::UnquoteSplicing),
+                Ok(Token::LParen),
+                Ok(Token::Symbol("quote".to_string())),
+                Ok(Token::LParen),
+                Ok(Token::Integer(1)),
+                Ok(Token::Integer(2)),
+                Ok(Token::Integer(3)),
+                Ok(Token::RParen),
+                Ok(Token::RParen),
+            ]
+        );
+    }
+
+    #[test]
+    fn lex_unquote() {
+        let lexer = Lexer::new(",(quote (1 2 3))");
+        let tokens: Vec<_> = lexer.collect();
+
+        assert_eq!(
+            tokens,
+            vec![
+                Ok(Token::Unquote),
+                Ok(Token::LParen),
+                Ok(Token::Symbol("quote".to_string())),
+                Ok(Token::LParen),
+                Ok(Token::Integer(1)),
+                Ok(Token::Integer(2)),
+                Ok(Token::Integer(3)),
+                Ok(Token::RParen),
+                Ok(Token::RParen),
+            ]
+        );
+    }
+
+    #[test]
+    fn lex_quasiquote() {
+        let lexer = Lexer::new("`(lambda (x) (* x x))");
+        let tokens: Vec<_> = lexer.collect();
+
+        assert_eq!(
+            tokens,
+            vec![
+                Ok(Token::Quasiquote),
+                Ok(Token::LParen),
+                Ok(Token::Symbol("lambda".to_string())),
+                Ok(Token::LParen),
+                Ok(Token::Symbol("x".to_string())),
+                Ok(Token::RParen),
+                Ok(Token::LParen),
+                Ok(Token::Symbol("*".to_string())),
+                Ok(Token::Symbol("x".to_string())),
+                Ok(Token::Symbol("x".to_string())),
+                Ok(Token::RParen),
+                Ok(Token::RParen),
             ]
         );
     }

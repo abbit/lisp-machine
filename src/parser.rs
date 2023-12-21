@@ -83,6 +83,9 @@ impl<I: Iterator<Item = LexResult>> Parser<I> {
                 Token::RParen => Some(Err(ParseError::LexError(LexicalError::UnexpectedRParen))),
                 // transform quotation tokens into quotation calls
                 Token::Quote => to_quatation_call!(self, "quote"),
+                Token::Quasiquote => to_quatation_call!(self, "quasiquote"),
+                Token::Unquote => to_quatation_call!(self, "unquote"),
+                Token::UnquoteSplicing => to_quatation_call!(self, "unquote-splicing"),
                 // we handle dot in `parse_list`, so seeing a dot here is an error
                 Token::Dot => Some(Err(ParseError::UnexpectedToken(Token::Dot))),
                 Token::Eof => None,
@@ -397,6 +400,32 @@ fn parse_two_parens() {
                 Expr::Symbol("f".to_string()),
                 Expr::Symbol("x".to_string()),
                 Expr::Symbol("y".to_string()),
+            ])]
+        );
+    }
+
+    #[test]
+    fn parse_quasiquote_with_unquote() {
+        let lexer = Lexer::new("`(list ,(+ 1 2) 4)");
+        let tokens: Vec<_> = lexer.collect();
+        let answer = tokens.into_iter().peekable();
+        let parsed = parse(answer).unwrap();
+        assert_eq!(
+            parsed,
+            vec![Expr::new_proper_list(exprs![
+                Expr::Symbol("quasiquote".to_string()),
+                Expr::new_proper_list(exprs![
+                    Expr::Symbol("list".to_string()),
+                    Expr::new_proper_list(exprs![
+                        Expr::Symbol("unquote".to_string()),
+                        Expr::new_proper_list(exprs![
+                            Expr::Symbol("+".to_string()),
+                            Expr::Integer(1),
+                            Expr::Integer(2),
+                        ]),
+                    ]),
+                    Expr::Integer(4),
+                ]),
             ])]
         );
     }
