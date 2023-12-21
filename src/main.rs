@@ -1,10 +1,10 @@
-use lispdm::{environment, interpreter::eval};
+/*use lispdm::{environment, interpreter::eval};*/
 use rustyline::{error::ReadlineError, DefaultEditor};
 
 const PROMPT: &str = "lispdm> ";
 
 fn main() {
-    let mut env = environment::new_root_env();
+    /*let mut env = environment::new_root_env();
 
     let mut rl = DefaultEditor::new().unwrap();
     loop {
@@ -33,5 +33,5 @@ fn main() {
                 break;
             }
         }
-    }
+    }*/
 }
