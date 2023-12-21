@@ -1,4 +1,3 @@
-#[macro_export]
 macro_rules! debug {
     // Match the pattern for debug builds
     ($($arg:tt)*) => {
@@ -11,3 +10,4 @@ macro_rules! debug {
         // Otherwise, do nothing
     };
 }
+pub(crate) use debug;

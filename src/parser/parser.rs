@@ -1,8 +1,5 @@
-use super::lexer::{LexResult, Lexer, LexicalError, Token};
-use crate::{
-    ast::{exprs, Expr, Exprs},
-    list::ListKind,
-};
+use super::lexer::{LexResult, LexicalError, Token};
+use crate::expr::{exprs, Expr, Exprs, ListKind};
 use std::iter::Peekable;
 
 #[derive(Debug, PartialEq)]
