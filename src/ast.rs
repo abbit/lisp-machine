@@ -2,11 +2,7 @@ use core::fmt;
 
 use super::list::{List, ListKind};
 
-use crate::{
-    //environment::EnvRef,
-    //interpreter::{eval_expr, EvalError, EvalResult},
-    list::{DisplayList, ListLocation},
-};
+use crate::list::{DisplayList, ListLocation};
 
 use std::collections::VecDeque;
 
@@ -20,7 +16,7 @@ pub enum Expr {
     List(List),
     Void,
     //Procedure(ProcedureData),
-    Boolean(bool)
+    Boolean(bool),
 }
 
 pub type Exprs = VecDeque<Expr>;

@@ -18,7 +18,7 @@ pub enum Token {
     Boolean(bool),
     String(String),
     Char(char),
-    Dot // " . "
+    Dot, // " . "
 }
 
 #[derive(PartialEq, Debug)]
@@ -65,7 +65,7 @@ impl<'a> Iterator for Lexer<'a> {
         if self.has_error {
             return None;
         }
-    
+
         match self.chars.peek() {
             Some(&ch) => {
                 let result = match ch {
@@ -137,8 +137,6 @@ impl<'a> Iterator for Lexer<'a> {
             },
         }
     }
-    
-    
 }
 
 fn finalize_token(chars: &mut Peekable<Chars>) -> LexResult {

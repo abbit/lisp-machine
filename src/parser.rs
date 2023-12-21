@@ -313,7 +313,6 @@ mod tests {
             Err(ParseError::LexError(LexicalError::UnexpectedRParen))
         );
     }
-    
 
     #[test]
     fn parse_void() {
@@ -325,28 +324,30 @@ mod tests {
     }
 
     #[test]
-fn parse_two_parens() {
-    let lexer = Lexer::new(
-        "(define pi 314)
+    fn parse_two_parens() {
+        let lexer = Lexer::new(
+            "(define pi 314)
         (+ pi 1)",
-    );
-    let tokens: Vec<_> = lexer.collect();
-    let answer1 = tokens.into_iter().peekable();
-    let parsed1 = parse(answer1).unwrap();
-    assert_eq!(
-        parsed1,
-        vec![Expr::new_proper_list(exprs![
-            Expr::Symbol("define".to_string()),
-            Expr::Symbol("pi".to_string()),
-            Expr::Integer(314),
-        ]),
-            Expr::new_proper_list(exprs![
-            Expr::Symbol("+".to_string()),
-            Expr::Symbol("pi".to_string()),
-            Expr::Integer(1),]
-    )]);
-}
-
+        );
+        let tokens: Vec<_> = lexer.collect();
+        let answer1 = tokens.into_iter().peekable();
+        let parsed1 = parse(answer1).unwrap();
+        assert_eq!(
+            parsed1,
+            vec![
+                Expr::new_proper_list(exprs![
+                    Expr::Symbol("define".to_string()),
+                    Expr::Symbol("pi".to_string()),
+                    Expr::Integer(314),
+                ]),
+                Expr::new_proper_list(exprs![
+                    Expr::Symbol("+".to_string()),
+                    Expr::Symbol("pi".to_string()),
+                    Expr::Integer(1),
+                ])
+            ]
+        );
+    }
 
     #[test]
     fn parse_boolean() {
@@ -356,7 +357,10 @@ fn parse_two_parens() {
         let parsed = parse(answer).unwrap();
         assert_eq!(
             parsed,
-            vec![Expr::new_proper_list(exprs![Expr::Symbol("not".to_string()), Expr::Boolean(true),])]
+            vec![Expr::new_proper_list(exprs![
+                Expr::Symbol("not".to_string()),
+                Expr::Boolean(true),
+            ])]
         );
     }
 
@@ -368,7 +372,10 @@ fn parse_two_parens() {
         let parsed = parse(answer).unwrap();
         assert_eq!(
             parsed,
-            vec![Expr::new_proper_list(exprs![Expr::Symbol("not".to_string()), Expr::Char('e'),])]
+            vec![Expr::new_proper_list(exprs![
+                Expr::Symbol("not".to_string()),
+                Expr::Char('e'),
+            ])]
         );
     }
 
