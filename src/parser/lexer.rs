@@ -229,6 +229,7 @@ mod tests {
                 Ok(Token::Symbol("cos".to_string())),
                 Ok(Token::LParen),
                 Ok(Token::Symbol("*".to_string())),
+                #[allow(clippy::approx_constant)]
                 Ok(Token::Float(3.14159)),
                 Ok(Token::Integer(1)),
                 Ok(Token::RParen),

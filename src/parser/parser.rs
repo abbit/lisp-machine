@@ -203,6 +203,7 @@ mod tests {
                 Expr::Symbol("cos".to_string()),
                 Expr::new_proper_list(exprs![
                     Expr::Symbol("*".to_string()),
+                    #[allow(clippy::approx_constant)]
                     Expr::Float(3.14159),
                     Expr::Integer(1),
                 ]),
