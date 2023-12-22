@@ -30,7 +30,7 @@ pub fn start(mut engine: Engine) {
     rl.set_helper(Some(InputValidator::default()));
 
     loop {
-        let readline = rl.readline("che> ");
+        let readline = rl.readline("> ");
         match readline {
             Ok(input) => match engine.eval(&input) {
                 Ok(expr) => {
