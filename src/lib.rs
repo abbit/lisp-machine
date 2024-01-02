@@ -1,16 +1,26 @@
+//! LispDM is a Scheme interpreter. Currently, it supports only a subset of Scheme.
+//! ```
+//! use lispdm::Engine;
+//! let mut engine = Engine::default();
+//!
+//! let result = engine.eval("(+ 1 2)").unwrap();
+//! assert_eq!(result, lispdm::Expr::Integer(3));
+//! ```
 mod evaluator;
 mod expr;
 mod parser;
 mod utils;
 
-use std::collections::HashMap;
-
 use evaluator::{EnvRef, EvalError};
+pub use expr::Expr;
 use parser::ParseError;
 
 #[derive(Debug)]
+/// Error type for LispDM.
 pub enum LispDMError {
+    /// Error occurred while parsing source code.
     ParseError(ParseError),
+    /// Error occurred while evaluating expressions.
     EvalError(EvalError),
 }
 
@@ -25,26 +35,23 @@ impl std::fmt::Display for LispDMError {
     }
 }
 
+/// Engine provides the main functionality of LispDM.
+/// It holds the environment and provides eval method.
 pub struct Engine {
     root_env: EnvRef,
-    macro_table: HashMap<String, expr::Body>,
 }
 
 impl Engine {
+    /// Evaluates the given source code and returns the result.
     pub fn eval(&mut self, src: &str) -> Result<expr::Expr, LispDMError> {
         let ast = parser::parse_str(src).map_err(LispDMError::ParseError)?;
         evaluator::eval_exprs(ast.into_iter(), &mut self.root_env).map_err(LispDMError::EvalError)
-    }
-
-    pub fn add_macro(&mut self, name: String, body: expr::Body) {
-        self.macro_table.insert(name, body);
     }
 }
 
 impl Default for Engine {
     fn default() -> Self {
         let root_env = evaluator::new_root_env();
-        let macro_table = HashMap::new();
-        Self { root_env, macro_table }
+        Self { root_env }
     }
 }

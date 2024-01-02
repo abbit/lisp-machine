@@ -72,10 +72,6 @@ impl EnvRef {
     pub fn set(&mut self, name: String, val: Expr) -> Result<(), String> {
         self.0.borrow_mut().set(name, val)
     }
-
-    pub fn is_root(&self) -> bool {
-        self.0.borrow().parent.is_none()
-    }
 }
 
 pub fn new_root_env() -> EnvRef {
@@ -91,7 +87,6 @@ pub fn new_root_env() -> EnvRef {
         forms::quasiquote,
         forms::if_,
         forms::begin,
-        forms::define_syntax,
         // evaluation
         eval::eval,
         eval::apply,
