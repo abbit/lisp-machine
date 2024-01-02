@@ -225,6 +225,28 @@ fn quasiquote_list(list: Exprs, env: &mut EnvRef) -> EvalResult {
     Ok(Expr::new_proper_list(new_list))
 }
 
-fn define_macro_fn(args: Exprs, env: &mut EnvRef) -> EvalResult {
-    todo!()
+fn define_macro_fn(mut args: Exprs, env: &mut EnvRef) -> EvalResult {
+    if env.is_root() {
+        if args.len() < 3 {
+            return Err(runtime_error!("define-macro requires at least three arguments"));
+        }
+    
+        let name = args.pop_front().unwrap().into_symbol().map_err(|expr| {
+            runtime_error!(
+                "expected symbol as the first argument for define-macro, got {}",
+                expr.kind()
+            )
+        })?;
+    
+        let params = args.pop_front().unwrap();
+        let body: Body = args.into();
+    
+        let macro_expr = create_procedure(None, params, body, env)?;
+    
+        env.add_macro(name.clone(), macro_expr);
+    
+        Ok(Expr::Void)
+    } else {
+        Err(runtime_error!("define-macro can only be used in the root environment"))
+    }
 }

@@ -82,6 +82,10 @@ impl EnvRef {
     pub fn add_macro(&mut self, name: String, val: Expr) {
         self.0.borrow_mut().add_macro(name, val)
     }
+
+    pub fn is_root(&self) -> bool {
+        self.0.borrow().parent.is_none()
+    }
 }
 
 pub fn new_root_env() -> EnvRef {
