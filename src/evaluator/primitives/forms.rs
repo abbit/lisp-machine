@@ -16,7 +16,7 @@ define_special_forms! {
     begin = ("begin", begin_fn, Arity::Any),
     quote = ("quote", quote_fn, Arity::Exact(1)),
     quasiquote = ("quasiquote", quasiquote_fn, Arity::Exact(1)),
-    define_macro = ("define-macro", define_macro_fn, Arity::AtLeast(3)),
+    define_macro = ("define-macro", define_macro_fn, Arity::Exact(2)),
 }
 
 enum ModifyEnv {
