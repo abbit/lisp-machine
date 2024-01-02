@@ -5,6 +5,7 @@ use std::{cell::RefCell, collections::HashMap, rc::Rc};
 #[derive(Debug, PartialEq, Clone, Default)]
 struct Env {
     bindings: HashMap<String, Expr>,
+    macros: Rc<RefCell<HashMap<String, Expr>>>,
     parent: Option<EnvRef>,
 }
 
@@ -12,6 +13,7 @@ impl Env {
     fn extend(parent: EnvRef) -> Env {
         Env {
             bindings: HashMap::new(),
+            macros: Rc::new(RefCell::new(HashMap::new())),
             parent: Some(parent),
         }
     }
@@ -39,6 +41,10 @@ impl Env {
                 None => Err(format!("symbol '{}' is not defined", name)),
             }
         }
+    }
+
+    fn add_macro(&mut self, name: String, val: Expr) {
+        self.macros.borrow_mut().insert(name, val);
     }
 }
 
@@ -72,6 +78,10 @@ impl EnvRef {
     pub fn set(&mut self, name: String, val: Expr) -> Result<(), String> {
         self.0.borrow_mut().set(name, val)
     }
+
+    pub fn add_macro(&mut self, name: String, val: Expr) {
+        self.0.borrow_mut().add_macro(name, val)
+    }
 }
 
 pub fn new_root_env() -> EnvRef {
@@ -87,6 +97,7 @@ pub fn new_root_env() -> EnvRef {
         forms::quasiquote,
         forms::if_,
         forms::begin,
+        forms::define_macro,
         // evaluation
         eval::eval,
         eval::apply,
