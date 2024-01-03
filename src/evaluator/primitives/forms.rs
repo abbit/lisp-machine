@@ -1,8 +1,13 @@
 use super::utils::define_special_forms;
 use crate::{
-    evaluator::{error::runtime_error, eval, EnvRef, EvalError, EvalResult},
+    evaluator::{
+        error::runtime_error,
+        eval::{self, EvalResult},
+        EnvRef, EvalError,
+    },
     expr::{
-        Arity, Body, Expr, Exprs, ListKind, {Procedure, ProcedureParams},
+        proc_result_tailcall, proc_result_value, Arity, AsExprs, Body, Expr, Exprs, ListKind,
+        ProcedureResult, ProcedureReturn, {Procedure, ProcedureParams},
     },
 };
 
@@ -28,7 +33,7 @@ fn modify_env(
     body_expr: Expr,
     env: &mut EnvRef,
     mod_env: ModifyEnv,
-) -> EvalResult {
+) -> ProcedureResult {
     let symbol = symbol_expr.into_symbol().map_err(|expr| {
         runtime_error!(
             "expected symbol as first argument of define, got {}",
@@ -40,11 +45,11 @@ fn modify_env(
     match mod_env {
         ModifyEnv::Add => {
             env.add(symbol, body);
-            Ok(Expr::Void)
+            proc_result_value!(Expr::Void)
         }
         ModifyEnv::Set => env
             .set(symbol, body)
-            .map(|_| Expr::Void)
+            .map(|_| ProcedureReturn::Value(Expr::Void))
             .map_err(|err| runtime_error!("{}", err)),
     }
 }
@@ -89,7 +94,7 @@ fn create_procedure(
     Ok(procedure)
 }
 
-fn define_fn(mut args: Exprs, env: &mut EnvRef) -> EvalResult {
+fn define_fn(mut args: Exprs, env: &mut EnvRef) -> ProcedureResult {
     let first_arg = args.pop_front().unwrap();
 
     if let Expr::Symbol(_) = first_arg {
@@ -139,52 +144,58 @@ fn define_fn(mut args: Exprs, env: &mut EnvRef) -> EvalResult {
     let procedure = create_procedure(Some(name.to_string()), params_expr, body, env)?;
     env.add(name.to_string(), procedure);
 
-    Ok(Expr::Void)
+    Ok(ProcedureReturn::Value(Expr::Void))
 }
 
-fn set_fn(mut args: Exprs, env: &mut EnvRef) -> EvalResult {
+fn set_fn(mut args: Exprs, env: &mut EnvRef) -> ProcedureResult {
     let symbol_expr = args.pop_front().unwrap();
     let body_expr = args.pop_front().unwrap();
 
     modify_env(symbol_expr, body_expr, env, ModifyEnv::Set)
 }
 
-fn lambda_fn(mut args: Exprs, env: &mut EnvRef) -> EvalResult {
+fn lambda_fn(mut args: Exprs, env: &mut EnvRef) -> ProcedureResult {
     let params = args.pop_front().unwrap();
     let body: Body = args.into();
 
-    create_procedure(None, params, body, env)
+    create_procedure(None, params, body, env).map(ProcedureReturn::Value)
 }
 
-fn if_fn(mut args: Exprs, env: &mut EnvRef) -> EvalResult {
+fn if_fn(mut args: Exprs, env: &mut EnvRef) -> ProcedureResult {
     let cond = args.pop_front().unwrap();
     let then = args.pop_front().unwrap();
     let else_ = args.pop_front();
 
     let cond = eval::eval_expr(cond, env)?;
-    if cond.is_truthy() {
-        eval::eval_expr(then, env)
+    let ret = if cond.is_truthy() {
+        ProcedureReturn::TailCall(then, env.clone())
     } else {
         match else_ {
-            Some(expr) => eval::eval_expr(expr, env),
-            None => Ok(Expr::Void),
+            Some(expr) => ProcedureReturn::TailCall(expr, env.clone()),
+            None => ProcedureReturn::Value(Expr::Void),
         }
+    };
+
+    Ok(ret)
+}
+
+fn begin_fn(args: Exprs, env: &mut EnvRef) -> ProcedureResult {
+    let (exprs, expr_tail) = args.clone().split_tail();
+    for expr in exprs {
+        eval::eval_expr(expr, env)?;
     }
+
+    proc_result_tailcall!(expr_tail, env)
 }
 
-fn begin_fn(args: Exprs, env: &mut EnvRef) -> EvalResult {
-    args.into_iter()
-        .try_fold(Expr::Void, |_, expr| eval::eval_expr(expr, env))
+fn quote_fn(mut args: Exprs, _: &mut EnvRef) -> ProcedureResult {
+    proc_result_value!(args.pop_front().unwrap())
 }
 
-fn quote_fn(mut args: Exprs, _: &mut EnvRef) -> EvalResult {
-    Ok(args.pop_front().unwrap())
-}
-
-fn quasiquote_fn(mut args: Exprs, env: &mut EnvRef) -> EvalResult {
+fn quasiquote_fn(mut args: Exprs, env: &mut EnvRef) -> ProcedureResult {
     match args.pop_front().unwrap() {
-        Expr::List(list) => quasiquote_list(list.into(), env),
-        expr => Ok(expr),
+        Expr::List(list) => quasiquote_list(list.into(), env).map(ProcedureReturn::Value),
+        expr => proc_result_value!(expr),
     }
 }
 

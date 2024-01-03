@@ -1,6 +1,6 @@
 use super::expr::{exprs, Expr, Exprs};
 use crate::{
-    evaluator::{EnvRef, EvalResult},
+    evaluator::{EnvRef, EvalError},
     utils::debug,
 };
 
@@ -18,7 +18,28 @@ pub enum Procedure {
     Compound(CompoundProcedure),
 }
 
-pub type ProcedureFn = fn(Exprs, &mut EnvRef) -> EvalResult;
+pub enum ProcedureReturn {
+    Value(Expr),
+    TailCall(Expr, EnvRef),
+}
+
+pub type ProcedureResult = Result<ProcedureReturn, EvalError>;
+
+macro_rules! proc_result_value {
+    ($expr:expr) => {
+        Ok($crate::expr::ProcedureReturn::Value($expr))
+    };
+}
+pub(crate) use proc_result_value;
+
+macro_rules! proc_result_tailcall {
+    ($expr:expr, $env:expr) => {
+        Ok($crate::expr::ProcedureReturn::TailCall($expr, $env.clone()))
+    };
+}
+pub(crate) use proc_result_tailcall;
+
+pub type ProcedureFn = fn(Exprs, &mut EnvRef) -> ProcedureResult;
 
 impl Procedure {
     pub fn new_atomic(name: String, kind: ProcedureKind, proc: ProcedureFn, arity: Arity) -> Self {
