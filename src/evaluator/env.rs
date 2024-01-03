@@ -86,6 +86,10 @@ impl EnvRef {
     pub fn is_root(&self) -> bool {
         self.0.borrow().parent.is_none()
     }
+
+    pub fn get_macro(&self, name: &str) -> Option<Expr> {
+        self.0.borrow().macros.borrow().get(name).cloned()
+    }
 }
 
 pub fn new_root_env() -> EnvRef {

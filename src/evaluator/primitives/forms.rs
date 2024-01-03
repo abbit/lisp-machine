@@ -226,27 +226,35 @@ fn quasiquote_list(list: Exprs, env: &mut EnvRef) -> EvalResult {
 }
 
 fn define_macro_fn(mut args: Exprs, env: &mut EnvRef) -> EvalResult {
-    if env.is_root() {
-        if args.len() < 3 {
-            return Err(runtime_error!("define-macro requires at least three arguments"));
-        }
-    
-        let name = args.pop_front().unwrap().into_symbol().map_err(|expr| {
-            runtime_error!(
-                "expected symbol as the first argument for define-macro, got {}",
-                expr.kind()
-            )
-        })?;
-    
-        let params = args.pop_front().unwrap();
-        let body: Body = args.into();
-    
-        let macro_expr = create_procedure(None, params, body, env)?;
-    
-        env.add_macro(name.clone(), macro_expr);
-    
-        Ok(Expr::Void)
-    } else {
-        Err(runtime_error!("define-macro can only be used in the root environment"))
+    if !env.is_root() {
+        return Err(runtime_error!("define-macro can only be used in the root environment"));
     }
+
+    let name_and_params = args.pop_front().unwrap().into_list().map_err(|expr| {
+        runtime_error!(
+            "expected list as the first argument for define-macro, got {}",
+            expr.kind()
+        )
+    })?;
+
+    let (name_expr, mut params) = name_and_params.split_first().ok_or(runtime_error!(
+        "expected at least 1 argument for define-macro, got 0"
+    ))?;
+
+    let name = name_expr.into_symbol().unwrap();
+
+    let body: Body = args.into();
+
+    let params_expr = match (params.kind(), params.len()) {
+        (ListKind::Dotted, 1) => {
+            params.pop_front().unwrap()
+        }
+        _ => Expr::List(params.clone()),
+    };
+
+    let macro_expr = create_procedure(Some(name.to_string()), params_expr, body, env)?;
+
+    env.add_macro(name.to_string(), macro_expr);
+
+    Ok(Expr::Void)
 }

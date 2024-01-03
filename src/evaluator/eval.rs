@@ -14,6 +14,10 @@ pub fn eval_exprs<I: Iterator<Item = Expr>>(mut exprs: I, env: &mut EnvRef) -> E
     exprs.try_fold(Expr::Void, |_, expr| eval_expr(expr, env))
 }
 
+pub fn expand_macro(expr: Expr, env: &mut EnvRef) -> Expr {
+    todo!()
+}
+
 pub fn eval_expr(expr: Expr, env: &mut EnvRef) -> EvalResult {
     debug!("eval_expr: {}", expr);
     match expr {
@@ -545,5 +549,17 @@ mod tests {
             },
             _ => panic!("expected procedure"),
         }
+    }
+
+    #[test]
+    fn test_add_macro() {
+        let source = "(define-macro (infix infixed) (list (car (cdr infixed)) (car infixed) (car (cdr (cdr infixed)))))";
+        let mut env = env::new_root_env();
+
+        assert!(env.get_macro("infix").is_none());
+        let result = eval_str(source, &mut env).unwrap();
+        assert!(env.get_macro("infix").is_some());
+        
+        assert_eq!(result, Expr::Void);
     }
 }
