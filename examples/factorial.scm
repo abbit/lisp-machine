@@ -6,4 +6,4 @@
 (define (factorial x)
   (factorial-inner x 1))
 
-(display (factorial 5))
+(display (factorial 20))
