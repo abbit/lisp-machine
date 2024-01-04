@@ -1,4 +1,4 @@
-use super::primitives::{eval, forms, lists, nums, system};
+use super::primitives::{eval, forms, lists, modularity, nums, system};
 use crate::expr::{Expr, Procedure};
 use std::{cell::RefCell, collections::HashMap, rc::Rc};
 
@@ -90,6 +90,9 @@ pub fn new_root_env() -> EnvRef {
         // evaluation
         eval::eval,
         eval::apply,
+        // modularity
+        modularity::include,
+        modularity::load,
          // arithmetic
         nums::add,
         nums::sub,
