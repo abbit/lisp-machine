@@ -5,7 +5,7 @@ use std::{cell::RefCell, collections::HashMap, rc::Rc};
 #[derive(Debug, PartialEq, Clone, Default)]
 struct Env {
     bindings: HashMap<String, Expr>,
-    macros: Rc<RefCell<HashMap<String, Expr>>>,
+    macros: HashMap<String, Procedure>,
     parent: Option<EnvRef>,
 }
 
@@ -13,7 +13,7 @@ impl Env {
     fn extend(parent: EnvRef) -> Env {
         Env {
             bindings: HashMap::new(),
-            macros: Rc::new(RefCell::new(HashMap::new())),
+            macros: HashMap::new(),
             parent: Some(parent),
         }
     }
@@ -43,8 +43,15 @@ impl Env {
         }
     }
 
-    fn add_macro(&mut self, name: String, val: Expr) {
-        self.macros.borrow_mut().insert(name, val);
+    fn get_macro(&self, name: &str) -> Option<Procedure> {
+        match self.macros.get(name) {
+            Some(value) => Some(value.clone()),
+            None => self.parent.as_ref().and_then(|e| e.get_macro(name).clone()),
+        }
+    }
+
+    fn add_macro(&mut self, name: String, macro_: Procedure) {
+        self.macros.insert(name, macro_);
     }
 }
 
@@ -63,6 +70,10 @@ macro_rules! insert_procedures(
 pub struct EnvRef(Rc<RefCell<Env>>);
 
 impl EnvRef {
+    pub fn is_root(&self) -> bool {
+        self.0.borrow().parent.is_none()
+    }
+
     pub fn extend(self) -> Self {
         EnvRef(Rc::new(RefCell::new(Env::extend(self))))
     }
@@ -79,16 +90,12 @@ impl EnvRef {
         self.0.borrow_mut().set(name, val)
     }
 
-    pub fn add_macro(&mut self, name: String, val: Expr) {
-        self.0.borrow_mut().add_macro(name, val)
+    pub fn get_macro(&self, name: &str) -> Option<Procedure> {
+        self.0.borrow().get_macro(name)
     }
 
-    pub fn is_root(&self) -> bool {
-        self.0.borrow().parent.is_none()
-    }
-
-    pub fn get_macro(&self, name: &str) -> Option<Expr> {
-        self.0.borrow().macros.borrow().get(name).cloned()
+    pub fn add_macro(&mut self, name: String, macro_: Procedure) {
+        self.0.borrow_mut().add_macro(name, macro_)
     }
 }
 
