@@ -1,7 +1,7 @@
 use super::utils::{define_procedures, fold_binary_op};
 use crate::{
-    evaluator::{error::runtime_error, EnvRef, EvalResult},
-    expr::{Arity, Expr, Exprs},
+    evaluator::{error::runtime_error, EnvRef},
+    expr::{proc_result_value, Arity, Expr, Exprs, ProcedureResult, ProcedureReturn},
 };
 
 define_procedures! {
@@ -14,7 +14,7 @@ define_procedures! {
     more = (">", more_fn, Arity::Exact(2)),
 }
 
-fn add_fn(args: Exprs, env: &mut EnvRef) -> EvalResult {
+fn add_fn(args: Exprs, env: &mut EnvRef) -> ProcedureResult {
     fold_binary_op(Expr::Integer(0), args, env, |(acc, arg), _| {
         match (acc, arg) {
             (Expr::Integer(lhs), Expr::Integer(rhs)) => Ok(Expr::Integer(lhs + rhs)),
@@ -28,9 +28,10 @@ fn add_fn(args: Exprs, env: &mut EnvRef) -> EvalResult {
             )),
         }
     })
+    .map(ProcedureReturn::Value)
 }
 
-fn sub_fn(mut args: Exprs, env: &mut EnvRef) -> EvalResult {
+fn sub_fn(mut args: Exprs, env: &mut EnvRef) -> ProcedureResult {
     let first_arg = if args.len() > 1 {
         args.pop_front().unwrap()
     } else {
@@ -48,9 +49,10 @@ fn sub_fn(mut args: Exprs, env: &mut EnvRef) -> EvalResult {
             rhs
         )),
     })
+    .map(ProcedureReturn::Value)
 }
 
-fn mult_fn(args: Exprs, env: &mut EnvRef) -> EvalResult {
+fn mult_fn(args: Exprs, env: &mut EnvRef) -> ProcedureResult {
     fold_binary_op(Expr::Integer(1), args, env, |(acc, arg), _| {
         match (acc, arg) {
             (Expr::Integer(lhs), Expr::Integer(rhs)) => Ok(Expr::Integer(lhs * rhs)),
@@ -64,9 +66,10 @@ fn mult_fn(args: Exprs, env: &mut EnvRef) -> EvalResult {
             )),
         }
     })
+    .map(ProcedureReturn::Value)
 }
 
-fn divide_fn(mut args: Exprs, env: &mut EnvRef) -> EvalResult {
+fn divide_fn(mut args: Exprs, env: &mut EnvRef) -> ProcedureResult {
     let first_arg = if args.len() > 1 {
         args.pop_front().unwrap()
     } else {
@@ -84,55 +87,68 @@ fn divide_fn(mut args: Exprs, env: &mut EnvRef) -> EvalResult {
             rhs.kind()
         )),
     })
+    .map(ProcedureReturn::Value)
 }
 
-fn less_fn(mut args: Exprs, _: &mut EnvRef) -> EvalResult {
+fn less_fn(mut args: Exprs, _: &mut EnvRef) -> ProcedureResult {
     let lhs = args.pop_front().unwrap();
     let rhs = args.pop_front().unwrap();
 
-    match (lhs, rhs) {
-        (Expr::Integer(lhs), Expr::Integer(rhs)) => Ok(Expr::Boolean(lhs < rhs)),
-        (Expr::Integer(lhs), Expr::Float(rhs)) => Ok(Expr::Boolean((lhs as f64) < rhs)),
-        (Expr::Float(lhs), Expr::Integer(rhs)) => Ok(Expr::Boolean(lhs < rhs as f64)),
-        (Expr::Float(lhs), Expr::Float(rhs)) => Ok(Expr::Boolean(lhs < rhs)),
-        (lhs, rhs) => Err(runtime_error!(
-            "expected integers or floats for <, got {} and {}",
-            lhs.kind(),
-            rhs.kind()
-        )),
-    }
+    let res = match (lhs, rhs) {
+        (Expr::Integer(lhs), Expr::Integer(rhs)) => Expr::Boolean(lhs < rhs),
+        (Expr::Integer(lhs), Expr::Float(rhs)) => Expr::Boolean((lhs as f64) < rhs),
+        (Expr::Float(lhs), Expr::Integer(rhs)) => Expr::Boolean(lhs < rhs as f64),
+        (Expr::Float(lhs), Expr::Float(rhs)) => Expr::Boolean(lhs < rhs),
+        (lhs, rhs) => {
+            return Err(runtime_error!(
+                "expected integers or floats for <, got {} and {}",
+                lhs.kind(),
+                rhs.kind()
+            ))
+        }
+    };
+
+    proc_result_value!(res)
 }
 
-fn equal_fn(mut args: Exprs, _: &mut EnvRef) -> EvalResult {
+fn equal_fn(mut args: Exprs, _: &mut EnvRef) -> ProcedureResult {
     let lhs = args.pop_front().unwrap();
     let rhs = args.pop_front().unwrap();
 
-    match (lhs, rhs) {
-        (Expr::Integer(lhs), Expr::Integer(rhs)) => Ok(Expr::Boolean(lhs == rhs)),
-        (Expr::Integer(lhs), Expr::Float(rhs)) => Ok(Expr::Boolean((lhs as f64) == rhs)),
-        (Expr::Float(lhs), Expr::Integer(rhs)) => Ok(Expr::Boolean(lhs == rhs as f64)),
-        (Expr::Float(lhs), Expr::Float(rhs)) => Ok(Expr::Boolean(lhs == rhs)),
-        (lhs, rhs) => Err(runtime_error!(
-            "expected integers or floats for =, got {} and {}",
-            lhs.kind(),
-            rhs.kind()
-        )),
-    }
+    let res = match (lhs, rhs) {
+        (Expr::Integer(lhs), Expr::Integer(rhs)) => Expr::Boolean(lhs == rhs),
+        (Expr::Integer(lhs), Expr::Float(rhs)) => Expr::Boolean((lhs as f64) == rhs),
+        (Expr::Float(lhs), Expr::Integer(rhs)) => Expr::Boolean(lhs == rhs as f64),
+        (Expr::Float(lhs), Expr::Float(rhs)) => Expr::Boolean(lhs == rhs),
+        (lhs, rhs) => {
+            return Err(runtime_error!(
+                "expected integers or floats for =, got {} and {}",
+                lhs.kind(),
+                rhs.kind()
+            ))
+        }
+    };
+
+    proc_result_value!(res)
 }
 
-fn more_fn(mut args: Exprs, _: &mut EnvRef) -> EvalResult {
+fn more_fn(mut args: Exprs, _: &mut EnvRef) -> ProcedureResult {
     let lhs = args.pop_front().unwrap();
     let rhs = args.pop_front().unwrap();
 
-    match (lhs, rhs) {
-        (Expr::Integer(lhs), Expr::Integer(rhs)) => Ok(Expr::Boolean(lhs > rhs)),
-        (Expr::Integer(lhs), Expr::Float(rhs)) => Ok(Expr::Boolean((lhs as f64) > rhs)),
-        (Expr::Float(lhs), Expr::Integer(rhs)) => Ok(Expr::Boolean(lhs > rhs as f64)),
-        (Expr::Float(rhs), Expr::Float(lhs)) => Ok(Expr::Boolean(rhs > lhs)),
-        (lhs, rhs) => Err(runtime_error!(
-            "expected integers or floats for >, got {} and {}",
-            lhs.kind(),
-            rhs.kind()
-        )),
-    }
+    let res = match (lhs, rhs) {
+        (Expr::Integer(lhs), Expr::Integer(rhs)) => Expr::Boolean(lhs > rhs),
+        (Expr::Integer(lhs), Expr::Float(rhs)) => Expr::Boolean((lhs as f64) > rhs),
+        (Expr::Float(lhs), Expr::Integer(rhs)) => Expr::Boolean(lhs > rhs as f64),
+        (Expr::Float(rhs), Expr::Float(lhs)) => Expr::Boolean(rhs > lhs),
+        (lhs, rhs) => {
+            return Err(runtime_error!(
+                "expected integers or floats for >, got {} and {}",
+                lhs.kind(),
+                rhs.kind()
+            ))
+        }
+    };
+
+    proc_result_value!(res)
 }

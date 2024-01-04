@@ -26,6 +26,20 @@ pub enum Expr {
 
 pub type Exprs = VecDeque<Expr>;
 
+pub trait AsExprs {
+    fn split_tail(self) -> (impl Iterator<Item = Expr>, Expr);
+}
+
+impl AsExprs for Exprs {
+    fn split_tail(self) -> (impl Iterator<Item = Expr>, Expr) {
+        // SAFETY: unwrap is safe because body always has at least one element
+        let tail = self.iter().last().unwrap().clone();
+        let len = self.len();
+        let but_tail = self.into_iter().take(len.saturating_sub(1));
+        (but_tail, tail)
+    }
+}
+
 macro_rules! exprs {
     ($($x:expr),*) => {{
         #[allow(unused_mut)]
