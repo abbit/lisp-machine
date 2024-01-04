@@ -17,6 +17,7 @@ define_procedures! {
     odd = ("odd?", odd_fn, Arity::Exact(1)),
     sqrt = ("sqrt", sqrt_fn, Arity::Exact(1)),
     square = ("square", square_fn, Arity::Exact(1)),
+    expt = ("expt", expt_fn, Arity::Exact(2)),
 }
 
 fn add_fn(args: Exprs, env: &mut EnvRef) -> ProcedureResult {
@@ -246,6 +247,33 @@ fn square_fn(args: Exprs, _: &mut EnvRef) -> ProcedureResult {
         _ => Err(runtime_error!(
             "expected integer or float for square, got {}",
             args[0].kind()
+        )),
+    }
+    .map(ProcedureReturn::Value)
+}
+
+fn expt_fn(args: Exprs, _: &mut EnvRef) -> ProcedureResult {
+    if args.len() != 2 {
+        return Err(runtime_error!(
+            "expected 2 arguments for expt, got {}",
+            args.len()
+        ));
+    }
+
+    let base = &args[0];
+    let exponent = &args[1];
+
+    match (base, exponent) {
+        (Expr::Integer(base), Expr::Integer(exp)) => {
+            Ok(Expr::Float(((*base) as f64).powi(*exp as i32)))
+        }
+        (Expr::Integer(base), Expr::Float(exp)) => Ok(Expr::Float(((*base) as f64).powf(*exp))),
+        (Expr::Float(base), Expr::Integer(exp)) => Ok(Expr::Float(base.powi(*exp as i32))),
+        (Expr::Float(base), Expr::Float(exp)) => Ok(Expr::Float(base.powf(*exp))),
+        _ => Err(runtime_error!(
+            "expected integers or floats for expt, got {} and {}",
+            base.kind(),
+            exponent.kind()
         )),
     }
     .map(ProcedureReturn::Value)

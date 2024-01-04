@@ -107,6 +107,7 @@ pub fn new_root_env() -> EnvRef {
         nums::odd,
         nums::sqrt,
         nums::square,
+        nums::expt,
         // list operations
         lists::cons,
         lists::car_,
