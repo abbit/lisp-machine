@@ -16,6 +16,7 @@ define_procedures! {
     even = ("even?", even_fn, Arity::Exact(1)),
     odd = ("odd?", odd_fn, Arity::Exact(1)),
     sqrt = ("sqrt", sqrt_fn, Arity::Exact(1)),
+    square = ("square", square_fn, Arity::Exact(1)),
 }
 
 fn add_fn(args: Exprs, env: &mut EnvRef) -> ProcedureResult {
@@ -228,5 +229,24 @@ fn sqrt_fn(args: Exprs, _: &mut EnvRef) -> ProcedureResult {
             args[0].kind()
         )),
     })
+    .map(ProcedureReturn::Value)
+}
+
+fn square_fn(args: Exprs, _: &mut EnvRef) -> ProcedureResult {
+    if args.len() != 1 {
+        return Err(runtime_error!(
+            "expected 1 argument for square, got {}",
+            args.len()
+        ));
+    }
+
+    match &args[0] {
+        Expr::Integer(n) => Ok(Expr::Integer(n * n)),
+        Expr::Float(f) => Ok(Expr::Float(f * f)),
+        _ => Err(runtime_error!(
+            "expected integer or float for square, got {}",
+            args[0].kind()
+        )),
+    }
     .map(ProcedureReturn::Value)
 }
