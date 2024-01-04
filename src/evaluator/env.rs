@@ -102,6 +102,7 @@ pub fn new_root_env() -> EnvRef {
         nums::less,
         nums::equal,
         nums::more,
+        nums::abs,
         // list operations
         lists::cons,
         lists::car_,

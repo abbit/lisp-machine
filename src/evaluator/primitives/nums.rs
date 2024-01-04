@@ -12,6 +12,7 @@ define_procedures! {
     less = ("<", less_fn, Arity::Exact(2)),
     equal = ("=", equal_fn, Arity::Exact(2)),
     more = (">", more_fn, Arity::Exact(2)),
+    abs = ("abs", abs_fn, Arity::Exact(1)),
 }
 
 fn add_fn(args: Exprs, env: &mut EnvRef) -> ProcedureResult {
@@ -151,4 +152,23 @@ fn more_fn(mut args: Exprs, _: &mut EnvRef) -> ProcedureResult {
     };
 
     proc_result_value!(res)
+}
+
+fn abs_fn(args: Exprs, env: &mut EnvRef) -> ProcedureResult {
+    if args.len() != 1 {
+        return Err(runtime_error!(
+            "expected 1 argument for abs, got {}",
+            args.len()
+        ));
+    }
+
+    (match &args[0] {
+        Expr::Integer(n) => Ok(Expr::Integer(n.abs())),
+        Expr::Float(f) => Ok(Expr::Float(f.abs())),
+        _ => Err(runtime_error!(
+            "expected integer or float for abs, got {}",
+            args[0].kind()
+        )),
+    })
+    .map(ProcedureReturn::Value)
 }
