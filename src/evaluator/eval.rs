@@ -4,7 +4,7 @@ use super::{
 };
 use crate::{
     evaluator::procedure::ApplyProcedure,
-    expr::{Expr, Exprs, ListKind},
+    expr::{Expr, Exprs, ListKind, ProcedureResult, ProcedureReturn},
     utils::debug,
 };
 
@@ -14,25 +14,32 @@ pub fn eval_exprs<I: Iterator<Item = Expr>>(mut exprs: I, env: &mut EnvRef) -> E
     exprs.try_fold(Expr::Void, |_, expr| eval_expr(expr, env))
 }
 
-pub fn expand_macro(expr: Expr, env: &mut EnvRef) -> Expr {
-    todo!()
-}
-
-pub fn eval_expr(expr: Expr, env: &mut EnvRef) -> EvalResult {
+pub fn eval_expr(mut expr: Expr, env: &mut EnvRef) -> EvalResult {
     debug!("eval_expr: {}", expr);
-    match expr {
-        Expr::Boolean(boolean) => Ok(Expr::Boolean(boolean)),
-        Expr::Integer(int) => Ok(Expr::Integer(int)),
-        Expr::Float(float) => Ok(Expr::Float(float)),
-        Expr::Char(char) => Ok(Expr::Char(char)),
-        Expr::String(str) => Ok(Expr::String(str)),
-        Expr::Symbol(symbol) => eval_symbol(symbol, env),
-        Expr::List(list) => match list.kind() {
-            ListKind::Proper => eval_list(list.into(), env),
-            ListKind::Dotted => Err(runtime_error!("dotted list cannot be evaluated")),
-        },
-        Expr::Void => Err(runtime_error!("void object cannot be evaluated")),
-        Expr::Procedure(_) => Err(runtime_error!("procedure object cannot be evaluated")),
+    let mut env = env.clone();
+    loop {
+        match expr {
+            Expr::Boolean(boolean) => return Ok(Expr::Boolean(boolean)),
+            Expr::Integer(int) => return Ok(Expr::Integer(int)),
+            Expr::Float(float) => return Ok(Expr::Float(float)),
+            Expr::Char(char) => return Ok(Expr::Char(char)),
+            Expr::String(str) => return Ok(Expr::String(str)),
+            Expr::Symbol(symbol) => return eval_symbol(symbol, &mut env),
+            Expr::List(list) => match list.kind() {
+                ListKind::Proper => match eval_list(list.into(), &mut env)? {
+                    ProcedureReturn::Value(e) => return Ok(e),
+                    ProcedureReturn::TailCall(e, eval_env) => {
+                        expr = e;
+                        env = eval_env;
+                    }
+                },
+                ListKind::Dotted => return Err(runtime_error!("dotted list cannot be evaluated")),
+            },
+            Expr::Void => return Err(runtime_error!("void object cannot be evaluated")),
+            Expr::Procedure(_) => {
+                return Err(runtime_error!("procedure object cannot be evaluated"))
+            }
+        }
     }
 }
 
@@ -45,7 +52,7 @@ fn eval_symbol(symbol: String, env: &mut EnvRef) -> EvalResult {
     Ok(value)
 }
 
-fn eval_list(mut list: Exprs, env: &mut EnvRef) -> EvalResult {
+fn eval_list(mut list: Exprs, env: &mut EnvRef) -> ProcedureResult {
     debug!("eval_call: {:?}", list);
 
     let proc = list

@@ -1,7 +1,7 @@
 use super::utils::define_procedures;
 use crate::{
-    evaluator::{error::runtime_error, EnvRef, EvalResult},
-    expr::{exprs, Arity, Expr, Exprs},
+    evaluator::{error::runtime_error, EnvRef},
+    expr::{exprs, proc_result_value, Arity, Expr, Exprs, ProcedureResult},
 };
 
 define_procedures! {
@@ -11,35 +11,40 @@ define_procedures! {
     list_ = ("list", list_fn, Arity::Any),
 }
 
-fn cons_fn(mut args: Exprs, _: &mut EnvRef) -> EvalResult {
+fn cons_fn(mut args: Exprs, _: &mut EnvRef) -> ProcedureResult {
     let car = args.pop_front().unwrap();
     let cdr = args.pop_front().unwrap();
 
     let mut list = exprs![car];
-    match cdr {
+    let res = match cdr {
         Expr::List(cdr_list) => {
             list.extend(cdr_list);
-            Ok(Expr::new_proper_list(list))
+            Expr::new_proper_list(list)
         }
         _ => {
             list.push_back(cdr);
-            Ok(Expr::new_dotted_list(list))
+            Expr::new_dotted_list(list)
         }
-    }
+    };
+
+    proc_result_value!(res)
 }
 
-fn car_fn(mut args: Exprs, _: &mut EnvRef) -> EvalResult {
+fn car_fn(mut args: Exprs, _: &mut EnvRef) -> ProcedureResult {
     let list = match args.pop_front().unwrap() {
         Expr::List(list) => list,
         expr => return Err(runtime_error!("expected list for car, got {}", expr.kind())),
     };
 
-    list.car()
+    let res = list
+        .car()
         .cloned()
-        .ok_or(runtime_error!("expected non-empty list for car"))
+        .ok_or(runtime_error!("expected non-empty list for car"))?;
+
+    proc_result_value!(res)
 }
 
-fn cdr_fn(mut args: Exprs, _: &mut EnvRef) -> EvalResult {
+fn cdr_fn(mut args: Exprs, _: &mut EnvRef) -> ProcedureResult {
     let list = match args.pop_front().unwrap() {
         Expr::List(list) => list,
         expr => return Err(runtime_error!("expected list for cdr, got {}", expr.kind())),
@@ -52,13 +57,15 @@ fn cdr_fn(mut args: Exprs, _: &mut EnvRef) -> EvalResult {
     let kind = list.kind();
     let list: Exprs = list.cdr().cloned().collect();
 
-    if list.len() == 1 {
-        Ok(list.into_iter().next().unwrap())
+    let res = if list.len() == 1 {
+        list.into_iter().next().unwrap()
     } else {
-        Ok(Expr::new_list(list, kind))
-    }
+        Expr::new_list(list, kind)
+    };
+
+    proc_result_value!(res)
 }
 
-fn list_fn(args: Exprs, _: &mut EnvRef) -> EvalResult {
-    Ok(Expr::new_proper_list(args))
+fn list_fn(args: Exprs, _: &mut EnvRef) -> ProcedureResult {
+    proc_result_value!(Expr::new_proper_list(args))
 }

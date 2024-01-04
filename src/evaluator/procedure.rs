@@ -1,23 +1,20 @@
-use super::{
-    env::EnvRef,
-    eval::{self, EvalResult},
-};
+use super::{env::EnvRef, eval};
 use crate::{
     evaluator::utils::CheckArity,
     expr::{
-        Arity, AtomicProcedure, CompoundProcedure, Expr, Exprs, NamedProcedure, Procedure,
-        ProcedureParams,
+        proc_result_tailcall, Arity, AsExprs, AtomicProcedure, CompoundProcedure, Expr, Exprs,
+        NamedProcedure, Procedure, ProcedureParams, ProcedureResult,
     },
     utils::debug,
 };
 use std::ops::Deref;
 
 pub trait ApplyProcedure {
-    fn apply(&self, args: Exprs, env: &mut EnvRef) -> EvalResult;
+    fn apply(&self, args: Exprs, env: &mut EnvRef) -> ProcedureResult;
 }
 
 impl ApplyProcedure for Procedure {
-    fn apply(&self, args: Exprs, env: &mut EnvRef) -> EvalResult {
+    fn apply(&self, args: Exprs, env: &mut EnvRef) -> ProcedureResult {
         debug!("applying {} to args {:?}", self, args);
         match self {
             Procedure::Atomic(proc) => proc.apply(args, env),
@@ -27,14 +24,14 @@ impl ApplyProcedure for Procedure {
 }
 
 impl ApplyProcedure for AtomicProcedure {
-    fn apply(&self, args: Exprs, env: &mut EnvRef) -> EvalResult {
+    fn apply(&self, args: Exprs, env: &mut EnvRef) -> ProcedureResult {
         args.validate_arity(self.name(), self.arity())?;
         (self.proc())(args, env)
     }
 }
 
 impl ApplyProcedure for CompoundProcedure {
-    fn apply(&self, mut args: Exprs, _: &mut EnvRef) -> EvalResult {
+    fn apply(&self, mut args: Exprs, _: &mut EnvRef) -> ProcedureResult {
         let mut eval_env = self.env.clone().extend();
 
         match self.params.clone() {
@@ -71,9 +68,11 @@ impl ApplyProcedure for CompoundProcedure {
             }
         }
 
-        eval::eval_exprs(
-            self.body.deref().as_exprs().clone().into_iter(),
-            &mut eval_env,
-        )
+        let (body, body_tail) = self.body.deref().as_exprs().clone().split_tail();
+        for expr in body {
+            eval::eval_expr(expr, &mut eval_env)?;
+        }
+
+        proc_result_tailcall!(body_tail, eval_env)
     }
 }
