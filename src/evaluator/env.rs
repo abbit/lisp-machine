@@ -103,6 +103,8 @@ pub fn new_root_env() -> EnvRef {
         nums::equal,
         nums::more,
         nums::abs,
+        nums::even,
+        nums::odd,
         // list operations
         lists::cons,
         lists::car_,

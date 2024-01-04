@@ -13,6 +13,8 @@ define_procedures! {
     equal = ("=", equal_fn, Arity::Exact(2)),
     more = (">", more_fn, Arity::Exact(2)),
     abs = ("abs", abs_fn, Arity::Exact(1)),
+    even = ("even?", even_fn, Arity::Exact(1)),
+    odd = ("odd?", odd_fn, Arity::Exact(1)),
 }
 
 fn add_fn(args: Exprs, env: &mut EnvRef) -> ProcedureResult {
@@ -154,7 +156,7 @@ fn more_fn(mut args: Exprs, _: &mut EnvRef) -> ProcedureResult {
     proc_result_value!(res)
 }
 
-fn abs_fn(args: Exprs, env: &mut EnvRef) -> ProcedureResult {
+fn abs_fn(args: Exprs, _: &mut EnvRef) -> ProcedureResult {
     if args.len() != 1 {
         return Err(runtime_error!(
             "expected 1 argument for abs, got {}",
@@ -172,3 +174,40 @@ fn abs_fn(args: Exprs, env: &mut EnvRef) -> ProcedureResult {
     })
     .map(ProcedureReturn::Value)
 }
+
+fn even_fn(args: Exprs, _: &mut EnvRef) -> ProcedureResult {
+    if args.len() != 1 {
+        return Err(runtime_error!(
+            "expected 1 argument for even?, got {}",
+            args.len()
+        ));
+    }
+
+    (match &args[0] {
+        Expr::Integer(n) => Ok(Expr::Boolean(n % 2 == 0)),
+        _ => Err(runtime_error!(
+            "expected integer for even?, got {}",
+            args[0].kind()
+        )),
+    })
+    .map(ProcedureReturn::Value)
+}
+
+fn odd_fn(args: Exprs, _: &mut EnvRef) -> ProcedureResult {
+    if args.len() != 1 {
+        return Err(runtime_error!(
+            "expected 1 argument for odd?, got {}",
+            args.len()
+        ));
+    }
+
+    (match &args[0] {
+        Expr::Integer(n) => Ok(Expr::Boolean(n % 2 != 0)),
+        _ => Err(runtime_error!(
+            "expected integer for odd?, got {}",
+            args[0].kind()
+        )),
+    })
+    .map(ProcedureReturn::Value)
+}
+
