@@ -1,7 +1,5 @@
 use core::fmt;
 
-use crate::utils::debug;
-
 use super::{
     list::{DisplayList, List, ListKind, ListLocation},
     procedure::Procedure,
@@ -116,7 +114,6 @@ impl Expr {
     }
 
     pub fn is_list(&self) -> bool {
-        debug!("is_list: {:?}", self);
         matches!(self, Expr::List(_))
     }
 

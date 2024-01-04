@@ -1,10 +1,11 @@
-use super::primitives::{eval, forms, lists, nums, system};
+use super::primitives::{eval, forms, lists, modularity, nums, system};
 use crate::expr::{Expr, Procedure};
 use std::{cell::RefCell, collections::HashMap, rc::Rc};
 
 #[derive(Debug, PartialEq, Clone, Default)]
 struct Env {
     bindings: HashMap<String, Expr>,
+    macros: HashMap<String, Procedure>,
     parent: Option<EnvRef>,
 }
 
@@ -12,6 +13,7 @@ impl Env {
     fn extend(parent: EnvRef) -> Env {
         Env {
             bindings: HashMap::new(),
+            macros: HashMap::new(),
             parent: Some(parent),
         }
     }
@@ -40,6 +42,17 @@ impl Env {
             }
         }
     }
+
+    fn get_macro(&self, name: &str) -> Option<Procedure> {
+        match self.macros.get(name) {
+            Some(value) => Some(value.clone()),
+            None => self.parent.as_ref().and_then(|e| e.get_macro(name).clone()),
+        }
+    }
+
+    fn add_macro(&mut self, name: String, macro_: Procedure) {
+        self.macros.insert(name, macro_);
+    }
 }
 
 // macro for adding special forms and built-in procedures to the environment
@@ -57,6 +70,10 @@ macro_rules! insert_procedures(
 pub struct EnvRef(Rc<RefCell<Env>>);
 
 impl EnvRef {
+    pub fn is_root(&self) -> bool {
+        self.0.borrow().parent.is_none()
+    }
+
     pub fn extend(self) -> Self {
         EnvRef(Rc::new(RefCell::new(Env::extend(self))))
     }
@@ -71,6 +88,14 @@ impl EnvRef {
 
     pub fn set(&mut self, name: String, val: Expr) -> Result<(), String> {
         self.0.borrow_mut().set(name, val)
+    }
+
+    pub fn get_macro(&self, name: &str) -> Option<Procedure> {
+        self.0.borrow().get_macro(name)
+    }
+
+    pub fn add_macro(&mut self, name: String, macro_: Procedure) {
+        self.0.borrow_mut().add_macro(name, macro_)
     }
 }
 
@@ -87,9 +112,13 @@ pub fn new_root_env() -> EnvRef {
         forms::quasiquote,
         forms::if_,
         forms::begin,
+        forms::define_macro,
         // evaluation
         eval::eval,
         eval::apply,
+        // modularity
+        modularity::include,
+        modularity::load,
          // arithmetic
         nums::add,
         nums::sub,

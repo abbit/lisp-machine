@@ -10,8 +10,43 @@ use crate::{
 
 pub type EvalResult = Result<Expr, EvalError>;
 
-pub fn eval_exprs<I: Iterator<Item = Expr>>(mut exprs: I, env: &mut EnvRef) -> EvalResult {
-    exprs.try_fold(Expr::Void, |_, expr| eval_expr(expr, env))
+pub fn expand_macros(expr: Expr, env: &mut EnvRef) -> EvalResult {
+    debug!("expand_macros: {}", expr);
+
+    if !expr.is_list() {
+        return Ok(expr);
+    }
+
+    let original_expr = expr.clone();
+
+    let mut list = expr.into_list().unwrap();
+    if !list.is_proper() || list.is_empty() {
+        return Ok(original_expr);
+    }
+
+    let macro_name_expr = list.pop_front().unwrap();
+    let args = list;
+
+    match macro_name_expr {
+        Expr::Symbol(macro_name) => match env.get_macro(&macro_name) {
+            Some(macro_) => match macro_.apply(args.into(), env)? {
+                ProcedureReturn::Value(expr) => Ok(expr),
+                ProcedureReturn::TailCall(expr, mut eval_env) => eval_expr(expr, &mut eval_env),
+            },
+            None => Ok(original_expr),
+        },
+        _ => Ok(original_expr),
+    }
+}
+
+pub fn eval_exprs<I: Iterator<Item = Expr>>(exprs: I, env: &mut EnvRef) -> EvalResult {
+    let mut res = Expr::Void;
+    for expr in exprs {
+        let expr = expand_macros(expr, env)?;
+        res = eval_expr(expr, env)?;
+    }
+
+    Ok(res)
 }
 
 pub fn eval_expr(mut expr: Expr, env: &mut EnvRef) -> EvalResult {
@@ -53,7 +88,7 @@ fn eval_symbol(symbol: String, env: &mut EnvRef) -> EvalResult {
 }
 
 fn eval_list(mut list: Exprs, env: &mut EnvRef) -> ProcedureResult {
-    debug!("eval_call: {:?}", list);
+    debug!("eval_list: {:?}", list);
 
     let proc = list
         .pop_front()
@@ -87,9 +122,7 @@ mod tests {
 
     fn eval_str(source: &str, env: &mut EnvRef) -> Result<Expr, EvalError> {
         let exprs = parser::parse_str(source).unwrap();
-        exprs
-            .into_iter()
-            .try_fold(Expr::Void, |_, expr| eval_expr(expr, env))
+        eval_exprs(exprs.into_iter(), env)
     }
 
     #[test]
@@ -556,5 +589,34 @@ mod tests {
             },
             _ => panic!("expected procedure"),
         }
+    }
+
+    #[test]
+    fn eval_simple_macro() {
+        let source = "
+            (define-macro (infix infixed)
+                (list (car (cdr infixed)) (car infixed) (car (cdr (cdr infixed)))))
+
+            (infix (1 + 1))
+        ";
+        let mut env = env::new_root_env();
+
+        assert!(env.get_macro("infix").is_none());
+        let result = eval_str(source, &mut env).unwrap();
+        assert!(env.get_macro("infix").is_some());
+        assert_eq!(result, Expr::Integer(2));
+    }
+
+    #[test]
+    fn eval_unless_macro() {
+        let source = "
+            (define-macro (unless test . body) `(if ,test #f (begin ,@body)))
+
+            (unless #f 1 2 3)
+        ";
+        let mut env = env::new_root_env();
+
+        let result = eval_str(source, &mut env).unwrap();
+        assert_eq!(result, Expr::Integer(3));
     }
 }

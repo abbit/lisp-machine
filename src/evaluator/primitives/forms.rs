@@ -21,6 +21,7 @@ define_special_forms! {
     begin = ("begin", begin_fn, Arity::Any),
     quote = ("quote", quote_fn, Arity::Exact(1)),
     quasiquote = ("quasiquote", quasiquote_fn, Arity::Exact(1)),
+    define_macro = ("define-macro", define_macro_fn, Arity::AtLeast(2)),
 }
 
 enum ModifyEnv {
@@ -107,7 +108,7 @@ fn define_fn(mut args: Exprs, env: &mut EnvRef) -> ProcedureResult {
     // it must be a list (define procedure)
     let name_and_params = first_arg.into_list().map_err(|expr| {
         runtime_error!(
-            "expected symbol or list as first argument for define, got {}",
+            "expected symbol or list as the first argument for define, got {}",
             expr
         )
     })?;
@@ -233,4 +234,47 @@ fn quasiquote_list(list: Exprs, env: &mut EnvRef) -> EvalResult {
     }
 
     Ok(Expr::new_proper_list(new_list))
+}
+
+fn define_macro_fn(mut args: Exprs, env: &mut EnvRef) -> ProcedureResult {
+    let name_and_params = args.pop_front().unwrap().into_list().map_err(|expr| {
+        runtime_error!(
+            "expected list as the first argument for define-macro, got {}",
+            expr
+        )
+    })?;
+
+    // check that all elements define-macro formals list are symbols
+    name_and_params
+        .iter()
+        .zip(1..)
+        .try_for_each(|expr| match expr {
+            (Expr::Symbol(_), _) => Ok(()),
+            (expr, idx) => Err(runtime_error!(
+                "expected symbols in define procedure formals list, got {} at position {}",
+                expr.kind(),
+                idx
+            )),
+        })?;
+
+    let (name_expr, mut params) = name_and_params.split_first().ok_or(runtime_error!(
+        "expected at least 1 argument for define-macro formals list, got 0"
+    ))?;
+    // unwrap is safe since we checked `name_and_params` above
+    let name = name_expr.into_symbol().unwrap();
+
+    // define a procedure with variadic params
+    let params_expr = match (params.kind(), params.len()) {
+        (ListKind::Dotted, 1) => {
+            // safe to unwrap since params.len() == 1
+            params.pop_front().unwrap()
+        }
+        _ => Expr::List(params),
+    };
+
+    let body: Body = args.into();
+    let procedure = create_procedure(Some(name.to_string()), params_expr, body, env)?;
+    env.add_macro(name.to_string(), procedure.into_procedure().unwrap());
+
+    Ok(ProcedureReturn::Value(Expr::Void))
 }

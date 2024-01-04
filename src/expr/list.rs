@@ -143,10 +143,10 @@ impl DisplayList for List {
             };
         };
 
-        if list_location == ListLocation::Outer {
-            // write outer list with leading and trailing parentheses
-            write!(f, "(")?;
-        }
+        // if list_location == ListLocation::Outer {
+        // write outer list with leading and trailing parentheses
+        write!(f, "(")?;
+        // }
 
         if self.car().is_some() {
             let start = match list_location {
@@ -170,10 +170,10 @@ impl DisplayList for List {
             (None, _) => {}
         };
 
-        if list_location == ListLocation::Outer {
-            // write outer list with leading and trailing parentheses
-            write!(f, ")")?;
-        }
+        // if list_location == ListLocation::Outer {
+        // write outer list with leading and trailing parentheses
+        write!(f, ")")?;
+        // }
 
         std::fmt::Result::Ok(())
     }

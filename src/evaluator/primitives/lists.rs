@@ -1,7 +1,7 @@
 use super::utils::define_procedures;
 use crate::{
     evaluator::{error::runtime_error, EnvRef},
-    expr::{exprs, proc_result_value, Arity, Expr, Exprs, ProcedureResult},
+    expr::{exprs, proc_result_value, Arity, Expr, Exprs, ListKind, ProcedureResult},
 };
 
 define_procedures! {
@@ -55,12 +55,12 @@ fn cdr_fn(mut args: Exprs, _: &mut EnvRef) -> ProcedureResult {
     }
 
     let kind = list.kind();
-    let list: Exprs = list.cdr().cloned().collect();
+    let list_cdr: Exprs = list.cdr().cloned().collect();
 
-    let res = if list.len() == 1 {
-        list.into_iter().next().unwrap()
+    let res = if list_cdr.len() == 1 && kind == ListKind::Dotted {
+        list_cdr.into_iter().next().unwrap()
     } else {
-        Expr::new_list(list, kind)
+        Expr::new_list(list_cdr, kind)
     };
 
     proc_result_value!(res)
