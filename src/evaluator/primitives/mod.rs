@@ -4,4 +4,5 @@ pub mod lists;
 pub mod modularity;
 pub mod nums;
 pub mod system;
+pub mod convert;
 mod utils;

@@ -1,4 +1,4 @@
-use super::primitives::{eval, forms, lists, modularity, nums, system};
+use super::primitives::{eval, forms, lists, modularity, nums, system, convert};
 use crate::expr::{Expr, Procedure};
 use std::{cell::RefCell, collections::HashMap, rc::Rc};
 
@@ -103,26 +103,28 @@ pub fn new_root_env() -> EnvRef {
         nums::equal,
         nums::more,
         nums::abs,
-        nums::even,
-        nums::odd,
+        nums::is_even,
+        nums::is_odd,
         nums::sqrt,
         nums::square,
         nums::expt,
         nums::min,
         nums::max,
-        nums::positive,
-        nums::negative,
+        nums::is_positive,
+        nums::is_negative,
         nums::round,
         nums::truncate,
         nums::ceiling,
         nums::floor,
-        nums::zero,
-        nums::integer,
+        nums::is_zero,
+        nums::is_integer,
         // list operations
         lists::cons,
         lists::car_,
         lists::cdr_,
         lists::list_,
+        // type convertion
+        convert::number_to_string,
         // type checking
         // "null?" => builtin::is_null,
         // "pair?" => builtin::is_pair,
