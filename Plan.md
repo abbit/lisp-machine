@@ -46,7 +46,7 @@
 	- [ ] `eqv?`
 	- [ ] `eq?`
 	- [ ] `equal?`
-- [ ] numbers:
+- [x] numbers:
 	- [x] `number?`
 	- [x] `+`
 	- [x] `-`
@@ -58,7 +58,6 @@
     - [x] `<=`
     - [x] `>=`
 	- [x] `integer?`
-	- [ ] `real?`
 	- [x] `zero?`
 	- [x] `positive?`
 	- [x] `negative?`
@@ -81,7 +80,7 @@
 	- [x] `string->number`
 - [ ] booleans:
 	- [ ] `boolean?`
-	- [ ] `not`
+	- [x] `not`
     - [ ] `and`
     - [ ] `or`
 - [ ] pairs and lists:

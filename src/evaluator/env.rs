@@ -1,4 +1,4 @@
-use super::primitives::{eval, forms, lists, modularity, nums, system, convert};
+use super::primitives::{eval, forms, lists, modularity, nums, system, convert, bool};
 use crate::expr::{Expr, Procedure};
 use std::{cell::RefCell, collections::HashMap, rc::Rc};
 
@@ -121,6 +121,8 @@ pub fn new_root_env() -> EnvRef {
         nums::quotient,
         nums::remainder,
         nums::modulo,
+        // boolean
+        bool::not,
         // list operations
         lists::cons,
         lists::car_,
