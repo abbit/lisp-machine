@@ -37,42 +37,203 @@
 - [x] `list`
 - [x] `pair` (`improper list`)
 - [x] `char`
-- [ ] `port`
 - [x] `procedure`
+- [ ] `port`
 
-### Функции для работы с базовыми типами данных
+### Стандартная библиотека
 
-- [x] арифметические операции (`+`, `-`, `*`, `/`, ...)
-- [x] операции сравнения (`=`, `>`, `<`, `>=`, `<=`)
-- [ ] операции над списками (`cons`, `car`, `cdr`, `list`, `list?`, `null?`, `length`, ...)
-- [ ] операции над строками (`concat`, `substring`, `string-length`, ...)
-- ...
+- [ ] equivalence predicates:
+	- [ ] `eqv?`
+	- [ ] `eq?`
+	- [ ] `equal?`
+- [ ] numbers:
+	- [ ] `number?`
+	- [x] `+`
+	- [x] `-`
+	- [x] `*`
+	- [x] `/`
+    - [x] `=`
+    - [x] `<`
+    - [x] `>`
+    - [x] `<=`
+    - [x] `>=`
+	- [ ] `integer?`
+	- [ ] `real?`
+	- [ ] `zero?`
+	- [ ] `positive?`
+	- [ ] `negative?`
+	- [ ] `odd?`
+	- [ ] `even?`
+	- [ ] `abs`
+	- [ ] `min`
+	- [ ] `max`
+	- [ ] `modulo`
+	- [ ] `quotient`
+	- [ ] `remainder`
+	- [ ] `floor`
+	- [ ] `ceiling`
+	- [ ] `truncate`
+	- [ ] `round`
+	- [ ] `square`
+	- [ ] `sqrt`
+	- [ ] `expt`
+	- [ ] `number->string`
+	- [ ] `string->number`
+- [ ] booleans:
+	- [ ] `boolean?`
+	- [ ] `not`
+    - [ ] `and`
+    - [ ] `or`
+- [ ] pairs and lists:
+	- [ ] `pair?`
+	- [x] `cons`
+	- [x] `car`
+	- [x] `cdr`
+	- [ ] `caar`
+	- [ ] `cadr`
+	- [ ] `cdar`
+	- [ ] `cddr`
+	- [ ] `caaar`, `caadr`, ..., `cddar`, `cdddr`
+	- [ ] `null?`
+	- [ ] `list?`
+	- [ ] `make-list`
+	- [x] `list`
+	- [ ] `length`
+	- [ ] `append`
+	- [ ] `reverse`
+	- [ ] `list-tail`
+	- [ ] `list-ref`
+	- [ ] `memq`
+	- [ ] `memv`
+	- [ ] `member`
+	- [ ] `assq`
+	- [ ] `assv`
+	- [ ] `assoc`
+	- [ ] `list-copy`
+- [ ] symbols:
+	- [ ] `symbol?`
+	- [ ] `symbol->string`
+	- [ ] `string->symbol`
+- [ ] characters:
+	- [ ] `char?`
+    - [ ] `char=?`
+    - [ ] `char<?`
+    - [ ] `char>?`
+    - [ ] `char<=?`
+    - [ ] `char>=?`
+	- [ ] `char-alphabetic?`
+	- [ ] `char-numeric?`
+	- [ ] `char-whitespace?`
+	- [ ] `char-upper-case?`
+	- [ ] `char-lower-case?`
+	- [ ] `digit-value`
+	- [ ] `char->integer`
+	- [ ] `integer->char`
+	- [ ] `char-upcase`
+	- [ ] `char-downcase`
+	- [ ] `char-foldcase`
+- [ ] strings:
+	- [ ] `string?`
+    - [ ] `string=?`
+    - [ ] `string<?`
+    - [ ] `string>?`
+    - [ ] `string<=?`
+    - [ ] `string>=?`
+	- [ ] `make-string`
+	- [ ] `string`
+	- [ ] `string-length`
+	- [ ] `string-ref`
+	- [ ] `string-set!`
+	- [ ] `string-upcase`
+	- [ ] `string-downcase`
+	- [ ] `string-foldcase`
+	- [ ] `substring`
+	- [ ] `string-append`
+	- [ ] `string->list`
+	- [ ] `list->string`
+	- [ ] `string-copy`
+- [ ] controls:
+	- [ ] `procedure?`
+	- [x] `apply`
+	- [x] `eval`
+	- [ ] `map`
+	- [ ] `string-map`
+	- [ ] `for-each`
+	- [ ] `string-for-each`
+- [ ] ports:
+	- [ ] `port?`
+	- [ ] `call-with-port`
+	- [ ] `call-with-input-file`
+	- [ ] `call-with-output-file`
+	- [ ] `input-port?`
+	- [ ] `output-port?`
+	- [ ] `input-port-open?`
+	- [ ] `output-port-open?`
+	- [ ] `current-input-port`
+	- [ ] `current-output-port`
+	- [ ] `current-error-port`
+	- [ ] `open-input-file`
+	- [ ] `open-output-file`
+	- [ ] `close-port`
+	- [ ] `close-input-port`
+	- [ ] `close-output-port`
+	- [ ] `open-input-string`
+	- [ ] `open-output-string`
+	- [ ] `get-output-string`
+	- [x] `read`
+	- [ ] `read-char`
+	- [ ] `peek-char`
+	- [ ] `read-line`
+	- [ ] `eof-object?`
+	- [ ] `eof-object`
+	- [ ] `char-ready?`
+	- [ ] `read-string`
+	- [ ] `write`
+	- [x] `display`
+	- [x] `newline`
+	- [ ] `write-char`
+	- [ ] `write-string`
+	- [ ] `flush-output-port`
+- [ ] system interface:
+	- [x] `load`
+	- [ ] `file-exists?`
+	- [ ] `delete-file`
+	- [ ] `command-line`
+	- [x] `exit`
+	- [ ] `get-environment-variable`
+	- [ ] `get-environment-variables`
+	- [ ] `current-second`
 
 ### Специальные формы
 
 - [x] `define`
+- [x] `define-macro`
 - [x] `set!`
 - [x] `lambda`
-- [x] `apply`
-- [x] `eval`
+- [x] `if`
 - [x] `quote`
 - [x] `quasiquote`
 - [x] `unquote`
 - [x] `unquote-splicing`
-- [x] `if`
-- [x] `read`
-- [ ] `write`
 - [x] `include`
 - [x] `load`
-- [x] `define-macro`
 
-## Возможности, которые должны быть реализованы на языке Scheme
+## Специальные формы, которые должны быть реализованы на языке Scheme
 
 - [ ] `let`
+- [ ] `let*`
+- [ ] `letrec`
+- [ ] `letrec*`
+- [ ] `let-values`
+- [ ] `let*-values`
 - [ ] `and`
 - [ ] `or`
 - [ ] `cond`
-- ...
+- [ ] `when`
+- [ ] `unless`
+- [ ] `cond-expand`
+- [ ] `do`
+- [ ] `named let`
 
 ## Дополнительные требования:
 
