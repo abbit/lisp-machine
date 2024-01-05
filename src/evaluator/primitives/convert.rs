@@ -6,6 +6,7 @@ use crate::{
 
 define_procedures! {
     number_to_string = ("number->string", number_to_string_fn, Arity::AtLeast(1)),
+    string_to_number = ("string->number", string_to_number_fn, Arity::AtLeast(1)),
 }
 
 fn number_to_string_fn(mut args: Exprs, _env: &mut EnvRef) -> ProcedureResult {
@@ -75,4 +76,55 @@ impl ToRadix for i64 {
 
         result
     }
+}
+
+fn string_to_number_fn(mut args: Exprs, _env: &mut EnvRef) -> ProcedureResult {
+    let string_arg = args.pop_front().unwrap();
+    let radix_arg = args.pop_front().clone();
+
+    let radix = match radix_arg {
+        Some(arg) => match arg {
+            Expr::Integer(r) if [2, 8, 10, 16].contains(&r) => r as u32,
+            _ => {
+                return Err(runtime_error!(
+                    "radix must be one of 2, 8, 10, or 16, got {}",
+                    arg.kind()
+                ))
+            }
+        },
+        None => 10,
+    };
+
+    let string_value = match string_arg {
+        Expr::String(s) => s,
+        _ => {
+            return Err(runtime_error!(
+                "string->number is only supported for string arguments"
+            ))
+        }
+    };
+
+    let result = match radix {
+        10 => match string_value.parse::<f64>() {
+            Ok(float_value) => Expr::Float(float_value),
+            Err(_) => match string_value.parse::<i64>() {
+                Ok(int_value) => Expr::Integer(int_value),
+                Err(_) => {
+                    return Err(runtime_error!(
+                        "string->number: could not parse string as integer or float"
+                    ))
+                }
+            },
+        },
+        _ => match i64::from_str_radix(&string_value, radix) {
+            Ok(int_value) => Expr::Integer(int_value),
+            Err(_) => {
+                return Err(runtime_error!(
+                    "string->number: could not parse string as integer with the specified radix"
+                ))
+            }
+        },
+    };
+
+    Ok(result).map(ProcedureReturn::Value)
 }

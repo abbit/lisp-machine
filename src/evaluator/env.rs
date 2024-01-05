@@ -125,6 +125,7 @@ pub fn new_root_env() -> EnvRef {
         lists::list_,
         // type convertion
         convert::number_to_string,
+        convert::string_to_number,
         // type checking
         // "null?" => builtin::is_null,
         // "pair?" => builtin::is_pair,
