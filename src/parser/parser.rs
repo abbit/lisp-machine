@@ -70,7 +70,7 @@ impl<I: Iterator<Item = LexResult>> Parser<I> {
             Some(Ok(tok)) => match tok {
                 Token::Comment(_) => Some(Ok(Expr::Void)),
                 Token::Boolean(boolean) => Some(Ok(Expr::Boolean(boolean))),
-                Token::String(string) => Some(Ok(Expr::String(string))),
+                Token::String(string) => Some(Ok(Expr::new_string(string))),
                 Token::Symbol(symbol) => Some(Ok(Expr::Symbol(symbol))),
                 Token::Integer(int) => Some(Ok(Expr::Integer(int))),
                 Token::Float(float) => Some(Ok(Expr::Float(float))),
@@ -288,7 +288,7 @@ mod tests {
             parsed,
             vec![Expr::new_proper_list(exprs![
                 Expr::Symbol("display".to_string()),
-                Expr::String("Hello, world!".to_string()),
+                Expr::new_string("Hello, world!"),
             ])]
         );
     }

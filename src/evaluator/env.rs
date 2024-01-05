@@ -1,5 +1,8 @@
 use super::primitives::{eval, forms, lists, modularity, nums, system};
-use crate::expr::{Expr, Procedure};
+use crate::{
+    evaluator::primitives::strings,
+    expr::{Expr, Procedure},
+};
 use std::{cell::RefCell, collections::HashMap, path::PathBuf, rc::Rc};
 
 #[derive(Debug, PartialEq, Clone, Default)]
@@ -160,6 +163,7 @@ pub fn new_root_env() -> EnvRef {
         system::display,
         system::newline,
         system::exit,
+        strings::string_set,
     }
 
     env

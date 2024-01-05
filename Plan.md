@@ -177,7 +177,7 @@
   - [ ] `string`
   - [ ] `string-length`
   - [ ] `string-ref`
-  - [ ] `string-set!`
+  - [x] `string-set!`
   - [ ] `string-upcase`
   - [ ] `string-downcase`
   - [ ] `string-foldcase`
@@ -186,6 +186,8 @@
   - [ ] `string->list`
   - [ ] `list->string`
   - [ ] `string-copy`
+  - [ ] `string-copy!`
+  - [ ] `string-fill!`
 - [ ] controls:
   - [ ] `procedure?`
   - [x] `apply`

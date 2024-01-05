@@ -5,14 +5,14 @@ use super::{
     procedure::Procedure,
 };
 
-use std::collections::VecDeque;
+use std::{cell::RefCell, collections::VecDeque, rc::Rc};
 
 #[derive(PartialEq, Debug, Clone)]
 pub enum Expr {
     Integer(i64),
     Float(f64),
     Symbol(String),
-    String(String),
+    String(Rc<RefCell<String>>),
     Char(char),
     Boolean(bool),
     List(List),
@@ -75,6 +75,10 @@ impl Expr {
             ListKind::Proper => Expr::new_proper_list(list),
             ListKind::Dotted => Expr::new_dotted_list(list),
         }
+    }
+
+    pub fn new_string<S: Into<String>>(string: S) -> Self {
+        Expr::String(Rc::new(RefCell::new(string.into())))
     }
 
     /// Returns kind of expression as string
@@ -154,9 +158,9 @@ impl Expr {
         }
     }
 
-    pub fn into_string(self) -> ExprIntoResult<String> {
+    pub fn into_string(self) -> ExprIntoResult<Rc<RefCell<String>>> {
         match self {
-            Expr::String(string) => Ok(string),
+            Expr::String(string) => Ok(Rc::clone(&string)),
             _ => Err(self),
         }
     }
@@ -183,7 +187,7 @@ impl fmt::Display for Expr {
             Expr::Integer(int) => write!(f, "{}", int),
             Expr::Float(float) => write!(f, "{}", float),
             Expr::Symbol(symbol) => write!(f, "{}", symbol),
-            Expr::String(string) => write!(f, "{}", string),
+            Expr::String(string) => write!(f, "\"{}\"", string.borrow()),
             Expr::Char(char) => write!(f, "{}", char),
             Expr::Procedure(proc) => write!(f, "{}", proc),
             Expr::Boolean(bool) => write!(f, "{}", bool),
