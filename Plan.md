@@ -81,8 +81,8 @@
 - [ ] booleans:
 	- [ ] `boolean?`
 	- [x] `not`
-    - [ ] `and`
-    - [ ] `or`
+    - [x] `and`
+    - [x] `or`
 - [ ] pairs and lists:
 	- [ ] `pair?`
 	- [x] `cons`
