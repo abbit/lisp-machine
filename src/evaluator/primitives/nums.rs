@@ -20,6 +20,8 @@ define_procedures! {
     expt = ("expt", expt_fn, Arity::Exact(2)),
     min = ("min", min_fn, Arity::AtLeast(1)),
     max = ("max", max_fn, Arity::AtLeast(1)),
+    positive = ("positive?", positive_fn, Arity::Exact(1)),
+    negative = ("negative?", negative_fn, Arity::Exact(1)),
 }
 
 fn add_fn(args: Exprs, env: &mut EnvRef) -> ProcedureResult {
@@ -317,4 +319,42 @@ fn max_fn(args: Exprs, _: &mut EnvRef) -> ProcedureResult {
         })?;
 
     Ok(Expr::Float(max_value)).map(ProcedureReturn::Value)
+}
+
+fn positive_fn(args: Exprs, _: &mut EnvRef) -> ProcedureResult {
+    if args.len() != 1 {
+        return Err(runtime_error!(
+            "expected 1 argument for positive?, got {}",
+            args.len()
+        ));
+    }
+
+    (match &args[0] {
+        Expr::Integer(n) => Ok(Expr::Boolean(*n > 0)),
+        Expr::Float(f) => Ok(Expr::Boolean(*f > 0.0)),
+        _ => Err(runtime_error!(
+            "expected integer or float for positive?, got {}",
+            args[0].kind()
+        )),
+    })
+    .map(ProcedureReturn::Value)
+}
+
+fn negative_fn(args: Exprs, _: &mut EnvRef) -> ProcedureResult {
+    if args.len() != 1 {
+        return Err(runtime_error!(
+            "expected 1 argument for negative?, got {}",
+            args.len()
+        ));
+    }
+
+    (match &args[0] {
+        Expr::Integer(n) => Ok(Expr::Boolean(*n < 0)),
+        Expr::Float(f) => Ok(Expr::Boolean(*f < 0.0)),
+        _ => Err(runtime_error!(
+            "expected integer or float for negative?, got {}",
+            args[0].kind()
+        )),
+    })
+    .map(ProcedureReturn::Value)
 }

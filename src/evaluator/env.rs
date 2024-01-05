@@ -110,6 +110,8 @@ pub fn new_root_env() -> EnvRef {
         nums::expt,
         nums::min,
         nums::max,
+        nums::positive,
+        nums::negative,
         // list operations
         lists::cons,
         lists::car_,
