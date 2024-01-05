@@ -15,6 +15,8 @@ use evaluator::{EnvRef, EvalError};
 pub use expr::Expr;
 use parser::ParseError;
 
+const PRELUDE: &str = include_str!("./prelude.scm");
+
 #[derive(Debug)]
 /// Error type for LispDM.
 pub enum LispDMError {
@@ -42,6 +44,10 @@ pub struct Engine {
 }
 
 impl Engine {
+    fn load_prelude(&mut self) {
+        self.eval(PRELUDE).expect("failed to load prelude!");
+    }
+
     /// Evaluates the given source code and returns the result.
     pub fn eval(&mut self, src: &str) -> Result<expr::Expr, LispDMError> {
         let ast = parser::parse_str(src).map_err(LispDMError::ParseError)?;
@@ -52,6 +58,9 @@ impl Engine {
 impl Default for Engine {
     fn default() -> Self {
         let root_env = evaluator::new_root_env();
-        Self { root_env }
+        let mut engine = Self { root_env };
+        engine.load_prelude();
+
+        engine
     }
 }
