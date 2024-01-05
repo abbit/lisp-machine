@@ -1,4 +1,4 @@
-use super::primitives::{eval, forms, lists, modularity, nums, system, convert, bool};
+use super::primitives::{eval, forms, lists, modularity, nums, system, convert, equal, bool};
 use crate::expr::{Expr, Procedure};
 use std::{cell::RefCell, collections::HashMap, rc::Rc};
 
@@ -110,19 +110,21 @@ pub fn new_root_env() -> EnvRef {
         nums::expt,
         nums::min,
         nums::max,
-        nums::is_positive,
-        nums::is_negative,
         nums::round,
         nums::truncate,
         nums::ceiling,
         nums::floor,
-        nums::is_zero,
         nums::is_integer,
         nums::quotient,
         nums::remainder,
         nums::modulo,
-        // boolean
-        bool::not,
+        // bool
+        bool::and,
+        bool::or,
+        // equal
+        /* equal::eqv,
+        equal::eq,
+        equal::equal,*/
         // list operations
         lists::cons,
         lists::car_,

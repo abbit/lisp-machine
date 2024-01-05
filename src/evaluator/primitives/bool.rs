@@ -5,16 +5,24 @@ use crate::{
 };
 
 define_procedures! {
-    not = ("not", not_fn, Arity::Exact(1)),
+    and = ("and", and_fn, Arity::Any),
+    or = ("or", or_fn, Arity::Any),
 }
 
+fn and_fn(args: Exprs, _: &mut EnvRef) -> ProcedureResult {
+    let result = args.into_iter().all(|arg| match arg {
+        Expr::Boolean(b) => b,
+        _ => false,
+    });
 
-fn not_fn(args: Exprs, _: &mut EnvRef) -> ProcedureResult {
-    let arg = &args[0];
+    Ok(Expr::Boolean(result)).map(ProcedureReturn::Value)
+}
 
-    match arg {
-        Expr::Boolean(b) => Ok(Expr::Boolean(!b)),
-        _ => Ok(Expr::Boolean(false)),
-    }
-    .map(ProcedureReturn::Value)
+fn or_fn(args: Exprs, _: &mut EnvRef) -> ProcedureResult {
+    let result = args.into_iter().any(|arg| match arg {
+        Expr::Boolean(b) => b,
+        _ => false,
+    });
+
+    Ok(Expr::Boolean(result)).map(ProcedureReturn::Value)
 }

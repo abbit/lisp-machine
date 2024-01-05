@@ -20,13 +20,10 @@ define_procedures! {
     expt = ("expt", expt_fn, Arity::Exact(2)),
     min = ("min", min_fn, Arity::AtLeast(1)),
     max = ("max", max_fn, Arity::AtLeast(1)),
-    is_positive = ("positive?", positive_fn, Arity::Exact(1)),
-    is_negative = ("negative?", negative_fn, Arity::Exact(1)),
     floor = ("floor", floor_fn, Arity::Exact(1)),
     ceiling = ("ceiling", ceiling_fn, Arity::Exact(1)),
     truncate = ("truncate", truncate_fn, Arity::Exact(1)),
     round = ("round", round_fn, Arity::Exact(1)),
-    is_zero = ("zero?", zero_fn, Arity::Exact(1)),
     is_integer = ("integer?", integer_fn, Arity::Exact(1)),
     modulo = ("modulo", modulo_fn, Arity::Exact(2)),
     quotient = ("quotient", quotient_fn, Arity::Exact(2)),
@@ -280,30 +277,6 @@ fn max_fn(args: Exprs, _: &mut EnvRef) -> ProcedureResult {
     Ok(Expr::Float(max_value)).map(ProcedureReturn::Value)
 }
 
-fn positive_fn(args: Exprs, _: &mut EnvRef) -> ProcedureResult {
-    (match &args[0] {
-        Expr::Integer(n) => Ok(Expr::Boolean(*n > 0)),
-        Expr::Float(f) => Ok(Expr::Boolean(*f > 0.0)),
-        _ => Err(runtime_error!(
-            "expected integer or float for positive?, got {}",
-            args[0].kind()
-        )),
-    })
-    .map(ProcedureReturn::Value)
-}
-
-fn negative_fn(args: Exprs, _: &mut EnvRef) -> ProcedureResult {
-    (match &args[0] {
-        Expr::Integer(n) => Ok(Expr::Boolean(*n < 0)),
-        Expr::Float(f) => Ok(Expr::Boolean(*f < 0.0)),
-        _ => Err(runtime_error!(
-            "expected integer or float for negative?, got {}",
-            args[0].kind()
-        )),
-    })
-    .map(ProcedureReturn::Value)
-}
-
 fn floor_fn(args: Exprs, _: &mut EnvRef) -> ProcedureResult {
     (match &args[0] {
         Expr::Integer(n) => Ok(Expr::Float(*n as f64)),
@@ -346,18 +319,6 @@ fn round_fn(args: Exprs, _: &mut EnvRef) -> ProcedureResult {
         Expr::Float(f) => Ok(Expr::Float(f.round())),
         _ => Err(runtime_error!(
             "expected integer or float for round, got {}",
-            args[0].kind()
-        )),
-    })
-    .map(ProcedureReturn::Value)
-}
-
-fn zero_fn(args: Exprs, _: &mut EnvRef) -> ProcedureResult {
-    (match &args[0] {
-        Expr::Integer(n) => Ok(Expr::Boolean(*n == 0)),
-        Expr::Float(f) => Ok(Expr::Boolean(*f == 0.0)),
-        _ => Err(runtime_error!(
-            "expected integer or float for zero?, got {}",
             args[0].kind()
         )),
     })

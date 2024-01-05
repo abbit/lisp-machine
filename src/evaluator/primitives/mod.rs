@@ -6,4 +6,5 @@ pub mod nums;
 pub mod system;
 pub mod convert;
 pub mod bool;
+pub mod equal;
 mod utils;
