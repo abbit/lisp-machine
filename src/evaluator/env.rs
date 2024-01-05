@@ -1,17 +1,21 @@
 use super::primitives::{eval, forms, lists, modularity, nums, system};
 use crate::expr::{Expr, Procedure};
-use std::{cell::RefCell, collections::HashMap, rc::Rc};
+use std::{cell::RefCell, collections::HashMap, path::PathBuf, rc::Rc};
 
 #[derive(Debug, PartialEq, Clone, Default)]
 struct Env {
     bindings: HashMap<String, Expr>,
     macros: HashMap<String, Procedure>,
     parent: Option<EnvRef>,
+    cwd: PathBuf,
 }
 
 impl Env {
     fn extend(parent: EnvRef) -> Env {
+        let cwd = parent.0.borrow().cwd.clone();
+
         Env {
+            cwd,
             bindings: HashMap::new(),
             macros: HashMap::new(),
             parent: Some(parent),
@@ -74,8 +78,8 @@ impl EnvRef {
         self.0.borrow().parent.is_none()
     }
 
-    pub fn extend(self) -> Self {
-        EnvRef(Rc::new(RefCell::new(Env::extend(self))))
+    pub fn extend(&self) -> Self {
+        EnvRef(Rc::new(RefCell::new(Env::extend(self.clone()))))
     }
 
     pub fn get(&self, name: &str) -> Option<Expr> {
@@ -97,10 +101,19 @@ impl EnvRef {
     pub fn add_macro(&mut self, name: String, macro_: Procedure) {
         self.0.borrow_mut().add_macro(name, macro_)
     }
+
+    pub fn cwd(&self) -> PathBuf {
+        self.0.borrow().cwd.clone()
+    }
+
+    pub fn set_cwd(&mut self, cwd: PathBuf) {
+        self.0.borrow_mut().cwd = cwd;
+    }
 }
 
 pub fn new_root_env() -> EnvRef {
     let mut env = EnvRef::default();
+    env.set_cwd(std::env::current_dir().expect("failed to get current working directory"));
 
     insert_procedures! {
         env,
