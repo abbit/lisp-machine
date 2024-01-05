@@ -178,7 +178,7 @@ pub fn new_root_env() -> EnvRef {
         // "pair?" => builtin::is_pair,
         types::is_number,
         // "symbol?" => builtin::is_symbol,
-        // "string?" => builtin::is_string,
+        types::is_string,
         // "boolean?" => builtin::is_boolean,
         // "procedure?" => builtin::is_procedure,
         types::is_char,

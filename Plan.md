@@ -132,7 +132,7 @@
 	- [ ] `char-downcase`
 	- [ ] `char-foldcase`
 - [ ] strings:
-	- [ ] `string?`
+	- [x] `string?`
     - [ ] `string=?`
     - [ ] `string<?`
     - [ ] `string>?`
