@@ -108,6 +108,8 @@ pub fn new_root_env() -> EnvRef {
         nums::sqrt,
         nums::square,
         nums::expt,
+        nums::min,
+        nums::max,
         // list operations
         lists::cons,
         lists::car_,
