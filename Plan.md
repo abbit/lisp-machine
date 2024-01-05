@@ -35,7 +35,7 @@
 - [x] `string`
 - [x] `symbol`
 - [x] `list`
-- [ ] `pair` (`improper list`)
+- [x] `pair` (`improper list`)
 - [x] `char`
 - [ ] `port`
 - [x] `procedure`
@@ -62,7 +62,8 @@
 - [x] `if`
 - [x] `read`
 - [ ] `write`
-- [ ] `include`
+- [x] `include`
+- [x] `load`
 - [x] `define-macro`
 
 ## Возможности, которые должны быть реализованы на языке Scheme
@@ -71,7 +72,6 @@
 - [ ] `and`
 - [ ] `or`
 - [ ] `cond`
-- [ ] `load`
 - ...
 
 ## Дополнительные требования:
