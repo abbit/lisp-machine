@@ -133,6 +133,7 @@ pub fn new_root_env() -> EnvRef {
         // type convertion
         convert::number_to_string,
         convert::string_to_number,
+        convert::char_to_integer,
         // type checking
         // "null?" => builtin::is_null,
         // "pair?" => builtin::is_pair,

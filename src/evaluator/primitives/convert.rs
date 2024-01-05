@@ -7,6 +7,7 @@ use crate::{
 define_procedures! {
     number_to_string = ("number->string", number_to_string_fn, Arity::AtLeast(1)),
     string_to_number = ("string->number", string_to_number_fn, Arity::AtLeast(1)),
+    char_to_integer = ("char->integer", char_to_integer_fn, Arity::Exact(1)),
 }
 
 fn number_to_string_fn(mut args: Exprs, _env: &mut EnvRef) -> ProcedureResult {
@@ -127,4 +128,19 @@ fn string_to_number_fn(mut args: Exprs, _env: &mut EnvRef) -> ProcedureResult {
     };
 
     Ok(result).map(ProcedureReturn::Value)
+}
+
+fn char_to_integer_fn(mut args: Exprs, _env: &mut EnvRef) -> ProcedureResult {
+    let char_arg = args.pop_front().unwrap();
+
+    let unicode_code_point = match char_arg {
+        Expr::Char(c) => c as i64,
+        _ => {
+            return Err(runtime_error!(
+                "char->integer is only supported for char arguments"
+            ))
+        }
+    };
+
+    Ok(Expr::Integer(unicode_code_point)).map(ProcedureReturn::Value)
 }
