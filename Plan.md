@@ -68,7 +68,7 @@
 	- [x] `min`
 	- [x] `max`
 	- [x] `modulo`
-	- [ ] `quotient`
+	- [x] `quotient`
 	- [ ] `remainder`
 	- [x] `floor`
 	- [x] `ceiling`

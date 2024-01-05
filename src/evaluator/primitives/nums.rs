@@ -29,6 +29,7 @@ define_procedures! {
     is_zero = ("zero?", zero_fn, Arity::Exact(1)),
     is_integer = ("integer?", integer_fn, Arity::Exact(1)),
     modulo = ("modulo", modulo_fn, Arity::Exact(2)),
+    quotient = ("quotient", quotient_fn, Arity::Exact(2)),
 }
 
 fn add_fn(args: Exprs, env: &mut EnvRef) -> ProcedureResult {
@@ -406,6 +407,48 @@ fn modulo_fn(args: Exprs, _: &mut EnvRef) -> ProcedureResult {
         }
         _ => Err(runtime_error!(
             "expected integers or floats for modulo, got {} and {}",
+            dividend.kind(),
+            divisor.kind()
+        )),
+    }
+    .map(ProcedureReturn::Value)
+}
+
+fn quotient_fn(args: Exprs, _: &mut EnvRef) -> ProcedureResult {
+    let dividend = &args[0];
+    let divisor = &args[1];
+
+    match (dividend, divisor) {
+        (Expr::Integer(lhs), Expr::Integer(rhs)) => {
+            if *rhs == 0 {
+                Err(runtime_error!("division by zero in quotient"))
+            } else {
+                Ok(Expr::Integer(lhs / rhs))
+            }
+        }
+        (Expr::Integer(lhs), Expr::Float(rhs)) => {
+            if *rhs == 0.0 {
+                Err(runtime_error!("division by zero in quotient"))
+            } else {
+                Ok(Expr::Float(((*lhs) as f64) / rhs))
+            }
+        }
+        (Expr::Float(lhs), Expr::Integer(rhs)) => {
+            if *rhs == 0 {
+                Err(runtime_error!("division by zero in quotient"))
+            } else {
+                Ok(Expr::Float(lhs / (*rhs as f64)))
+            }
+        }
+        (Expr::Float(lhs), Expr::Float(rhs)) => {
+            if *rhs == 0.0 {
+                Err(runtime_error!("division by zero in quotient"))
+            } else {
+                Ok(Expr::Float(lhs / rhs))
+            }
+        }
+        _ => Err(runtime_error!(
+            "expected integers or floats for quotient, got {} and {}",
             dividend.kind(),
             divisor.kind()
         )),
