@@ -114,7 +114,7 @@
 	- [ ] `symbol->string`
 	- [ ] `string->symbol`
 - [ ] characters:
-	- [ ] `char?`
+	- [x] `char?`
     - [x] `char=?`
     - [x] `char<?`
     - [x] `char>?`
@@ -225,8 +225,6 @@
 - [ ] `letrec*`
 - [ ] `let-values`
 - [ ] `let*-values`
-- [ ] `and`
-- [ ] `or`
 - [ ] `cond`
 - [ ] `when`
 - [ ] `unless`

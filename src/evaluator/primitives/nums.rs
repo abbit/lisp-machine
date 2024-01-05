@@ -13,8 +13,6 @@ define_procedures! {
     equal = ("=", equal_fn, Arity::Exact(2)),
     more = (">", more_fn, Arity::Exact(2)),
     abs = ("abs", abs_fn, Arity::Exact(1)),
-    is_even = ("even?", even_fn, Arity::Exact(1)),
-    is_odd = ("odd?", odd_fn, Arity::Exact(1)),
     sqrt = ("sqrt", sqrt_fn, Arity::Exact(1)),
     square = ("square", square_fn, Arity::Exact(1)),
     expt = ("expt", expt_fn, Arity::Exact(2)),
@@ -175,28 +173,6 @@ fn abs_fn(args: Exprs, _: &mut EnvRef) -> ProcedureResult {
         Expr::Float(f) => Ok(Expr::Float(f.abs())),
         _ => Err(runtime_error!(
             "expected integer or float for abs, got {}",
-            args[0].kind()
-        )),
-    })
-    .map(ProcedureReturn::Value)
-}
-
-fn even_fn(args: Exprs, _: &mut EnvRef) -> ProcedureResult {
-    (match &args[0] {
-        Expr::Integer(n) => Ok(Expr::Boolean(n % 2 == 0)),
-        _ => Err(runtime_error!(
-            "expected integer for even?, got {}",
-            args[0].kind()
-        )),
-    })
-    .map(ProcedureReturn::Value)
-}
-
-fn odd_fn(args: Exprs, _: &mut EnvRef) -> ProcedureResult {
-    (match &args[0] {
-        Expr::Integer(n) => Ok(Expr::Boolean(n % 2 != 0)),
-        _ => Err(runtime_error!(
-            "expected integer for odd?, got {}",
             args[0].kind()
         )),
     })

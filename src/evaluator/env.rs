@@ -1,4 +1,4 @@
-use super::primitives::{eval, forms, lists, modularity, nums, system, convert, equal, bool};
+use super::primitives::{eval, forms, lists, modularity, nums, system, convert, equal, bool, types};
 use crate::expr::{Expr, Procedure};
 use std::{cell::RefCell, collections::HashMap, rc::Rc};
 
@@ -103,8 +103,6 @@ pub fn new_root_env() -> EnvRef {
         nums::equal,
         nums::more,
         nums::abs,
-        nums::is_even,
-        nums::is_odd,
         nums::sqrt,
         nums::square,
         nums::expt,
@@ -138,11 +136,12 @@ pub fn new_root_env() -> EnvRef {
         // type checking
         // "null?" => builtin::is_null,
         // "pair?" => builtin::is_pair,
-        // "number?" => builtin::is_number,
+        types::is_number,
         // "symbol?" => builtin::is_symbol,
         // "string?" => builtin::is_string,
         // "boolean?" => builtin::is_boolean,
         // "procedure?" => builtin::is_procedure,
+        types::is_char,
         // system interaction
         system::read,
         system::read_line,
