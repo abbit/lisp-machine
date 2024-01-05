@@ -69,7 +69,7 @@
 	- [x] `max`
 	- [x] `modulo`
 	- [x] `quotient`
-	- [ ] `remainder`
+	- [x] `remainder`
 	- [x] `floor`
 	- [x] `ceiling`
 	- [x] `truncate`
