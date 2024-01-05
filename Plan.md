@@ -127,7 +127,7 @@
 	- [ ] `char-lower-case?`
 	- [ ] `digit-value`
 	- [x] `char->integer`
-	- [ ] `integer->char`
+	- [x] `integer->char`
 	- [ ] `char-upcase`
 	- [ ] `char-downcase`
 	- [ ] `char-foldcase`

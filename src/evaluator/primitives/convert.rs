@@ -8,6 +8,7 @@ define_procedures! {
     number_to_string = ("number->string", number_to_string_fn, Arity::AtLeast(1)),
     string_to_number = ("string->number", string_to_number_fn, Arity::AtLeast(1)),
     char_to_integer = ("char->integer", char_to_integer_fn, Arity::Exact(1)),
+    integer_to_char = ("integer->char", integer_to_char_fn, Arity::Exact(1)),
 }
 
 fn number_to_string_fn(mut args: Exprs, _env: &mut EnvRef) -> ProcedureResult {
@@ -143,4 +144,27 @@ fn char_to_integer_fn(mut args: Exprs, _env: &mut EnvRef) -> ProcedureResult {
     };
 
     Ok(Expr::Integer(unicode_code_point)).map(ProcedureReturn::Value)
+}
+
+fn integer_to_char_fn(mut args: Exprs, _env: &mut EnvRef) -> ProcedureResult {
+    let integer_arg = args.pop_front().unwrap();
+
+    let character = match integer_arg {
+        Expr::Integer(code_point) => match std::char::from_u32(code_point as u32) {
+            Some(c) => c,
+            None => {
+                return Err(runtime_error!(
+                    "integer->char: code point {} does not correspond to a valid Unicode character",
+                    code_point
+                ))
+            }
+        },
+        _ => {
+            return Err(runtime_error!(
+                "integer->char is only supported for integer arguments"
+            ))
+        }
+    };
+
+    Ok(Expr::Char(character)).map(ProcedureReturn::Value)
 }
