@@ -36,6 +36,19 @@ pub trait CheckArity<T> {
         }
     }
 
+    fn range_or_expected_arity(
+        &self,
+        min: usize,
+        max: usize,
+        name: &str,
+        arity: Arity,
+    ) -> Result<(), EvalError> {
+        match self.at_least_or_expected_arity(min, name, arity)? {
+            len if len <= max => Ok(()),
+            _ => Err(runtime_error!("expected {} arguments for {}", arity, name)),
+        }
+    }
+
     fn validate_arity(&self, name: &str, arity: Arity) -> Result<(), EvalError> {
         match arity {
             Arity::Any => Ok(()),
@@ -43,6 +56,7 @@ pub trait CheckArity<T> {
             Arity::AtLeast(min) => self
                 .at_least_or_expected_arity(min, name, arity)
                 .map(|_| ()),
+            Arity::Range(min, max) => self.range_or_expected_arity(min, max, name, arity),
         }
     }
 }

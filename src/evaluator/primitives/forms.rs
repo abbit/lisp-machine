@@ -17,7 +17,7 @@ define_special_forms! {
     define = ("define", define_fn, Arity::AtLeast(2)),
     set = ("set!", set_fn, Arity::Exact(2)),
     lambda = ("lambda", lambda_fn, Arity::Exact(2)),
-    if_ = ("if", if_fn, Arity::AtLeast(2)),
+    if_ = ("if", if_fn, Arity::Range(2, 3)),
     begin = ("begin", begin_fn, Arity::Any),
     quote = ("quote", quote_fn, Arity::Exact(1)),
     quasiquote = ("quasiquote", quasiquote_fn, Arity::Exact(1)),
