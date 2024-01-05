@@ -9,3 +9,15 @@
 ; bool
 
 ; lists and pairs
+
+; chars
+(define (char=? . c)
+  (apply = (map char->integer c)))
+(define (char<? . c)
+  (apply < (map char->integer c)))
+(define (char>? . c)
+  (apply > (map char->integer c)))
+(define (char<=? . c)
+  (apply <= (map char->integer c)))
+(define (char>=? . c)
+  (apply >= (map char->integer c)))

@@ -115,11 +115,11 @@
 	- [ ] `string->symbol`
 - [ ] characters:
 	- [ ] `char?`
-    - [ ] `char=?`
-    - [ ] `char<?`
-    - [ ] `char>?`
-    - [ ] `char<=?`
-    - [ ] `char>=?`
+    - [x] `char=?`
+    - [x] `char<?`
+    - [x] `char>?`
+    - [x] `char<=?`
+    - [x] `char>=?`
 	- [ ] `char-alphabetic?`
 	- [ ] `char-numeric?`
 	- [ ] `char-whitespace?`
