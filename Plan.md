@@ -26,9 +26,7 @@
 
 Реализация на Rust должна содержать минимальный набор встроенных функций, необходимых для написания программ на языке Scheme. Все остальные необходимые элементы языка должны быть выражены в этом минимальном базисе.
 
-## Реализация на Rust должна содержать:
-
-### Базовые типы данных
+## Базовые типы данных
 
 - [x] `boolean` (#t, #f, #true, #false)
 - [x] `number` (integer, float)
@@ -40,171 +38,9 @@
 - [x] `procedure`
 - [ ] `port`
 
-### Стандартная библиотека
+## Специальные формы
 
-- [ ] equivalence predicates:
-	- [ ] `eqv?`
-	- [ ] `eq?`
-	- [ ] `equal?`
-- [ ] numbers:
-	- [ ] `number?`
-	- [x] `+`
-	- [x] `-`
-	- [x] `*`
-	- [x] `/`
-    - [x] `=`
-    - [x] `<`
-    - [x] `>`
-    - [x] `<=`
-    - [x] `>=`
-	- [ ] `integer?`
-	- [ ] `real?`
-	- [ ] `zero?`
-	- [ ] `positive?`
-	- [ ] `negative?`
-	- [ ] `odd?`
-	- [ ] `even?`
-	- [ ] `abs`
-	- [ ] `min`
-	- [ ] `max`
-	- [ ] `modulo`
-	- [ ] `quotient`
-	- [ ] `remainder`
-	- [ ] `floor`
-	- [ ] `ceiling`
-	- [ ] `truncate`
-	- [ ] `round`
-	- [ ] `square`
-	- [ ] `sqrt`
-	- [ ] `expt`
-	- [ ] `number->string`
-	- [ ] `string->number`
-- [ ] booleans:
-	- [ ] `boolean?`
-	- [ ] `not`
-    - [ ] `and`
-    - [ ] `or`
-- [ ] pairs and lists:
-	- [ ] `pair?`
-	- [x] `cons`
-	- [x] `car`
-	- [x] `cdr`
-	- [ ] `caar`
-	- [ ] `cadr`
-	- [ ] `cdar`
-	- [ ] `cddr`
-	- [ ] `caaar`, `caadr`, ..., `cddar`, `cdddr`
-	- [ ] `null?`
-	- [ ] `list?`
-	- [ ] `make-list`
-	- [x] `list`
-	- [ ] `length`
-	- [ ] `append`
-	- [ ] `reverse`
-	- [ ] `list-tail`
-	- [ ] `list-ref`
-	- [ ] `memq`
-	- [ ] `memv`
-	- [ ] `member`
-	- [ ] `assq`
-	- [ ] `assv`
-	- [ ] `assoc`
-	- [ ] `list-copy`
-- [ ] symbols:
-	- [ ] `symbol?`
-	- [ ] `symbol->string`
-	- [ ] `string->symbol`
-- [ ] characters:
-	- [ ] `char?`
-    - [ ] `char=?`
-    - [ ] `char<?`
-    - [ ] `char>?`
-    - [ ] `char<=?`
-    - [ ] `char>=?`
-	- [ ] `char-alphabetic?`
-	- [ ] `char-numeric?`
-	- [ ] `char-whitespace?`
-	- [ ] `char-upper-case?`
-	- [ ] `char-lower-case?`
-	- [ ] `digit-value`
-	- [ ] `char->integer`
-	- [ ] `integer->char`
-	- [ ] `char-upcase`
-	- [ ] `char-downcase`
-	- [ ] `char-foldcase`
-- [ ] strings:
-	- [ ] `string?`
-    - [ ] `string=?`
-    - [ ] `string<?`
-    - [ ] `string>?`
-    - [ ] `string<=?`
-    - [ ] `string>=?`
-	- [ ] `make-string`
-	- [ ] `string`
-	- [ ] `string-length`
-	- [ ] `string-ref`
-	- [ ] `string-set!`
-	- [ ] `string-upcase`
-	- [ ] `string-downcase`
-	- [ ] `string-foldcase`
-	- [ ] `substring`
-	- [ ] `string-append`
-	- [ ] `string->list`
-	- [ ] `list->string`
-	- [ ] `string-copy`
-- [ ] controls:
-	- [ ] `procedure?`
-	- [x] `apply`
-	- [x] `eval`
-	- [ ] `map`
-	- [ ] `string-map`
-	- [ ] `for-each`
-	- [ ] `string-for-each`
-- [ ] ports:
-	- [ ] `port?`
-	- [ ] `call-with-port`
-	- [ ] `call-with-input-file`
-	- [ ] `call-with-output-file`
-	- [ ] `input-port?`
-	- [ ] `output-port?`
-	- [ ] `input-port-open?`
-	- [ ] `output-port-open?`
-	- [ ] `current-input-port`
-	- [ ] `current-output-port`
-	- [ ] `current-error-port`
-	- [ ] `open-input-file`
-	- [ ] `open-output-file`
-	- [ ] `close-port`
-	- [ ] `close-input-port`
-	- [ ] `close-output-port`
-	- [ ] `open-input-string`
-	- [ ] `open-output-string`
-	- [ ] `get-output-string`
-	- [x] `read`
-	- [ ] `read-char`
-	- [ ] `peek-char`
-	- [ ] `read-line`
-	- [ ] `eof-object?`
-	- [ ] `eof-object`
-	- [ ] `char-ready?`
-	- [ ] `read-string`
-	- [ ] `write`
-	- [x] `display`
-	- [x] `newline`
-	- [ ] `write-char`
-	- [ ] `write-string`
-	- [ ] `flush-output-port`
-- [ ] system interface:
-	- [x] `load`
-	- [ ] `file-exists?`
-	- [ ] `delete-file`
-	- [ ] `command-line`
-	- [x] `exit`
-	- [ ] `get-environment-variable`
-	- [ ] `get-environment-variables`
-	- [ ] `current-second`
-
-### Специальные формы
+### Реализация на Rust должна содержать:
 
 - [x] `define`
 - [x] `define-macro`
@@ -218,7 +54,7 @@
 - [x] `include`
 - [x] `load`
 
-## Специальные формы, которые должны быть реализованы на языке Scheme
+### Реализация на Scheme должна содержать:
 
 - [ ] `let`
 - [ ] `let*`
@@ -234,6 +70,173 @@
 - [ ] `cond-expand`
 - [ ] `do`
 - [ ] `named let`
+
+## Стандартная библиотека
+
+Функции стандартной библиотеки, которые нельзя выразить через другие реализовываются на Rust.
+Остальные должны быть реализованы на Scheme.
+
+- [ ] equivalence predicates:
+  - [ ] `eqv?`
+  - [ ] `eq?`
+  - [ ] `equal?`
+- [ ] numbers:
+  - [ ] `number?`
+  - [x] `+`
+  - [x] `-`
+  - [x] `*`
+  - [x] `/`
+  - [x] `=`
+  - [x] `<`
+  - [x] `>`
+  - [x] `<=`
+  - [x] `>=`
+  - [ ] `integer?`
+  - [ ] `real?`
+  - [ ] `zero?`
+  - [ ] `positive?`
+  - [ ] `negative?`
+  - [ ] `odd?`
+  - [ ] `even?`
+  - [ ] `abs`
+  - [ ] `min`
+  - [ ] `max`
+  - [ ] `modulo`
+  - [ ] `quotient`
+  - [ ] `remainder`
+  - [ ] `floor`
+  - [ ] `ceiling`
+  - [ ] `truncate`
+  - [ ] `round`
+  - [ ] `square`
+  - [ ] `sqrt`
+  - [ ] `expt`
+  - [ ] `number->string`
+  - [ ] `string->number`
+- [ ] booleans:
+  - [ ] `boolean?`
+  - [ ] `not`
+  - [ ] `and`
+  - [ ] `or`
+- [ ] pairs and lists:
+  - [ ] `pair?`
+  - [x] `cons`
+  - [x] `car`
+  - [x] `cdr`
+  - [ ] `caar`
+  - [ ] `cadr`
+  - [ ] `cdar`
+  - [ ] `cddr`
+  - [ ] `caaar`, `caadr`, ..., `cddar`, `cdddr`
+  - [ ] `null?`
+  - [ ] `list?`
+  - [ ] `make-list`
+  - [x] `list`
+  - [ ] `length`
+  - [ ] `append`
+  - [ ] `reverse`
+  - [ ] `list-tail`
+  - [ ] `list-ref`
+  - [ ] `memq`
+  - [ ] `memv`
+  - [ ] `member`
+  - [ ] `assq`
+  - [ ] `assv`
+  - [ ] `assoc`
+  - [ ] `list-copy`
+- [ ] symbols:
+  - [ ] `symbol?`
+  - [ ] `symbol->string`
+  - [ ] `string->symbol`
+- [ ] characters:
+  - [ ] `char?`
+  - [ ] `char=?`
+  - [ ] `char<?`
+  - [ ] `char>?`
+  - [ ] `char<=?`
+  - [ ] `char>=?`
+  - [ ] `char-alphabetic?`
+  - [ ] `char-numeric?`
+  - [ ] `char-whitespace?`
+  - [ ] `char-upper-case?`
+  - [ ] `char-lower-case?`
+  - [ ] `digit-value`
+  - [ ] `char->integer`
+  - [ ] `integer->char`
+  - [ ] `char-upcase`
+  - [ ] `char-downcase`
+  - [ ] `char-foldcase`
+- [ ] strings:
+  - [ ] `string?`
+  - [ ] `string=?`
+  - [ ] `string<?`
+  - [ ] `string>?`
+  - [ ] `string<=?`
+  - [ ] `string>=?`
+  - [ ] `make-string`
+  - [ ] `string`
+  - [ ] `string-length`
+  - [ ] `string-ref`
+  - [ ] `string-set!`
+  - [ ] `string-upcase`
+  - [ ] `string-downcase`
+  - [ ] `string-foldcase`
+  - [ ] `substring`
+  - [ ] `string-append`
+  - [ ] `string->list`
+  - [ ] `list->string`
+  - [ ] `string-copy`
+- [ ] controls:
+  - [ ] `procedure?`
+  - [x] `apply`
+  - [x] `eval`
+  - [ ] `map`
+  - [ ] `string-map`
+  - [ ] `for-each`
+  - [ ] `string-for-each`
+- [ ] ports:
+  - [ ] `port?`
+  - [ ] `call-with-port`
+  - [ ] `call-with-input-file`
+  - [ ] `call-with-output-file`
+  - [ ] `input-port?`
+  - [ ] `output-port?`
+  - [ ] `input-port-open?`
+  - [ ] `output-port-open?`
+  - [ ] `current-input-port`
+  - [ ] `current-output-port`
+  - [ ] `current-error-port`
+  - [ ] `open-input-file`
+  - [ ] `open-output-file`
+  - [ ] `close-port`
+  - [ ] `close-input-port`
+  - [ ] `close-output-port`
+  - [ ] `open-input-string`
+  - [ ] `open-output-string`
+  - [ ] `get-output-string`
+  - [x] `read`
+  - [ ] `read-char`
+  - [ ] `peek-char`
+  - [ ] `read-line`
+  - [ ] `eof-object?`
+  - [ ] `eof-object`
+  - [ ] `char-ready?`
+  - [ ] `read-string`
+  - [ ] `write`
+  - [x] `display`
+  - [x] `newline`
+  - [ ] `write-char`
+  - [ ] `write-string`
+  - [ ] `flush-output-port`
+- [ ] system interface:
+  - [x] `load`
+  - [ ] `file-exists?`
+  - [ ] `delete-file`
+  - [ ] `command-line`
+  - [x] `exit`
+  - [ ] `get-environment-variable`
+  - [ ] `get-environment-variables`
+  - [ ] `current-second`
 
 ## Дополнительные требования:
 
