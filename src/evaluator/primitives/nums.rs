@@ -22,6 +22,10 @@ define_procedures! {
     max = ("max", max_fn, Arity::AtLeast(1)),
     positive = ("positive?", positive_fn, Arity::Exact(1)),
     negative = ("negative?", negative_fn, Arity::Exact(1)),
+    floor = ("floor", floor_fn, Arity::Exact(1)),
+    ceiling = ("ceiling", ceiling_fn, Arity::Exact(1)),
+    truncate = ("truncate", truncate_fn, Arity::Exact(1)),
+    round = ("round", round_fn, Arity::Exact(1)),
 }
 
 fn add_fn(args: Exprs, env: &mut EnvRef) -> ProcedureResult {
@@ -164,13 +168,6 @@ fn more_fn(mut args: Exprs, _: &mut EnvRef) -> ProcedureResult {
 }
 
 fn abs_fn(args: Exprs, _: &mut EnvRef) -> ProcedureResult {
-    if args.len() != 1 {
-        return Err(runtime_error!(
-            "expected 1 argument for abs, got {}",
-            args.len()
-        ));
-    }
-
     (match &args[0] {
         Expr::Integer(n) => Ok(Expr::Integer(n.abs())),
         Expr::Float(f) => Ok(Expr::Float(f.abs())),
@@ -183,13 +180,6 @@ fn abs_fn(args: Exprs, _: &mut EnvRef) -> ProcedureResult {
 }
 
 fn even_fn(args: Exprs, _: &mut EnvRef) -> ProcedureResult {
-    if args.len() != 1 {
-        return Err(runtime_error!(
-            "expected 1 argument for even?, got {}",
-            args.len()
-        ));
-    }
-
     (match &args[0] {
         Expr::Integer(n) => Ok(Expr::Boolean(n % 2 == 0)),
         _ => Err(runtime_error!(
@@ -201,13 +191,6 @@ fn even_fn(args: Exprs, _: &mut EnvRef) -> ProcedureResult {
 }
 
 fn odd_fn(args: Exprs, _: &mut EnvRef) -> ProcedureResult {
-    if args.len() != 1 {
-        return Err(runtime_error!(
-            "expected 1 argument for odd?, got {}",
-            args.len()
-        ));
-    }
-
     (match &args[0] {
         Expr::Integer(n) => Ok(Expr::Boolean(n % 2 != 0)),
         _ => Err(runtime_error!(
@@ -219,13 +202,6 @@ fn odd_fn(args: Exprs, _: &mut EnvRef) -> ProcedureResult {
 }
 
 fn sqrt_fn(args: Exprs, _: &mut EnvRef) -> ProcedureResult {
-    if args.len() != 1 {
-        return Err(runtime_error!(
-            "expected 1 argument for sqrt, got {}",
-            args.len()
-        ));
-    }
-
     (match &args[0] {
         Expr::Integer(n) if *n >= 0 => Ok(Expr::Float(((*n) as f64).sqrt())),
         Expr::Float(f) if *f >= 0.0 => Ok(Expr::Float(f.sqrt())),
@@ -238,13 +214,6 @@ fn sqrt_fn(args: Exprs, _: &mut EnvRef) -> ProcedureResult {
 }
 
 fn square_fn(args: Exprs, _: &mut EnvRef) -> ProcedureResult {
-    if args.len() != 1 {
-        return Err(runtime_error!(
-            "expected 1 argument for square, got {}",
-            args.len()
-        ));
-    }
-
     match &args[0] {
         Expr::Integer(n) => Ok(Expr::Integer(n * n)),
         Expr::Float(f) => Ok(Expr::Float(f * f)),
@@ -257,13 +226,6 @@ fn square_fn(args: Exprs, _: &mut EnvRef) -> ProcedureResult {
 }
 
 fn expt_fn(args: Exprs, _: &mut EnvRef) -> ProcedureResult {
-    if args.len() != 2 {
-        return Err(runtime_error!(
-            "expected 2 arguments for expt, got {}",
-            args.len()
-        ));
-    }
-
     let base = &args[0];
     let exponent = &args[1];
 
@@ -284,10 +246,6 @@ fn expt_fn(args: Exprs, _: &mut EnvRef) -> ProcedureResult {
 }
 
 fn min_fn(args: Exprs, _: &mut EnvRef) -> ProcedureResult {
-    if args.is_empty() {
-        return Err(runtime_error!("expected at least 1 argument for min"));
-    }
-
     let min_value = args
         .into_iter()
         .try_fold(std::f64::INFINITY, |acc, arg| match arg {
@@ -303,10 +261,6 @@ fn min_fn(args: Exprs, _: &mut EnvRef) -> ProcedureResult {
 }
 
 fn max_fn(args: Exprs, _: &mut EnvRef) -> ProcedureResult {
-    if args.is_empty() {
-        return Err(runtime_error!("expected at least 1 argument for max"));
-    }
-
     let max_value = args
         .into_iter()
         .try_fold(std::f64::NEG_INFINITY, |acc, arg| match arg {
@@ -322,13 +276,6 @@ fn max_fn(args: Exprs, _: &mut EnvRef) -> ProcedureResult {
 }
 
 fn positive_fn(args: Exprs, _: &mut EnvRef) -> ProcedureResult {
-    if args.len() != 1 {
-        return Err(runtime_error!(
-            "expected 1 argument for positive?, got {}",
-            args.len()
-        ));
-    }
-
     (match &args[0] {
         Expr::Integer(n) => Ok(Expr::Boolean(*n > 0)),
         Expr::Float(f) => Ok(Expr::Boolean(*f > 0.0)),
@@ -341,18 +288,59 @@ fn positive_fn(args: Exprs, _: &mut EnvRef) -> ProcedureResult {
 }
 
 fn negative_fn(args: Exprs, _: &mut EnvRef) -> ProcedureResult {
-    if args.len() != 1 {
-        return Err(runtime_error!(
-            "expected 1 argument for negative?, got {}",
-            args.len()
-        ));
-    }
-
     (match &args[0] {
         Expr::Integer(n) => Ok(Expr::Boolean(*n < 0)),
         Expr::Float(f) => Ok(Expr::Boolean(*f < 0.0)),
         _ => Err(runtime_error!(
             "expected integer or float for negative?, got {}",
+            args[0].kind()
+        )),
+    })
+    .map(ProcedureReturn::Value)
+}
+
+fn floor_fn(args: Exprs, _: &mut EnvRef) -> ProcedureResult {
+    (match &args[0] {
+        Expr::Integer(n) => Ok(Expr::Float(*n as f64)),
+        Expr::Float(f) => Ok(Expr::Float(f.floor())),
+        _ => Err(runtime_error!(
+            "expected integer or float for floor, got {}",
+            args[0].kind()
+        )),
+    })
+    .map(ProcedureReturn::Value)
+}
+
+fn ceiling_fn(args: Exprs, _: &mut EnvRef) -> ProcedureResult {
+    (match &args[0] {
+        Expr::Integer(n) => Ok(Expr::Float(*n as f64)),
+        Expr::Float(f) => Ok(Expr::Float(f.ceil())),
+        _ => Err(runtime_error!(
+            "expected integer or float for ceiling, got {}",
+            args[0].kind()
+        )),
+    })
+    .map(ProcedureReturn::Value)
+}
+
+fn truncate_fn(args: Exprs, _: &mut EnvRef) -> ProcedureResult {
+    (match &args[0] {
+        Expr::Integer(n) => Ok(Expr::Float(*n as f64)),
+        Expr::Float(f) => Ok(Expr::Float(f.trunc())),
+        _ => Err(runtime_error!(
+            "expected integer or float for truncate, got {}",
+            args[0].kind()
+        )),
+    })
+    .map(ProcedureReturn::Value)
+}
+
+fn round_fn(args: Exprs, _: &mut EnvRef) -> ProcedureResult {
+    (match &args[0] {
+        Expr::Integer(n) => Ok(Expr::Float(*n as f64)),
+        Expr::Float(f) => Ok(Expr::Float(f.round())),
+        _ => Err(runtime_error!(
+            "expected integer or float for round, got {}",
             args[0].kind()
         )),
     })

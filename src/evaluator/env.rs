@@ -112,6 +112,10 @@ pub fn new_root_env() -> EnvRef {
         nums::max,
         nums::positive,
         nums::negative,
+        nums::round,
+        nums::truncate,
+        nums::ceiling,
+        nums::floor,
         // list operations
         lists::cons,
         lists::car_,
