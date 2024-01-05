@@ -118,6 +118,7 @@ pub fn new_root_env() -> EnvRef {
         nums::floor,
         nums::is_zero,
         nums::is_integer,
+        nums::modulo,
         // list operations
         lists::cons,
         lists::car_,
