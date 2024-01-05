@@ -1,17 +1,26 @@
-use super::primitives::{eval, forms, lists, modularity, nums, system, convert, equal, bool, types};
-use crate::expr::{Expr, Procedure};
-use std::{cell::RefCell, collections::HashMap, rc::Rc};
+use super::primitives::{eval, forms, lists, modularity, nums, system, convert, bool, types};
+use crate::{
+    evaluator::primitives::strings,
+    expr::{Expr, Procedure},
+};
+use std::{cell::RefCell, collections::HashMap, path::PathBuf, rc::Rc};
 
 #[derive(Debug, PartialEq, Clone, Default)]
 struct Env {
     bindings: HashMap<String, Expr>,
+    macros: HashMap<String, Procedure>,
     parent: Option<EnvRef>,
+    cwd: PathBuf,
 }
 
 impl Env {
     fn extend(parent: EnvRef) -> Env {
+        let cwd = parent.0.borrow().cwd.clone();
+
         Env {
+            cwd,
             bindings: HashMap::new(),
+            macros: HashMap::new(),
             parent: Some(parent),
         }
     }
@@ -40,6 +49,17 @@ impl Env {
             }
         }
     }
+
+    fn get_macro(&self, name: &str) -> Option<Procedure> {
+        match self.macros.get(name) {
+            Some(value) => Some(value.clone()),
+            None => self.parent.as_ref().and_then(|e| e.get_macro(name).clone()),
+        }
+    }
+
+    fn add_macro(&mut self, name: String, macro_: Procedure) {
+        self.macros.insert(name, macro_);
+    }
 }
 
 // macro for adding special forms and built-in procedures to the environment
@@ -57,8 +77,12 @@ macro_rules! insert_procedures(
 pub struct EnvRef(Rc<RefCell<Env>>);
 
 impl EnvRef {
-    pub fn extend(self) -> Self {
-        EnvRef(Rc::new(RefCell::new(Env::extend(self))))
+    pub fn is_root(&self) -> bool {
+        self.0.borrow().parent.is_none()
+    }
+
+    pub fn extend(&self) -> Self {
+        EnvRef(Rc::new(RefCell::new(Env::extend(self.clone()))))
     }
 
     pub fn get(&self, name: &str) -> Option<Expr> {
@@ -72,8 +96,23 @@ impl EnvRef {
     pub fn set(&mut self, name: String, val: Expr) -> Result<(), String> {
         self.0.borrow_mut().set(name, val)
     }
-}
 
+    pub fn get_macro(&self, name: &str) -> Option<Procedure> {
+        self.0.borrow().get_macro(name)
+    }
+
+    pub fn add_macro(&mut self, name: String, macro_: Procedure) {
+        self.0.borrow_mut().add_macro(name, macro_)
+    }
+
+    pub fn cwd(&self) -> PathBuf {
+        self.0.borrow().cwd.clone()
+    }
+
+    pub fn set_cwd(&mut self, cwd: PathBuf) {
+        self.0.borrow_mut().cwd = cwd;
+    }
+}
 pub fn new_root_env() -> EnvRef {
     let mut env = EnvRef::default();
 
@@ -87,6 +126,7 @@ pub fn new_root_env() -> EnvRef {
         forms::quasiquote,
         forms::if_,
         forms::begin,
+        forms::define_macro,
         // evaluation
         eval::eval,
         eval::apply,
@@ -148,6 +188,7 @@ pub fn new_root_env() -> EnvRef {
         system::display,
         system::newline,
         system::exit,
+        strings::string_set,
     }
 
     env

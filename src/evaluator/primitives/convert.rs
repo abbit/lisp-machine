@@ -1,3 +1,5 @@
+use std::{cell::RefCell, rc::Rc};
+
 use super::utils::define_procedures;
 use crate::{
     evaluator::{error::runtime_error, EnvRef},
@@ -28,13 +30,13 @@ fn number_to_string_fn(mut args: Exprs, _env: &mut EnvRef) -> ProcedureResult {
         None => 10,
     };
 
-    let result = match (number, radix) {
-        (Expr::Integer(n), r) => {
-            let string_representation = format!("{}", n.to_string_radix(r));
+    let result = match number {
+        Expr::Integer(n) => {
+            let string_representation = Rc::new(RefCell::new(n.to_string_radix(radix)));
             Expr::String(string_representation)
         }
-        (Expr::Float(f), 10) => {
-            let string_representation = format!("{}", f);
+        Expr::Float(f) => {
+            let string_representation = Rc::new(RefCell::new(format!("{}", f)));
             Expr::String(string_representation)
         }
         _ => {
@@ -97,35 +99,24 @@ fn string_to_number_fn(mut args: Exprs, _env: &mut EnvRef) -> ProcedureResult {
         None => 10,
     };
 
-    let string_value = match string_arg {
-        Expr::String(s) => s,
+    let result = match string_arg {
+        Expr::String(s) => {
+            let s = s.borrow();
+            if let Ok(parsed) = i64::from_str_radix(&s, radix) {
+                Expr::Integer(parsed)
+            } else if let Ok(parsed) = s.parse::<f64>() {
+                Expr::Float(parsed)
+            } else {
+                return Err(runtime_error!(
+                    "string->number: cannot parse string as a number with the given radix"
+                ));
+            }
+        }
         _ => {
             return Err(runtime_error!(
                 "string->number is only supported for string arguments"
             ))
         }
-    };
-
-    let result = match radix {
-        10 => match string_value.parse::<f64>() {
-            Ok(float_value) => Expr::Float(float_value),
-            Err(_) => match string_value.parse::<i64>() {
-                Ok(int_value) => Expr::Integer(int_value),
-                Err(_) => {
-                    return Err(runtime_error!(
-                        "string->number: could not parse string as integer or float"
-                    ))
-                }
-            },
-        },
-        _ => match i64::from_str_radix(&string_value, radix) {
-            Ok(int_value) => Expr::Integer(int_value),
-            Err(_) => {
-                return Err(runtime_error!(
-                    "string->number: could not parse string as integer with the specified radix"
-                ))
-            }
-        },
     };
 
     Ok(result).map(ProcedureReturn::Value)

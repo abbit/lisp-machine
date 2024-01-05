@@ -31,7 +31,7 @@ fn read_line_fn(_: Exprs, _: &mut EnvRef) -> ProcedureResult {
         None => input,
     };
 
-    proc_result_value!(Expr::String(input))
+    proc_result_value!(Expr::new_string(input))
 }
 
 fn read_fn(_: Exprs, _: &mut EnvRef) -> ProcedureResult {

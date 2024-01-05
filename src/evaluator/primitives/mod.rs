@@ -8,4 +8,5 @@ pub mod convert;
 pub mod bool;
 pub mod equal;
 pub mod types;
+pub mod strings;
 mod utils;
