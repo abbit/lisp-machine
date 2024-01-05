@@ -133,11 +133,11 @@
 	- [ ] `char-foldcase`
 - [ ] strings:
 	- [x] `string?`
-    - [ ] `string=?`
-    - [ ] `string<?`
-    - [ ] `string>?`
-    - [ ] `string<=?`
-    - [ ] `string>=?`
+    - [x] `string=?`
+    - [x] `string<?`
+    - [x] `string>?`
+    - [x] `string<=?`
+    - [x] `string>=?`
 	- [ ] `make-string`
 	- [ ] `string`
 	- [ ] `string-length`

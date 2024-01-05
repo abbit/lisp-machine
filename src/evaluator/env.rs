@@ -189,6 +189,12 @@ pub fn new_root_env() -> EnvRef {
         system::newline,
         system::exit,
         strings::string_set,
+        //strings
+        strings::string_eq,
+        strings::string_lt,
+        strings::string_gt,
+        strings::string_le,
+        strings::string_ge,
     }
 
     env
