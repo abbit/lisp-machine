@@ -26,6 +26,7 @@ define_procedures! {
     ceiling = ("ceiling", ceiling_fn, Arity::Exact(1)),
     truncate = ("truncate", truncate_fn, Arity::Exact(1)),
     round = ("round", round_fn, Arity::Exact(1)),
+    zero = ("zero?", zero_fn, Arity::Exact(1)),
 }
 
 fn add_fn(args: Exprs, env: &mut EnvRef) -> ProcedureResult {
@@ -341,6 +342,18 @@ fn round_fn(args: Exprs, _: &mut EnvRef) -> ProcedureResult {
         Expr::Float(f) => Ok(Expr::Float(f.round())),
         _ => Err(runtime_error!(
             "expected integer or float for round, got {}",
+            args[0].kind()
+        )),
+    })
+    .map(ProcedureReturn::Value)
+}
+
+fn zero_fn(args: Exprs, _: &mut EnvRef) -> ProcedureResult {
+    (match &args[0] {
+        Expr::Integer(n) => Ok(Expr::Boolean(*n == 0)),
+        Expr::Float(f) => Ok(Expr::Boolean(*f == 0.0)),
+        _ => Err(runtime_error!(
+            "expected integer or float for zero?, got {}",
             args[0].kind()
         )),
     })

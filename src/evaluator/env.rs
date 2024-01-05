@@ -116,6 +116,7 @@ pub fn new_root_env() -> EnvRef {
         nums::truncate,
         nums::ceiling,
         nums::floor,
+        nums::zero,
         // list operations
         lists::cons,
         lists::car_,
