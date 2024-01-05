@@ -117,6 +117,7 @@ pub fn new_root_env() -> EnvRef {
         nums::ceiling,
         nums::floor,
         nums::zero,
+        nums::integer,
         // list operations
         lists::cons,
         lists::car_,

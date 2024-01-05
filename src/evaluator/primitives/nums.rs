@@ -27,6 +27,7 @@ define_procedures! {
     truncate = ("truncate", truncate_fn, Arity::Exact(1)),
     round = ("round", round_fn, Arity::Exact(1)),
     zero = ("zero?", zero_fn, Arity::Exact(1)),
+    integer = ("integer?", integer_fn, Arity::Exact(1)),
 }
 
 fn add_fn(args: Exprs, env: &mut EnvRef) -> ProcedureResult {
@@ -356,6 +357,15 @@ fn zero_fn(args: Exprs, _: &mut EnvRef) -> ProcedureResult {
             "expected integer or float for zero?, got {}",
             args[0].kind()
         )),
+    })
+    .map(ProcedureReturn::Value)
+}
+
+fn integer_fn(args: Exprs, _: &mut EnvRef) -> ProcedureResult {
+    (match &args[0] {
+        Expr::Integer(_) => Ok(Expr::Boolean(true)),
+        Expr::Float(f) => Ok(Expr::Boolean(f.fract() == 0.0)),
+        _ => Ok(Expr::Boolean(false)),
     })
     .map(ProcedureReturn::Value)
 }
