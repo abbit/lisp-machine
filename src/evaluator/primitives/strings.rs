@@ -16,6 +16,7 @@ define_procedures! {
     make_string = ("make-string", make_string_fn, Arity::AtLeast(1)),
     _string = ("string", string_fn, Arity::AtLeast(0)),
     string_length = ("string-length", string_length_fn, Arity::Exact(1)),
+    substring = ("substring", substring_fn, Arity::Exact(3)),
 }
 
 fn string_set_fn(mut args: Exprs, _: &mut EnvRef) -> ProcedureResult {
@@ -109,4 +110,21 @@ fn string_length_fn(mut args: Exprs, _: &mut EnvRef) -> ProcedureResult {
     let length = string.borrow().len() as i64;
     
     proc_result_value!(Expr::Integer(length))
+}
+
+fn substring_fn(mut args: Exprs, _: &mut EnvRef) -> ProcedureResult {
+    let string = args.pop_front().unwrap().into_string().map_err(|_| runtime_error!("substring expected a string as its first argument"))?;
+    let start = args.pop_front().unwrap().into_integer().map_err(|_| runtime_error!("substring expected an integer as its second argument"))?;
+    let end = args.pop_front().unwrap().into_integer().map_err(|_| runtime_error!("substring expected an integer as its third argument"))?;
+
+    let start = start as usize;
+    let end = end as usize;
+
+    if start > end || end > string.borrow().len() {
+        return Err(runtime_error!("substring indices are out of bounds"));
+    }
+
+    let sub_string: String = string.borrow().chars().skip(start).take(end - start).collect();
+
+    proc_result_value!(Expr::String(Rc::new(RefCell::new(sub_string))))
 }

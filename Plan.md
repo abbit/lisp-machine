@@ -146,11 +146,11 @@
 	- [ ] `string-upcase`
 	- [ ] `string-downcase`
 	- [ ] `string-foldcase`
-	- [ ] `substring`
+	- [x] `substring`
 	- [ ] `string-append`
 	- [ ] `string->list`
 	- [ ] `list->string`
-	- [ ] `string-copy`
+	- [x] `string-copy`
     - [ ] `string-copy!`
     - [ ] `string-fill!`
 - [ ] controls:

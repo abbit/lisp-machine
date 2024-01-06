@@ -27,3 +27,7 @@
   (apply <= (map char->integer c)))
 (define (char>=? . c)
   (apply >= (map char->integer c)))
+
+; strings
+(define (string-copy string)
+  (substring string 0 (string-length string)))
