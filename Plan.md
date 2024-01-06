@@ -152,7 +152,7 @@
 	- [ ] `list->string`
 	- [x] `string-copy`
     - [x] `string-copy!`
-    - [ ] `string-fill!`
+    - [x] `string-fill!`
 - [ ] controls:
 	- [ ] `procedure?`
 	- [x] `apply`

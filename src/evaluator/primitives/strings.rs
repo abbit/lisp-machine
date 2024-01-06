@@ -23,6 +23,7 @@ define_procedures! {
     string_ref = ("string-ref", string_ref_fn, Arity::Exact(2)),
     string_append = ("string-append", string_append_fn, Arity::AtLeast(0)),
     string_copy_ = ("string-copy!", string_copy_fn, Arity::AtLeast(3)),
+    string_fill = ("string-fill!", string_fill_fn, Arity::AtLeast(2)),
 }
 
 fn string_set_fn(mut args: Exprs, _: &mut EnvRef) -> ProcedureResult {
@@ -218,6 +219,52 @@ fn string_copy_fn(mut args: Exprs, _: &mut EnvRef) -> ProcedureResult {
 
             to_string.replace_range(at..(at + end - start), &from_chars[start..end].iter().collect::<String>());
         }
+    }
+
+    proc_result_value!(Expr::Void)
+}
+
+fn string_fill_fn(mut args: Exprs, _: &mut EnvRef) -> ProcedureResult {
+    let string = args
+        .pop_front()
+        .unwrap()
+        .into_string()
+        .map_err(|_| runtime_error!("string-fill! expected a string as its first argument"))?;
+
+    let fill = args
+        .pop_front()
+        .unwrap()
+        .into_char()
+        .map_err(|_| runtime_error!("string-fill! expected a character as its second argument"))?;
+
+    let start = if !args.is_empty() {
+        args.pop_front().unwrap().into_integer().map_err(|_| {
+            runtime_error!("string-fill! expected an integer as its third argument")
+        })? as usize
+    } else {
+        0
+    };
+
+    let end = if !args.is_empty() {
+        args.pop_front().unwrap().into_integer().map_err(|_| {
+            runtime_error!("string-fill! expected an integer as its fourth argument")
+        })? as usize
+    } else {
+        string.borrow().len()
+    };
+
+    if fill.is_whitespace() {
+        return Err(runtime_error!("string-fill! cannot fill with whitespace characters"));
+    }
+
+    let mut string_mut = string.borrow_mut();
+
+    if start >= string_mut.len() || end > string_mut.len() || start > end {
+        return Err(runtime_error!("string-fill! indices are out of bounds"));
+    }
+
+    for i in start..end {
+        string_mut.replace_range(i..(i + 1), &fill.to_string());
     }
 
     proc_result_value!(Expr::Void)
