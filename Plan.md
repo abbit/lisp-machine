@@ -113,7 +113,7 @@
 	- [ ] `symbol?`
 	- [ ] `symbol->string`
 	- [ ] `string->symbol`
-- [ ] characters:
+- [x] characters:
 	- [x] `char?`
     - [x] `char=?`
     - [x] `char<?`
