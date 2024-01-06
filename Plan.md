@@ -125,7 +125,7 @@
 	- [x] `char-whitespace?`
 	- [x] `char-upper-case?`
 	- [x] `char-lower-case?`
-	- [ ] `digit-value`
+	- [x] `digit-value`
 	- [x] `char->integer`
 	- [x] `integer->char`
 	- [x] `char-upcase`

@@ -204,6 +204,7 @@ pub fn new_root_env() -> EnvRef {
         chars::is_char_lower_case,
         chars::is_char_alphabetic,
         chars::is_char_numeric,
+        chars::digit_value,
     }
 
     env
