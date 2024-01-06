@@ -17,6 +17,9 @@ define_procedures! {
     _string = ("string", string_fn, Arity::AtLeast(0)),
     string_length = ("string-length", string_length_fn, Arity::Exact(1)),
     substring = ("substring", substring_fn, Arity::Exact(3)),
+    string_upcase = ("string-upcase", string_upcase_fn, Arity::Exact(1)),
+    string_downcase = ("string-downcase", string_downcase_fn, Arity::Exact(1)),
+    string_foldcase = ("string-foldcase", string_foldcase_fn, Arity::Exact(1)),
 }
 
 fn string_set_fn(mut args: Exprs, _: &mut EnvRef) -> ProcedureResult {
@@ -127,4 +130,22 @@ fn substring_fn(mut args: Exprs, _: &mut EnvRef) -> ProcedureResult {
     let sub_string: String = string.borrow().chars().skip(start).take(end - start).collect();
 
     proc_result_value!(Expr::String(Rc::new(RefCell::new(sub_string))))
+}
+
+fn string_upcase_fn(mut args: Exprs, _: &mut EnvRef) -> ProcedureResult {
+    let string = args.pop_front().unwrap().into_string().map_err(|_| runtime_error!("string-upcase expected a string as its argument"))?;
+    let upcased_string: String = string.borrow().to_uppercase();
+    proc_result_value!(Expr::String(Rc::new(RefCell::new(upcased_string))))
+}
+
+fn string_downcase_fn(mut args: Exprs, _: &mut EnvRef) -> ProcedureResult {
+    let string = args.pop_front().unwrap().into_string().map_err(|_| runtime_error!("string-downcase expected a string as its argument"))?;
+    let downcased_string: String = string.borrow().to_lowercase();
+    proc_result_value!(Expr::String(Rc::new(RefCell::new(downcased_string))))
+}
+
+fn string_foldcase_fn(mut args: Exprs, _: &mut EnvRef) -> ProcedureResult {
+    let string = args.pop_front().unwrap().into_string().map_err(|_| runtime_error!("string-foldcase expected a string as its argument"))?;
+    let folded_string: String = string.borrow().to_lowercase();
+    proc_result_value!(Expr::String(Rc::new(RefCell::new(folded_string))))
 }

@@ -143,9 +143,9 @@
 	- [x] `string-length`
 	- [ ] `string-ref`
 	- [x] `string-set!`
-	- [ ] `string-upcase`
-	- [ ] `string-downcase`
-	- [ ] `string-foldcase`
+	- [x] `string-upcase`
+	- [x] `string-downcase`
+	- [x] `string-foldcase`
 	- [x] `substring`
 	- [ ] `string-append`
 	- [ ] `string->list`
