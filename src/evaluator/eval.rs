@@ -653,4 +653,90 @@ mod tests {
         let result = eval_str(source, &mut env).unwrap();
         assert_eq!(result, Expr::Integer(3));
     }
+
+    // ========================================================================
+    //                      proper tail call tests
+    // use `cargo test --features test_tailcall` to run these tests
+    // disabled by default because it takes a long time to run them
+    // ========================================================================
+    #[cfg(feature = "test_tailcall")]
+    mod proper_tail_call {
+        use super::*;
+
+        #[test]
+        fn if_tco() {
+            let source = "
+            (define (f x) (if (= x 0) 0 (f (- x 1))))
+            (f 1000000)
+            ";
+
+            let mut env = env::new_root_env();
+            // should not stack overflow
+            let result = eval_str(source, &mut env).unwrap();
+            assert_eq!(result, Expr::Integer(0));
+        }
+
+        #[test]
+        fn begin_tco() {
+            let source = "
+            (begin (define (f x) (if (= x 0) 0 (f (- x 1)))) (f 1000000))
+            ";
+            let mut env = env::new_root_env();
+            // should not stack overflow
+            let result = eval_str(source, &mut env).unwrap();
+            assert_eq!(result, Expr::Integer(0));
+        }
+
+        #[test]
+        fn define_tco() {
+            let source = "
+            (define (f x) (if (= x 0) 0 (f (- x 1))))
+            (f 1000000)
+            ";
+            let mut env = env::new_root_env();
+            // should not stack overflow
+            let result = eval_str(source, &mut env).unwrap();
+            assert_eq!(result, Expr::Integer(0));
+        }
+
+        #[test]
+        fn eval_tco() {
+            let source = "
+            (define (f x) (if (= x 0) 0 (f (- x 1))))
+            (eval '(f 1000000))
+            ";
+            let mut env = env::new_root_env();
+            // should not stack overflow
+            let result = eval_str(source, &mut env).unwrap();
+            assert_eq!(result, Expr::Integer(0));
+        }
+
+        #[test]
+        fn apply_tco() {
+            let source = "
+            (define (get-f x)
+             (if (= x 0)
+               (lambda (x) x)
+               (get-f (- x 1))))
+            (apply (get-f 1000000) '(1000000))
+            ";
+            let mut env = env::new_root_env();
+            // should not stack overflow
+            let result = eval_str(source, &mut env).unwrap();
+            assert_eq!(result, Expr::Integer(1000000));
+        }
+
+        #[test]
+        fn mutual_recursion() {
+            let source = "
+            (define (even? n) (if (= n 0) #t (odd? (- n 1))))
+            (define (odd? n) (if (= n 0) #f (even? (- n 1))))
+            (even? 1000000)
+            ";
+            let mut env = env::new_root_env();
+            // should not stack overflow
+            let result = eval_str(source, &mut env).unwrap();
+            assert_eq!(result, Expr::Boolean(true));
+        }
+    }
 }

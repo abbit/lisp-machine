@@ -7,3 +7,6 @@ edition = "2021"
 
 [dependencies]
 rustyline = {version = "13.0.0", features = ["derive"]}
+
+[features]
+test_tailcall = []

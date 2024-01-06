@@ -3,7 +3,7 @@ use crate::{
     evaluator::primitives::strings,
     expr::{Expr, Procedure},
 };
-use std::{cell::RefCell, collections::HashMap, path::PathBuf, rc::Rc};
+use std::{cell::RefCell, collections::HashMap, fmt, path::PathBuf, rc::Rc};
 
 #[derive(Debug, PartialEq, Clone, Default)]
 struct Env {
@@ -73,8 +73,20 @@ macro_rules! insert_procedures(
     };
 );
 
-#[derive(Debug, PartialEq, Clone, Default)]
+#[derive(Clone, Default)]
 pub struct EnvRef(Rc<RefCell<Env>>);
+
+impl PartialEq for EnvRef {
+    fn eq(&self, other: &Self) -> bool {
+        Rc::ptr_eq(&self.0, &other.0)
+    }
+}
+
+impl fmt::Debug for EnvRef {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "EnvRef({:?})", Rc::as_ptr(&self.0))
+    }
+}
 
 impl EnvRef {
     pub fn is_root(&self) -> bool {
