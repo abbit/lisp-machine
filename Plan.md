@@ -149,7 +149,7 @@
 	- [x] `substring`
 	- [x] `string-append`
 	- [ ] `string->list`
-	- [ ] `list->string`
+	- [x] `list->string`
 	- [x] `string-copy`
     - [x] `string-copy!`
     - [x] `string-fill!`

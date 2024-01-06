@@ -31,3 +31,5 @@
 ; strings
 (define (string-copy string)
   (substring string 0 (string-length string)))
+(define (list->string lst)
+  (apply string lst))
