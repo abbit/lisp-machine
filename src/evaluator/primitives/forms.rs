@@ -11,8 +11,6 @@ use crate::{
     },
 };
 
-// TODO: test set! and define
-
 define_special_forms! {
     define = ("define", define_fn, Arity::AtLeast(2)),
     set = ("set!", set_fn, Arity::Exact(2)),

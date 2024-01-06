@@ -4,9 +4,6 @@ use rustyline::{error::ReadlineError, validate::MatchingBracketValidator};
 use rustyline::{highlight::MatchingBracketHighlighter, Editor};
 use rustyline::{Completer, CompletionType, Helper, Highlighter, Hinter, Validator};
 
-// TODO: add colors
-// TODO: add better error messages
-
 #[derive(Default, Validator, Helper, Completer, Hinter, Highlighter)]
 struct InputValidator {
     #[rustyline(Validator)]
