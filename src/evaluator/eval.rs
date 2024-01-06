@@ -14,8 +14,6 @@ use crate::{
 pub type EvalResult = Result<Expr, EvalError>;
 
 pub fn expand_macros(expr: Expr, env: &mut EnvRef) -> EvalResult {
-    debug!("expand_macros: {}", expr);
-
     if !expr.is_list() {
         return Ok(expr);
     }
@@ -28,16 +26,45 @@ pub fn expand_macros(expr: Expr, env: &mut EnvRef) -> EvalResult {
     }
 
     // safe to unwrap because we just checked that list is not empty
-    let (macro_name_expr, args) = list.split_first().unwrap();
-    match macro_name_expr {
-        Expr::Symbol(macro_name) => match env.get_macro(&macro_name) {
-            Some(macro_) => match macro_.apply(args.into(), env)? {
-                ProcedureReturn::Value(expr) => Ok(expr),
-                ProcedureReturn::TailCall(expr, mut eval_env) => eval_expr(expr, &mut eval_env),
-            },
-            None => Ok(original_expr),
+    let (first_expr, cdr_list) = list.split_first().unwrap();
+    // list is proper, so list layout is same as exprs list
+    let mut expanded_cdr_list = Exprs::new();
+    for expr in cdr_list {
+        expanded_cdr_list.push_back(expand_macros(expr, env)?);
+    }
+
+    match first_expr {
+        Expr::Symbol(proc_name) => match env.get_macro(&proc_name) {
+            // expr is a macro call
+            // evaluate a macro and return result
+            Some(macro_proc) => {
+                debug!("expand_macros: {}", original_expr);
+                let expanded_expr = match macro_proc.apply(expanded_cdr_list, env)? {
+                    ProcedureReturn::Value(expr) => expr,
+                    ProcedureReturn::TailCall(expr, mut eval_env) => {
+                        debug!("expand_macro_tailcall_expr: {}", expr);
+                        // using eval_expanede_expr here
+                        // so we do not call make unnecessary expand_macros
+                        eval_expanded_expr(expr, &mut eval_env)?
+                    }
+                };
+                // return with expand_macros call
+                // so we also expand macro calls from expanded macro
+                expand_macros(expanded_expr, env)
+            }
+            // expr is a call, but not a macro call
+            // so apply it and return result
+            None => {
+                expanded_cdr_list.push_front(Expr::new_symbol(proc_name));
+                Ok(Expr::new_proper_list(expanded_cdr_list))
+            }
         },
-        _ => Ok(original_expr),
+        // expr is a call, but not a macro call
+        // so construct expr back and return it
+        first_expr => {
+            expanded_cdr_list.push_front(first_expr);
+            Ok(Expr::new_proper_list(expanded_cdr_list))
+        }
     }
 }
 
@@ -88,6 +115,7 @@ fn eval_expanded_expr(mut expr: Expr, env: &mut EnvRef) -> EvalResult {
                     ProcedureReturn::TailCall(e, eval_env) => {
                         expr = e;
                         env = eval_env;
+                        debug!("tailcall: {} in {:?}", expr, env);
                     }
                 },
                 ListKind::Dotted => return Err(runtime_error!("dotted list cannot be evaluated")),
@@ -642,7 +670,18 @@ mod tests {
     }
 
     #[test]
-    fn eval_unless_macro() {
+    fn eval_macro_simple() {
+        let source = "
+            (define-macro (unless test . body) (list 'if test '#f (cons 'begin body)))
+            (unless #f 1 2 3)
+        ";
+        let mut env = env::new_root_env();
+        let result = eval_str(source, &mut env).unwrap();
+        assert_eq!(result, Expr::Integer(3));
+    }
+
+    #[test]
+    fn eval_macro_quasiquoted() {
         let source = "
             (define-macro (unless test . body) `(if ,test #f (begin ,@body)))
 
@@ -652,6 +691,43 @@ mod tests {
 
         let result = eval_str(source, &mut env).unwrap();
         assert_eq!(result, Expr::Integer(3));
+    }
+
+    #[test]
+    fn eval_macro_nested() {
+        let source = "
+            (define-macro (when test . body) `(if ,test (begin ,@body) #f))
+            (define-macro (unless test . body) `(if ,test #f (begin ,@body)))
+            (when #t (unless #f 1 2 3))
+        ";
+        let mut env = env::new_root_env();
+        let result = eval_str(source, &mut env).unwrap();
+        assert_eq!(result, Expr::Integer(3));
+    }
+
+    #[test]
+    fn eval_macro_nested_define() {
+        let source = "
+            (define-macro (when test . body) `(if ,test (begin ,@body) #f))
+            (define (not x) (if x #f #t))
+            (define-macro (unless test . body) `(when (not ,test) ,@body))
+            (unless #f 1 2 3)
+        ";
+        let mut env = env::new_root_env();
+        let result = eval_str(source, &mut env).unwrap();
+        assert_eq!(result, Expr::Integer(3));
+    }
+
+    #[test]
+    fn eval_macro_with_list_call() {
+        let source = "
+            (define-macro (unless test . body) `(if ,test #f (begin ,@body)))
+            (define-macro (ret str) (list 'unless '#f str))
+            (ret 1)
+        ";
+        let mut env = env::new_root_env();
+        let result = eval_str(source, &mut env).unwrap();
+        assert_eq!(result, Expr::Integer(1));
     }
 
     // ========================================================================
