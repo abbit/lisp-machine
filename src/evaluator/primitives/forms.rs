@@ -143,7 +143,7 @@ fn define_fn(mut args: Exprs, env: &mut EnvRef) -> ProcedureResult {
     let procedure = create_procedure(Some(name.to_string()), params_expr, body, env)?;
     env.add(name.to_string(), procedure);
 
-    Ok(ProcedureReturn::Value(Expr::Void))
+    proc_result_value!(Expr::Void)
 }
 
 fn set_fn(mut args: Exprs, env: &mut EnvRef) -> ProcedureResult {
@@ -274,5 +274,5 @@ fn define_macro_fn(mut args: Exprs, env: &mut EnvRef) -> ProcedureResult {
     let procedure = create_procedure(Some(name.to_string()), params_expr, body, env)?;
     env.add_macro(name.to_string(), procedure.into_procedure().unwrap());
 
-    Ok(ProcedureReturn::Value(Expr::Void))
+    proc_result_value!(Expr::Void)
 }
