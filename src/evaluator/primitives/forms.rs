@@ -124,9 +124,9 @@ fn define_fn(mut args: Exprs, env: &mut EnvRef) -> ProcedureResult {
             )),
         })?;
 
-    let (name_expr, mut params) = name_and_params.split_first().ok_or(runtime_error!(
-        "expected at least 1 argument for define procedure formals list, got 0"
-    ))?;
+    let (name_expr, mut params) = name_and_params.split_first().map_err(|_| {
+        runtime_error!("expected at least 1 argument for define procedure formals list, got 0")
+    })?;
     // unwrap is safe since we checked `name_and_params` above
     let name = name_expr.into_symbol().unwrap();
 
@@ -179,7 +179,11 @@ fn if_fn(mut args: Exprs, env: &mut EnvRef) -> ProcedureResult {
 }
 
 fn begin_fn(args: Exprs, env: &mut EnvRef) -> ProcedureResult {
-    let (exprs, expr_tail) = args.clone().split_tail();
+    let (exprs, expr_tail) = match args.split_tail() {
+        Some(exprs_tail) => exprs_tail,
+        None => return proc_result_value!(Expr::Void),
+    };
+
     for expr in exprs {
         eval::eval_expr(expr, env)?;
     }
@@ -201,7 +205,7 @@ fn quasiquote_fn(mut args: Exprs, env: &mut EnvRef) -> ProcedureResult {
 fn quasiquote_list(list: Exprs, env: &mut EnvRef) -> EvalResult {
     let mut new_list = Exprs::new();
 
-    for expr in list.into_iter() {
+    for expr in list {
         if expr.is_list() {
             // if expr is a list, check if it's unquote call
             let mut expr_list = expr.into_list().unwrap();
@@ -255,9 +259,9 @@ fn define_macro_fn(mut args: Exprs, env: &mut EnvRef) -> ProcedureResult {
             )),
         })?;
 
-    let (name_expr, mut params) = name_and_params.split_first().ok_or(runtime_error!(
-        "expected at least 1 argument for define-macro formals list, got 0"
-    ))?;
+    let (name_expr, mut params) = name_and_params.split_first().map_err(|_| {
+        runtime_error!("expected at least 1 argument for define-macro formals list, got 0")
+    })?;
     // unwrap is safe since we checked `name_and_params` above
     let name = name_expr.into_symbol().unwrap();
 

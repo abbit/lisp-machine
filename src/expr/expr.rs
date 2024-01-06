@@ -1,7 +1,7 @@
 use core::fmt;
 
 use super::{
-    list::{DisplayList, List, ListKind, ListLocation},
+    list::{List, ListKind},
     procedure::Procedure,
 };
 
@@ -25,16 +25,18 @@ pub enum Expr {
 pub type Exprs = VecDeque<Expr>;
 
 pub trait AsExprs {
-    fn split_tail(self) -> (impl Iterator<Item = Expr>, Expr);
+    /// Returns iterator over all elements except last one and last element
+    /// If expressions is empty, returns `None`
+    fn split_tail(self) -> Option<(impl Iterator<Item = Expr>, Expr)>;
 }
 
 impl AsExprs for Exprs {
-    fn split_tail(self) -> (impl Iterator<Item = Expr>, Expr) {
-        // SAFETY: unwrap is safe because body always has at least one element
-        let tail = self.iter().last().unwrap().clone();
+    fn split_tail(self) -> Option<(impl Iterator<Item = Expr>, Expr)> {
+        let tail = self.iter().last()?.clone();
+
         let len = self.len();
         let but_tail = self.into_iter().take(len.saturating_sub(1));
-        (but_tail, tail)
+        Some((but_tail, tail))
     }
 }
 
@@ -55,11 +57,15 @@ type ExprIntoResult<T> = Result<T, Expr>;
 
 impl Expr {
     pub fn new_empty_list() -> Self {
-        Expr::List(List::new_proper(Exprs::new()))
+        Expr::List(List::new_empty())
     }
 
-    pub fn new_dotted_list(list: Exprs) -> Self {
-        Expr::List(List::new_dotted(list))
+    pub fn new_dotted_list(mut list: Exprs) -> Self {
+        let tail = match list.pop_back() {
+            Some(tail) => tail,
+            None => return Expr::new_empty_list(),
+        };
+        Expr::List(List::new_dotted(list, tail))
     }
 
     pub fn new_proper_list(list: Exprs) -> Self {
@@ -67,10 +73,6 @@ impl Expr {
     }
 
     pub fn new_list(list: Exprs, kind: ListKind) -> Self {
-        if list.is_empty() {
-            return Expr::new_empty_list();
-        }
-
         match kind {
             ListKind::Proper => Expr::new_proper_list(list),
             ListKind::Dotted => Expr::new_dotted_list(list),
@@ -178,6 +180,13 @@ impl Expr {
             _ => Err(self),
         }
     }
+
+    pub fn as_list(&self) -> Option<&List> {
+        match self {
+            Expr::List(list) => Some(list),
+            _ => None,
+        }
+    }
 }
 
 impl fmt::Display for Expr {
@@ -191,7 +200,86 @@ impl fmt::Display for Expr {
             Expr::Char(char) => write!(f, "{}", char),
             Expr::Procedure(proc) => write!(f, "{}", proc),
             Expr::Boolean(bool) => write!(f, "{}", bool),
-            Expr::List(list) => list.fmt_with_location(f, ListLocation::Outer),
+            Expr::List(list) => write!(f, "{}", list),
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::expr::exprs;
+
+    #[test]
+    fn display_empty_list() {
+        // ()
+        let expr = Expr::new_empty_list();
+        assert_eq!(format!("{}", expr), "()");
+    }
+
+    #[test]
+    fn display_proper_list() {
+        // (1 2 3)
+        let expr =
+            Expr::new_proper_list(exprs![Expr::Integer(1), Expr::Integer(2), Expr::Integer(3)]);
+        assert_eq!(format!("{}", expr), "(1 2 3)");
+    }
+
+    #[test]
+    fn display_dotted_list() {
+        // (1 2 . 3)
+        let expr =
+            Expr::new_dotted_list(exprs![Expr::Integer(1), Expr::Integer(2), Expr::Integer(3)]);
+        assert_eq!(format!("{}", expr), "(1 2 . 3)");
+    }
+
+    #[test]
+    fn display_tailing_dotted_list() {
+        // (1 . (2 . 3))
+        let expr = Expr::new_dotted_list(exprs![
+            Expr::Integer(1),
+            Expr::new_dotted_list(exprs![Expr::Integer(2), Expr::Integer(3)])
+        ]);
+        assert_eq!(format!("{}", expr), "(1 2 . 3)");
+    }
+
+    #[test]
+    fn display_nested_list() {
+        // ((lambda (x) (* x x)) 3)
+        let expr = Expr::new_proper_list(exprs![
+            Expr::new_proper_list(exprs![
+                Expr::Symbol("lambda".to_string()),
+                Expr::new_proper_list(exprs![Expr::Symbol("x".to_string())]),
+                Expr::new_proper_list(exprs![
+                    Expr::Symbol("*".to_string()),
+                    Expr::Symbol("x".to_string()),
+                    Expr::Symbol("x".to_string())
+                ],)
+            ],),
+            Expr::Integer(3)
+        ]);
+        assert_eq!(format!("{}", expr), "((lambda (x) (* x x)) 3)");
+    }
+
+    #[test]
+    fn display_inner_dotted_list() {
+        // ((lambda (x . y) (* x y)) 3 4)
+        let expr = Expr::new_proper_list(exprs![
+            Expr::new_proper_list(exprs![
+                Expr::Symbol("lambda".to_string()),
+                Expr::new_dotted_list(exprs![
+                    Expr::Symbol("x".to_string()),
+                    Expr::Symbol("y".to_string())
+                ]),
+                Expr::new_proper_list(exprs![
+                    Expr::Symbol("*".to_string()),
+                    Expr::Symbol("x".to_string()),
+                    Expr::Symbol("y".to_string())
+                ],)
+            ],),
+            Expr::Integer(3),
+            Expr::Integer(4)
+        ]);
+        assert_eq!(format!("{}", expr), "((lambda (x . y) (* x y)) 3 4)");
     }
 }
