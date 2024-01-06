@@ -19,14 +19,13 @@ pub fn expand_macros(expr: Expr, env: &mut EnvRef) -> EvalResult {
 
     let original_expr = expr.clone();
 
-    let mut list = expr.into_list().unwrap();
+    let list = expr.into_list().unwrap();
     if !list.is_proper() || list.is_empty() {
         return Ok(original_expr);
     }
 
-    let macro_name_expr = list.pop_front().unwrap();
-    let args = list;
-
+    // safe to unwrap because we just checked that list is not empty
+    let (macro_name_expr, args) = list.split_first().unwrap();
     match macro_name_expr {
         Expr::Symbol(macro_name) => match env.get_macro(&macro_name) {
             Some(macro_) => match macro_.apply(args.into(), env)? {

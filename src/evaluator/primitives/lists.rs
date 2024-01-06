@@ -1,7 +1,7 @@
 use super::utils::define_procedures;
 use crate::{
     evaluator::{error::runtime_error, EnvRef},
-    expr::{exprs, proc_result_value, Arity, Expr, Exprs, ProcedureResult},
+    expr::{exprs, proc_result_value, Arity, Expr, Exprs, ListKind, ProcedureResult},
 };
 
 define_procedures! {
@@ -38,8 +38,8 @@ fn car_fn(mut args: Exprs, _: &mut EnvRef) -> ProcedureResult {
 
     let res = list
         .car()
-        .cloned()
-        .ok_or(runtime_error!("expected non-empty list for car"))?;
+        .ok_or(runtime_error!("expected non-empty list for car"))?
+        .clone();
 
     proc_result_value!(res)
 }
@@ -50,17 +50,14 @@ fn cdr_fn(mut args: Exprs, _: &mut EnvRef) -> ProcedureResult {
         expr => return Err(runtime_error!("expected list for cdr, got {}", expr.kind())),
     };
 
-    if list.is_empty() {
-        return Err(runtime_error!("expected non-empty list for cdr"));
-    }
+    let (_, cdr_list) = list
+        .split_first()
+        .map_err(|_| runtime_error!("expected non-empty list for cdr"))?;
 
-    let kind = list.kind();
-    let list: Exprs = list.cdr().cloned().collect();
-
-    let res = if list.len() == 1 {
-        list.into_iter().next().unwrap()
+    let res = if cdr_list.len() == 1 && cdr_list.kind() == ListKind::Dotted {
+        cdr_list.into_iter().next().unwrap()
     } else {
-        Expr::new_list(list, kind)
+        Expr::List(cdr_list)
     };
 
     proc_result_value!(res)

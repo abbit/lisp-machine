@@ -102,6 +102,7 @@ pub enum ProcedureKind {
 pub enum Arity {
     Exact(usize),
     AtLeast(usize),
+    Range(usize, usize),
     Any,
 }
 
@@ -110,6 +111,7 @@ impl std::fmt::Display for Arity {
         match self {
             Arity::Exact(count) => write!(f, "{}", count),
             Arity::AtLeast(count) => write!(f, "at least {}", count),
+            Arity::Range(min, max) => write!(f, "{} to {}", min, max),
             Arity::Any => write!(f, "any"),
         }
     }

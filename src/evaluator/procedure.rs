@@ -68,7 +68,8 @@ impl ApplyProcedure for CompoundProcedure {
             }
         }
 
-        let (body, body_tail) = self.body.deref().as_exprs().clone().split_tail();
+        // safe to unwrap because body always has at least one element
+        let (body, body_tail) = self.body.deref().as_exprs().clone().split_tail().unwrap();
         for expr in body {
             eval::eval_expr(expr, &mut eval_env)?;
         }
