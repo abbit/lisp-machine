@@ -203,7 +203,7 @@ impl fmt::Display for Expr {
             Expr::String(string) => write!(f, "\"{}\"", string.borrow()),
             Expr::Char(char) => write!(f, "{}", char),
             Expr::Procedure(proc) => write!(f, "{}", proc),
-            Expr::Boolean(bool) => write!(f, "{}", bool),
+            Expr::Boolean(bool) => write!(f, "{}", if *bool { "#t" } else { "#f" }),
             Expr::List(list) => write!(f, "{}", list),
         }
     }
