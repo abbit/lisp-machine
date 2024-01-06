@@ -14,6 +14,7 @@ define_procedures! {
     string_le = ("string<=?", string_le_fn, Arity::Exact(2)),
     string_ge = ("string>=?", string_ge_fn, Arity::Exact(2)),
     make_string = ("make-string", make_string_fn, Arity::AtLeast(1)),
+    _string = ("string", string_fn, Arity::AtLeast(0)),
 }
 
 fn string_set_fn(mut args: Exprs, _: &mut EnvRef) -> ProcedureResult {
@@ -89,3 +90,15 @@ fn make_string_fn(mut args: Exprs, _: &mut EnvRef) -> ProcedureResult {
         proc_result_value!(Expr::String(Rc::new(RefCell::new(result_string))))
     }
 }
+
+fn string_fn(mut args: Exprs, _: &mut EnvRef) -> ProcedureResult {
+    let mut result_string = String::new();
+
+    while let Some(arg) = args.pop_front() {
+        let char_arg = arg.into_char().map_err(|_| runtime_error!("string expected characters as arguments"))?;
+        result_string.push(char_arg);
+    }
+
+    proc_result_value!(Expr::String(Rc::new(RefCell::new(result_string))))
+}
+
