@@ -1,4 +1,4 @@
-use super::primitives::{eval, forms, lists, modularity, nums, system, convert, bool, types};
+use super::primitives::{eval, forms, lists, modularity, nums, system, convert, bool, types, chars};
 use crate::{
     evaluator::primitives::strings,
     expr::{Expr, Procedure},
@@ -195,6 +195,10 @@ pub fn new_root_env() -> EnvRef {
         strings::string_gt,
         strings::string_le,
         strings::string_ge,
+        // chars
+        chars::char_upcase,
+        chars::char_downcase,
+        chars::char_foldcase,
     }
 
     env

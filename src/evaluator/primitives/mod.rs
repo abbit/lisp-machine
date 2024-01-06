@@ -9,4 +9,5 @@ pub mod bool;
 pub mod equal;
 pub mod types;
 pub mod strings;
+pub mod chars;
 mod utils;
