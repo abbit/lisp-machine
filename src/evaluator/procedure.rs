@@ -2,8 +2,8 @@ use super::{env::EnvRef, eval};
 use crate::{
     evaluator::utils::CheckArity,
     expr::{
-        proc_result_tailcall, Arity, AsExprs, AtomicProcedure, CompoundProcedure, Expr, Exprs,
-        NamedProcedure, Procedure, ProcedureParams, ProcedureResult,
+        Arity, AtomicProcedure, CompoundProcedure, Expr, Exprs, NamedProcedure, Procedure,
+        ProcedureParams, ProcedureResult,
     },
     utils::debug,
 };
@@ -68,12 +68,7 @@ impl ApplyProcedure for CompoundProcedure {
             }
         }
 
-        // safe to unwrap because body always has at least one element
-        let (body, body_tail) = self.body.deref().as_exprs().clone().split_tail().unwrap();
-        for expr in body {
-            eval::eval_expr(expr, &mut eval_env)?;
-        }
-
-        proc_result_tailcall!(body_tail, eval_env)
+        let body = self.body.deref().as_exprs().clone();
+        eval::eval_exprs_with_tailcall(body, &mut eval_env)
     }
 }

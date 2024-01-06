@@ -6,8 +6,8 @@ use crate::{
         EnvRef, EvalError,
     },
     expr::{
-        proc_result_tailcall, proc_result_value, Arity, AsExprs, Body, Expr, Exprs, ListKind,
-        ProcedureResult, ProcedureReturn, {Procedure, ProcedureParams},
+        proc_result_value, Arity, Body, Expr, Exprs, ListKind, ProcedureResult, ProcedureReturn,
+        {Procedure, ProcedureParams},
     },
 };
 
@@ -179,16 +179,7 @@ fn if_fn(mut args: Exprs, env: &mut EnvRef) -> ProcedureResult {
 }
 
 fn begin_fn(args: Exprs, env: &mut EnvRef) -> ProcedureResult {
-    let (exprs, expr_tail) = match args.split_tail() {
-        Some(exprs_tail) => exprs_tail,
-        None => return proc_result_value!(Expr::Void),
-    };
-
-    for expr in exprs {
-        eval::eval_expr(expr, env)?;
-    }
-
-    proc_result_tailcall!(expr_tail, env)
+    eval::eval_exprs_with_tailcall(args, env)
 }
 
 fn quote_fn(mut args: Exprs, _: &mut EnvRef) -> ProcedureResult {

@@ -4,7 +4,10 @@ use super::{
 };
 use crate::{
     evaluator::procedure::ApplyProcedure,
-    expr::{Expr, Exprs, ListKind, ProcedureResult, ProcedureReturn},
+    expr::{
+        proc_result_tailcall, proc_result_value, AsExprs, Expr, Exprs, ListKind, ProcedureResult,
+        ProcedureReturn,
+    },
     utils::debug,
 };
 
@@ -39,17 +42,37 @@ pub fn expand_macros(expr: Expr, env: &mut EnvRef) -> EvalResult {
 }
 
 pub fn eval_exprs<I: Iterator<Item = Expr>>(exprs: I, env: &mut EnvRef) -> EvalResult {
-    let mut res = Expr::Void;
-    for expr in exprs {
-        let expr = expand_macros(expr, env)?;
-        res = eval_expr(expr, env)?;
-    }
+    let res = exprs
+        .into_iter()
+        .try_fold(Expr::Void, |_, expr| eval_expr(expr, env))?;
 
     Ok(res)
 }
 
-pub fn eval_expr(mut expr: Expr, env: &mut EnvRef) -> EvalResult {
+pub fn eval_exprs_with_tailcall(exprs: Exprs, env: &mut EnvRef) -> ProcedureResult {
+    let (exprs_but_tail, expr_tail) = match exprs.split_tail() {
+        Some(split) => split,
+        None => return proc_result_value!(Expr::Void),
+    };
+
+    for expr in exprs_but_tail {
+        eval_expr(expr, env)?;
+    }
+
+    proc_result_tailcall!(expr_tail, env)
+}
+
+pub fn eval_expr(expr: Expr, env: &mut EnvRef) -> EvalResult {
+    let original_expr = expr.clone();
     debug!("eval_expr: {}", expr);
+    let expr = expand_macros(expr, env)?;
+    let evaluated = eval_expanded_expr(expr, env)?;
+    debug!("evaluated: {} -> {}", original_expr, evaluated);
+    Ok(evaluated)
+}
+
+fn eval_expanded_expr(mut expr: Expr, env: &mut EnvRef) -> EvalResult {
+    debug!("eval_expanded_expr: {}", expr);
     let mut env = env.clone();
     loop {
         match expr {
