@@ -122,15 +122,15 @@
     - [x] `char>=?`
 	- [ ] `char-alphabetic?`
 	- [ ] `char-numeric?`
-	- [ ] `char-whitespace?`
-	- [ ] `char-upper-case?`
-	- [ ] `char-lower-case?`
+	- [x] `char-whitespace?`
+	- [x] `char-upper-case?`
+	- [x] `char-lower-case?`
 	- [ ] `digit-value`
 	- [x] `char->integer`
 	- [x] `integer->char`
-	- [ ] `char-upcase`
-	- [ ] `char-downcase`
-	- [ ] `char-foldcase`
+	- [x] `char-upcase`
+	- [x] `char-downcase`
+	- [x] `char-foldcase`
 - [ ] strings:
 	- [x] `string?`
     - [x] `string=?`
