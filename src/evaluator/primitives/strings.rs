@@ -21,6 +21,7 @@ define_procedures! {
     string_downcase = ("string-downcase", string_downcase_fn, Arity::Exact(1)),
     string_foldcase = ("string-foldcase", string_foldcase_fn, Arity::Exact(1)),
     string_ref = ("string-ref", string_ref_fn, Arity::Exact(2)),
+    string_append = ("string-append", string_append_fn, Arity::AtLeast(0)),
 }
 
 fn string_set_fn(mut args: Exprs, _: &mut EnvRef) -> ProcedureResult {
@@ -165,3 +166,15 @@ fn string_ref_fn(mut args: Exprs, _: &mut EnvRef) -> ProcedureResult {
 
     proc_result_value!(Expr::Char(char_at_k))
 }
+
+fn string_append_fn(mut args: Exprs, _: &mut EnvRef) -> ProcedureResult {
+    let mut result_string = String::new();
+
+    while let Some(arg) = args.pop_front() {
+        let string_arg = arg.into_string().map_err(|_| runtime_error!("string-append expected strings as arguments"))?;
+        result_string.push_str(&string_arg.borrow());
+    }
+
+    proc_result_value!(Expr::String(Rc::new(RefCell::new(result_string))))
+}
+

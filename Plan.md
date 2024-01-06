@@ -147,7 +147,7 @@
 	- [x] `string-downcase`
 	- [x] `string-foldcase`
 	- [x] `substring`
-	- [ ] `string-append`
+	- [x] `string-append`
 	- [ ] `string->list`
 	- [ ] `list->string`
 	- [x] `string-copy`

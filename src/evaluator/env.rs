@@ -203,6 +203,7 @@ pub fn new_root_env() -> EnvRef {
         strings::string_downcase,
         strings::string_foldcase,
         strings::string_ref,
+        strings::string_append,
         // chars
         chars::char_upcase,
         chars::char_downcase,
