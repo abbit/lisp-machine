@@ -151,7 +151,7 @@
 	- [ ] `string->list`
 	- [ ] `list->string`
 	- [x] `string-copy`
-    - [ ] `string-copy!`
+    - [x] `string-copy!`
     - [ ] `string-fill!`
 - [ ] controls:
 	- [ ] `procedure?`
