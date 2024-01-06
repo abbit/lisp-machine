@@ -1,3 +1,5 @@
+use std::{cell::RefCell, rc::Rc};
+
 use super::utils::define_procedures;
 use crate::{
     evaluator::{error::runtime_error, EnvRef},
@@ -11,6 +13,7 @@ define_procedures! {
     string_gt = ("string>?", string_gt_fn, Arity::Exact(2)),
     string_le = ("string<=?", string_le_fn, Arity::Exact(2)),
     string_ge = ("string>=?", string_ge_fn, Arity::Exact(2)),
+    make_string = ("make-string", make_string_fn, Arity::AtLeast(1)),
 }
 
 fn string_set_fn(mut args: Exprs, _: &mut EnvRef) -> ProcedureResult {
@@ -72,4 +75,17 @@ fn string_ge_fn(mut args: Exprs, _: &mut EnvRef) -> ProcedureResult {
     let str1 = args.pop_front().unwrap().into_string().map_err(|_| runtime_error!("Expected a string as the first argument"))?;
     let str2 = args.pop_front().unwrap().into_string().map_err(|_| runtime_error!("Expected a string as the second argument"))?;
     proc_result_value!(Expr::Boolean(str1 >= str2))
+}
+
+fn make_string_fn(mut args: Exprs, _: &mut EnvRef) -> ProcedureResult {
+    let k = args.pop_front().unwrap().into_integer().map_err(|_| runtime_error!("make-string expected an integer as its first argument"))?;
+    
+    if args.is_empty() {
+        let result_string: String = std::iter::repeat('#').take(k as usize).collect();
+        proc_result_value!(Expr::String(Rc::new(RefCell::new(result_string))))
+    } else {
+        let char_arg = args.pop_front().unwrap().into_char().map_err(|_| runtime_error!("make-string expected a character as its second argument"))?;
+        let result_string: String = std::iter::repeat(char_arg).take(k as usize).collect();
+        proc_result_value!(Expr::String(Rc::new(RefCell::new(result_string))))
+    }
 }

@@ -195,6 +195,7 @@ pub fn new_root_env() -> EnvRef {
         strings::string_gt,
         strings::string_le,
         strings::string_ge,
+        strings::make_string,
         // chars
         chars::char_upcase,
         chars::char_downcase,

@@ -138,7 +138,7 @@
     - [x] `string>?`
     - [x] `string<=?`
     - [x] `string>=?`
-	- [ ] `make-string`
+	- [x] `make-string`
 	- [ ] `string`
 	- [ ] `string-length`
 	- [ ] `string-ref`
