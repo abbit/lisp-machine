@@ -20,6 +20,7 @@ define_procedures! {
     string_upcase = ("string-upcase", string_upcase_fn, Arity::Exact(1)),
     string_downcase = ("string-downcase", string_downcase_fn, Arity::Exact(1)),
     string_foldcase = ("string-foldcase", string_foldcase_fn, Arity::Exact(1)),
+    string_ref = ("string-ref", string_ref_fn, Arity::Exact(2)),
 }
 
 fn string_set_fn(mut args: Exprs, _: &mut EnvRef) -> ProcedureResult {
@@ -148,4 +149,19 @@ fn string_foldcase_fn(mut args: Exprs, _: &mut EnvRef) -> ProcedureResult {
     let string = args.pop_front().unwrap().into_string().map_err(|_| runtime_error!("string-foldcase expected a string as its argument"))?;
     let folded_string: String = string.borrow().to_lowercase();
     proc_result_value!(Expr::String(Rc::new(RefCell::new(folded_string))))
+}
+
+fn string_ref_fn(mut args: Exprs, _: &mut EnvRef) -> ProcedureResult {
+    let string = args.pop_front().unwrap().into_string().map_err(|_| runtime_error!("string-ref expected a string as its first argument"))?;
+    let k = args.pop_front().unwrap().into_integer().map_err(|_| runtime_error!("string-ref expected an integer as its second argument"))?;
+
+    let k = k as usize;
+
+    if k >= string.borrow().len() {
+        return Err(runtime_error!("string-ref index out of bounds: {}", k));
+    }
+
+    let char_at_k = string.borrow().chars().nth(k).unwrap();
+
+    proc_result_value!(Expr::Char(char_at_k))
 }

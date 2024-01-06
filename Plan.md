@@ -141,7 +141,7 @@
 	- [x] `make-string`
 	- [x] `string`
 	- [x] `string-length`
-	- [ ] `string-ref`
+	- [x] `string-ref`
 	- [x] `string-set!`
 	- [x] `string-upcase`
 	- [x] `string-downcase`
