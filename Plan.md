@@ -140,7 +140,7 @@
     - [x] `string>=?`
 	- [x] `make-string`
 	- [x] `string`
-	- [ ] `string-length`
+	- [x] `string-length`
 	- [ ] `string-ref`
 	- [x] `string-set!`
 	- [ ] `string-upcase`

@@ -15,6 +15,7 @@ define_procedures! {
     string_ge = ("string>=?", string_ge_fn, Arity::Exact(2)),
     make_string = ("make-string", make_string_fn, Arity::AtLeast(1)),
     _string = ("string", string_fn, Arity::AtLeast(0)),
+    string_length = ("string-length", string_length_fn, Arity::Exact(1)),
 }
 
 fn string_set_fn(mut args: Exprs, _: &mut EnvRef) -> ProcedureResult {
@@ -102,3 +103,10 @@ fn string_fn(mut args: Exprs, _: &mut EnvRef) -> ProcedureResult {
     proc_result_value!(Expr::String(Rc::new(RefCell::new(result_string))))
 }
 
+fn string_length_fn(mut args: Exprs, _: &mut EnvRef) -> ProcedureResult {
+    let string = args.pop_front().unwrap().into_string().map_err(|_| runtime_error!("string-length expected a string as its argument"))?;
+    
+    let length = string.borrow().len() as i64;
+    
+    proc_result_value!(Expr::Integer(length))
+}
