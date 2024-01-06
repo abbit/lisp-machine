@@ -120,8 +120,8 @@
     - [x] `char>?`
     - [x] `char<=?`
     - [x] `char>=?`
-	- [ ] `char-alphabetic?`
-	- [ ] `char-numeric?`
+	- [x] `char-alphabetic?`
+	- [x] `char-numeric?`
 	- [x] `char-whitespace?`
 	- [x] `char-upper-case?`
 	- [x] `char-lower-case?`

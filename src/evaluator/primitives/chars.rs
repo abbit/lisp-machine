@@ -11,6 +11,8 @@ define_procedures! {
     is_char_whitespace = ("char-whitespace?", is_char_whitespace_fn, Arity::Exact(1)),
     is_char_upper_case = ("char-upper-case?", is_char_upper_case_fn, Arity::Exact(1)),
     is_char_lower_case = ("char-lower-case?", is_char_lower_case_fn, Arity::Exact(1)),
+    is_char_alphabetic = ("char-alphabetic?", is_char_alphabetic_fn, Arity::Exact(1)),
+    is_char_numeric = ("char-numeric?", is_char_numeric_fn, Arity::Exact(1)),
 }
 
 fn char_upcase_fn(mut args: Exprs, _: &mut EnvRef) -> ProcedureResult {
@@ -41,4 +43,14 @@ fn is_char_upper_case_fn(mut args: Exprs, _: &mut EnvRef) -> ProcedureResult {
 fn is_char_lower_case_fn(mut args: Exprs, _: &mut EnvRef) -> ProcedureResult {
     let char = args.pop_front().unwrap().into_char().map_err(|_| runtime_error!("Expected a character"))?;
     proc_result_value!(Expr::Boolean(char.is_ascii_lowercase()))
+}
+
+fn is_char_alphabetic_fn(mut args: Exprs, _: &mut EnvRef) -> ProcedureResult {
+    let char = args.pop_front().unwrap().into_char().map_err(|_| runtime_error!("Expected a character"))?;
+    proc_result_value!(Expr::Boolean(char.is_alphabetic()))
+}
+
+fn is_char_numeric_fn(mut args: Exprs, _: &mut EnvRef) -> ProcedureResult {
+    let char = args.pop_front().unwrap().into_char().map_err(|_| runtime_error!("Expected a character"))?;
+    proc_result_value!(Expr::Boolean(char.is_numeric()))
 }
