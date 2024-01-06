@@ -3,7 +3,8 @@ use crate::{
     evaluator::primitives::strings,
     expr::{Expr, Procedure},
 };
-use std::{cell::RefCell, collections::HashMap, fmt, path::PathBuf, rc::Rc};
+use core::fmt;
+use std::{cell::RefCell, collections::HashMap, path::PathBuf, rc::Rc};
 
 #[derive(Debug, PartialEq, Clone, Default)]
 struct Env {

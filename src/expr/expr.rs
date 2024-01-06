@@ -1,10 +1,8 @@
-use core::fmt;
-
 use super::{
     list::{List, ListKind},
     procedure::Procedure,
 };
-
+use core::fmt;
 use std::{cell::RefCell, collections::VecDeque, rc::Rc};
 
 #[derive(PartialEq, Debug, Clone)]

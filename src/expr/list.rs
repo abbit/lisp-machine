@@ -1,6 +1,5 @@
-use std::fmt;
-
 use super::expr::{Expr, Exprs};
+use core::fmt;
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct List {
