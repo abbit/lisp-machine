@@ -19,6 +19,7 @@
           buildInputs = with pkgs; [
             libiconv
             gambit
+            ast-grep
           ];
         };
         formatter = pkgs.alejandra;
