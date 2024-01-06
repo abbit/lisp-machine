@@ -83,6 +83,10 @@ impl Expr {
         Expr::String(Rc::new(RefCell::new(string.into())))
     }
 
+    pub fn new_symbol<S: Into<String>>(string: S) -> Self {
+        Expr::Symbol(string.into())
+    }
+
     /// Returns kind of expression as string
     /// Note: This method is named `kind` instead of `type` because `type` is a reserved keyword
     pub fn kind(&self) -> &'static str {

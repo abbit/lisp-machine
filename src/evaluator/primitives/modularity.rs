@@ -62,7 +62,7 @@ fn include_fn(args: Exprs, env: &mut EnvRef) -> ProcedureResult {
         exprs.extend(read_exprs(&src_path)?);
     }
 
-    exprs.push_front(Expr::Symbol("begin".to_string()));
+    exprs.push_front(Expr::new_symbol("begin"));
     proc_result_tailcall!(Expr::new_proper_list(exprs), env)
 }
 
