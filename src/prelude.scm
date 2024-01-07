@@ -63,10 +63,23 @@
   (if (null? l)
       acc
       (acc-reverse (cdr l) (cons (car l) acc))))
-
 (define (reverse l)
   (acc-reverse l '()))
 
+(define (append2 l res)
+  (if (null? l)
+      res
+      (append2 (cdr l) (cons (car l) res))))
+(define (append-helper ls res)
+  (if (null? ls)
+      res
+      (append-helper (cdr ls) (append2 (reverse (car ls)) res))))
+(define (append . o)
+  (if (null? o)
+      '()
+      ((lambda (lol)
+         (append-helper (cdr lol) (car lol)))
+       (reverse o))))
 ; chars
 (define (char=? . c)
   (apply = (map char->integer c)))
