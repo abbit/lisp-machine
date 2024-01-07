@@ -76,8 +76,8 @@
 Остальные должны быть реализованы на Scheme.
 
 - [ ] equivalence predicates:
-  - [x] `eqv?`
-  - [x] `eq?`
+  - [ ] `eqv?`
+  - [ ] `eq?`
   - [ ] `equal?`
 - [ ] numbers:
   - [ ] `number?`
@@ -124,9 +124,9 @@
   - [x] `cdr`
   - [x] `caar`
   - [x] `cadr`
-  - [ ] `cdar`
-  - [ ] `cddr`
-  - [ ] `caaar`, `caadr`, ..., `cddar`, `cdddr`
+  - [x] `cdar`
+  - [x] `cddr`
+  - [x] `caaar`, `caadr`, ..., `cddar`, `cdddr`
   - [x] `null?`
   - [ ] `list?`
   - [ ] `make-list`
