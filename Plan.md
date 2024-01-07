@@ -99,7 +99,7 @@
 	- [x] `list`
 	- [x] `length`
 	- [ ] `append`
-	- [ ] `reverse`
+	- [x] `reverse`
 	- [ ] `list-tail`
 	- [ ] `list-ref`
 	- [ ] `memq`

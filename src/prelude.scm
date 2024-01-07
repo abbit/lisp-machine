@@ -59,6 +59,14 @@
         (length* (cdr ls) (+ 1 acc))))
   (length* ls 0))
 
+(define (acc-reverse l acc)
+  (if (null? l)
+      acc
+      (acc-reverse (cdr l) (cons (car l) acc))))
+
+(define (reverse l)
+  (acc-reverse l '()))
+
 ; chars
 (define (char=? . c)
   (apply = (map char->integer c)))
