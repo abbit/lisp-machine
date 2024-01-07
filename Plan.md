@@ -101,7 +101,7 @@
 	- [x] `append`
 	- [x] `reverse`
 	- [x] `list-tail`
-	- [ ] `list-ref`
+	- [x] `list-ref`
 	- [ ] `memq`
 	- [ ] `memv`
 	- [ ] `member`

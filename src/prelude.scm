@@ -85,6 +85,9 @@
   (if (zero? k)
       l
       (list-tail (cdr l) (- k 1))))
+
+(define (list-ref l k)
+  (car (list-tail l k)))
 ; chars
 (define (char=? . c)
   (apply = (map char->integer c)))
