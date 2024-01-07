@@ -84,7 +84,7 @@
     - [x] `and`
     - [x] `or`
 - [ ] pairs and lists:
-	- [ ] `pair?`
+	- [x] `pair?`
 	- [x] `cons`
 	- [x] `car`
 	- [x] `cdr`
