@@ -1,4 +1,4 @@
-use super::primitives::{eval, forms, lists, modularity, nums, system, convert, bool, types, chars};
+use super::primitives::{eval, forms, lists, modularity, nums, system, convert, bool, types, chars, equal};
 use crate::{
     evaluator::primitives::strings,
     expr::{Expr, Procedure},
@@ -160,9 +160,9 @@ pub fn new_root_env() -> EnvRef {
         bool::and,
         bool::or,
         // equal
-        /* equal::eqv,
+        equal::eqv,
         equal::eq,
-        equal::equal,*/
+        equal::equal,
         // list operations
         lists::cons,
         lists::car_,

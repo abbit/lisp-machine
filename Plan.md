@@ -42,10 +42,10 @@
 
 ### Стандартная библиотека
 
-- [ ] equivalence predicates:
-	- [ ] `eqv?`
-	- [ ] `eq?`
-	- [ ] `equal?`
+- [x] equivalence predicates:
+	- [x] `eqv?`
+	- [x] `eq?`
+	- [x] `equal?`
 - [x] numbers:
 	- [x] `number?`
 	- [x] `+`
@@ -78,8 +78,8 @@
 	- [x] `expt`
 	- [x] `number->string`
 	- [x] `string->number`
-- [ ] booleans:
-	- [ ] `boolean?`
+- [x] booleans:
+	- [x] `boolean?`
 	- [x] `not`
     - [x] `and`
     - [x] `or`

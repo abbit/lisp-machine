@@ -13,6 +13,7 @@
        (not (zero? (modulo x 2)))))
 
 ; bool
+(define (boolean? x) (if (eq? x #t) #t (eq? x #f)))
 
 ; lists and pairs
 

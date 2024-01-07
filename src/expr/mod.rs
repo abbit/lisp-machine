@@ -1,5 +1,5 @@
 mod expr;
-mod list;
+pub(crate) mod list;
 mod procedure;
 
 pub(crate) use expr::exprs;
