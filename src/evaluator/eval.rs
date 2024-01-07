@@ -730,6 +730,22 @@ mod tests {
         assert_eq!(result, Expr::Integer(1));
     }
 
+    #[test]
+    fn eval_macro_recursive() {
+        let source = "
+            (define (caar x) (car (car x)))
+            (define (cdar x) (cdr (car x)))
+            (define-macro (rec . clauses)
+              (if (null? clauses)
+                1
+               `(rec ,@(cdr clauses))))
+            (rec ((1 1) (2 2) (3 3)))
+        ";
+        let mut env = env::new_root_env();
+        let result = eval_str(source, &mut env).unwrap();
+        assert_eq!(result, Expr::Integer(1));
+    }
+
     // ========================================================================
     //                      proper tail call tests
     // use `cargo test --features test_tailcall` to run these tests
