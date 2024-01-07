@@ -20,7 +20,6 @@
 (define (cadr x) (car (cdr x)))
 (define (cdar x) (cdr (car x)))
 (define (cddr x) (cdr (cdr x)))
-
 (define (caaar x) (car (car (car x))))
 (define (caadr x) (car (car (cdr x))))
 (define (cadar x) (car (cdr (car x))))
@@ -29,7 +28,6 @@
 (define (cdadr x) (cdr (car (cdr x))))
 (define (cddar x) (cdr (cdr (car x))))
 (define (cdddr x) (cdr (cdr (cdr x))))
-
 (define (caaaar x) (car (car (car (car x)))))
 (define (caaadr x) (car (car (car (cdr x)))))
 (define (caadar x) (car (car (cdr (car x)))))
@@ -46,6 +44,8 @@
 (define (cddadr x) (cdr (cdr (car (cdr x)))))
 (define (cdddar x) (cdr (cdr (cdr (car x)))))
 (define (cddddr x) (cdr (cdr (cdr (cdr x)))))
+
+(define (null? x) (equal? x '()))
 
 ; chars
 (define (char=? . c)

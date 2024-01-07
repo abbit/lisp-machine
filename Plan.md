@@ -93,7 +93,7 @@
 	- [x] `cdar`
 	- [x] `cddr`
 	- [x] `caaar`, `caadr`, ..., `cddar`, `cdddr`
-	- [ ] `null?`
+	- [x] `null?`
 	- [ ] `list?`
 	- [ ] `make-list`
 	- [x] `list`
