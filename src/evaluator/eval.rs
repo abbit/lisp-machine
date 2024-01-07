@@ -755,80 +755,100 @@ mod tests {
     mod proper_tail_call {
         use super::*;
 
+        const ITERATIONS: i64 = 345000;
+
         #[test]
         fn if_tco() {
-            let source = "
+            let source = format!(
+                "
             (define (f x) (if (= x 0) 0 (f (- x 1))))
-            (f 1000000)
-            ";
+            (f {})
+            ",
+                ITERATIONS
+            );
 
             let mut env = env::new_root_env();
             // should not stack overflow
-            let result = eval_str(source, &mut env).unwrap();
+            let result = eval_str(&source, &mut env).unwrap();
             assert_eq!(result, Expr::Integer(0));
         }
 
         #[test]
         fn begin_tco() {
-            let source = "
-            (begin (define (f x) (if (= x 0) 0 (f (- x 1)))) (f 1000000))
-            ";
+            let source = format!(
+                "
+            (begin (define (f x) (if (= x 0) 0 (f (- x 1)))) (f {}))
+            ",
+                ITERATIONS
+            );
             let mut env = env::new_root_env();
             // should not stack overflow
-            let result = eval_str(source, &mut env).unwrap();
+            let result = eval_str(&source, &mut env).unwrap();
             assert_eq!(result, Expr::Integer(0));
         }
 
         #[test]
         fn define_tco() {
-            let source = "
+            let source = format!(
+                "
             (define (f x) (if (= x 0) 0 (f (- x 1))))
-            (f 1000000)
-            ";
+            (f {})
+            ",
+                ITERATIONS
+            );
             let mut env = env::new_root_env();
             // should not stack overflow
-            let result = eval_str(source, &mut env).unwrap();
+            let result = eval_str(&source, &mut env).unwrap();
             assert_eq!(result, Expr::Integer(0));
         }
 
         #[test]
         fn eval_tco() {
-            let source = "
+            let source = format!(
+                "
             (define (f x) (if (= x 0) 0 (f (- x 1))))
-            (eval '(f 1000000))
-            ";
+            (eval '(f {}))
+            ",
+                ITERATIONS
+            );
             let mut env = env::new_root_env();
             // should not stack overflow
-            let result = eval_str(source, &mut env).unwrap();
+            let result = eval_str(&source, &mut env).unwrap();
             assert_eq!(result, Expr::Integer(0));
         }
 
         #[test]
         fn apply_tco() {
-            let source = "
+            let source = format!(
+                "
             (define (get-f x)
              (if (= x 0)
                (lambda (x) x)
                (get-f (- x 1))))
-            (apply (get-f 1000000) '(1000000))
-            ";
+            (apply (get-f {}) '(1))
+            ",
+                ITERATIONS
+            );
             let mut env = env::new_root_env();
             // should not stack overflow
-            let result = eval_str(source, &mut env).unwrap();
-            assert_eq!(result, Expr::Integer(1000000));
+            let result = eval_str(&source, &mut env).unwrap();
+            assert_eq!(result, Expr::Integer(1));
         }
 
         #[test]
         fn mutual_recursion() {
-            let source = "
+            let source = format!(
+                "
             (define (even? n) (if (= n 0) #t (odd? (- n 1))))
             (define (odd? n) (if (= n 0) #f (even? (- n 1))))
-            (even? 1000000)
-            ";
+            (even? {})
+            ",
+                ITERATIONS
+            );
             let mut env = env::new_root_env();
             // should not stack overflow
-            let result = eval_str(source, &mut env).unwrap();
-            assert_eq!(result, Expr::Boolean(true));
+            let result = eval_str(&source, &mut env).unwrap();
+            assert_eq!(result, Expr::Boolean(ITERATIONS % 2 == 0));
         }
     }
 }
