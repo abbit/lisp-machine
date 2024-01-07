@@ -154,7 +154,7 @@
     - [x] `string-copy!`
     - [x] `string-fill!`
 - [ ] controls:
-	- [ ] `procedure?`
+	- [x] `procedure?`
 	- [x] `apply`
 	- [x] `eval`
 	- [ ] `map`

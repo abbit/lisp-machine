@@ -176,13 +176,11 @@ pub fn new_root_env() -> EnvRef {
         convert::integer_to_char,
         convert::string_to_list,
         // type checking
-        // "null?" => builtin::is_null,
         types::is_pair,
         types::is_number,
         // "symbol?" => builtin::is_symbol,
         types::is_string,
-        // "boolean?" => builtin::is_boolean,
-        // "procedure?" => builtin::is_procedure,
+        types::is_procedure,
         types::is_char,
         // system interaction
         system::read,
