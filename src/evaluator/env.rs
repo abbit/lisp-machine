@@ -163,7 +163,7 @@ pub fn new_root_env() -> EnvRef {
         lists::cdr_,
         lists::list_,
         // type checking
-        // "null?" => builtin::is_null,
+        lists::is_null,
         // "pair?" => builtin::is_pair,
         // "number?" => builtin::is_number,
         // "symbol?" => builtin::is_symbol,

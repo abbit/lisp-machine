@@ -128,7 +128,7 @@
   - [ ] `cdar`
   - [ ] `cddr`
   - [ ] `caaar`, `caadr`, ..., `cddar`, `cdddr`
-  - [ ] `null?`
+  - [x] `null?`
   - [ ] `list?`
   - [ ] `make-list`
   - [x] `list`
