@@ -174,6 +174,7 @@ pub fn new_root_env() -> EnvRef {
         convert::string_to_number,
         convert::char_to_integer,
         convert::integer_to_char,
+        convert::string_to_list,
         // type checking
         // "null?" => builtin::is_null,
         types::is_pair,

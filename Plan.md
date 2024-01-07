@@ -131,7 +131,7 @@
 	- [x] `char-upcase`
 	- [x] `char-downcase`
 	- [x] `char-foldcase`
-- [ ] strings:
+- [x] strings:
 	- [x] `string?`
     - [x] `string=?`
     - [x] `string<?`
@@ -148,7 +148,7 @@
 	- [x] `string-foldcase`
 	- [x] `substring`
 	- [x] `string-append`
-	- [ ] `string->list`
+	- [x] `string->list`
 	- [x] `list->string`
 	- [x] `string-copy`
     - [x] `string-copy!`

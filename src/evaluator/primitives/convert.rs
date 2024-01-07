@@ -3,7 +3,7 @@ use std::{cell::RefCell, rc::Rc};
 use super::utils::define_procedures;
 use crate::{
     evaluator::{error::runtime_error, EnvRef},
-    expr::{Arity, Expr, Exprs, ProcedureResult, ProcedureReturn},
+    expr::{Arity, Expr, Exprs, ProcedureResult, ProcedureReturn, list::List},
 };
 
 define_procedures! {
@@ -11,6 +11,7 @@ define_procedures! {
     string_to_number = ("string->number", string_to_number_fn, Arity::AtLeast(1)),
     char_to_integer = ("char->integer", char_to_integer_fn, Arity::Exact(1)),
     integer_to_char = ("integer->char", integer_to_char_fn, Arity::Exact(1)),
+    string_to_list = ("string->list", string_to_list_fn, Arity::AtLeast(1)),
 }
 
 fn number_to_string_fn(mut args: Exprs, _env: &mut EnvRef) -> ProcedureResult {
@@ -158,4 +159,50 @@ fn integer_to_char_fn(mut args: Exprs, _env: &mut EnvRef) -> ProcedureResult {
     };
 
     Ok(Expr::Char(character)).map(ProcedureReturn::Value)
+}
+
+fn string_to_list_fn(mut args: Exprs, _: &mut EnvRef) -> ProcedureResult {
+    let string_arg = args.pop_front().unwrap();
+    let start_arg = args.pop_front().unwrap_or(Expr::Integer(0));
+    let end_arg = args.pop_front().unwrap_or(Expr::Integer(-1));
+
+    let string = match string_arg {
+        Expr::String(s) => s.borrow().clone(),
+        _ => {
+            return Err(runtime_error!(
+                "string->list is only supported for string arguments"
+            ))
+        }
+    };
+
+    let start = match start_arg {
+        Expr::Integer(i) if i >= 0 => i as usize,
+        _ => {
+            return Err(runtime_error!(
+                "string->list: start index must be a non-negative integer"
+            ))
+        }
+    };
+
+    let end = match end_arg {
+        Expr::Integer(i) if i >= 0 => i as usize,
+        Expr::Integer(-1) => string.len(),
+        _ => {
+            return Err(runtime_error!(
+                "string->list: end index must be a non-negative integer or -1"
+            ))
+        }
+    };
+
+    if start > end || end > string.len() {
+        return Err(runtime_error!("string->list: indices are out of bounds"));
+    }
+
+    let result_list: Exprs = string[start..end]
+        .chars()
+        .map(|c| Expr::Char(c))
+        .collect();
+
+    Ok(Expr::List(List::new_proper(result_list)))
+        .map(ProcedureReturn::Value)
 }
