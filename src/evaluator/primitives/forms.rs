@@ -6,8 +6,8 @@ use crate::{
         EnvRef, EvalError,
     },
     expr::{
-        proc_result_value, Arity, Body, Expr, Exprs, ListKind, ProcedureResult, ProcedureReturn,
-        {Procedure, ProcedureParams},
+        proc_result_tailcall, proc_result_value, Arity, Body, Expr, Exprs, ListKind,
+        ProcedureResult, ProcedureReturn, {Procedure, ProcedureParams},
     },
 };
 
@@ -166,16 +166,14 @@ fn if_fn(mut args: Exprs, env: &mut EnvRef) -> ProcedureResult {
     let else_ = args.pop_front();
 
     let cond = eval::eval_expr(cond, env)?;
-    let ret = if cond.is_truthy() {
-        ProcedureReturn::TailCall(then, env.clone())
+    if cond.is_truthy() {
+        proc_result_tailcall!(then, env.clone())
     } else {
         match else_ {
-            Some(expr) => ProcedureReturn::TailCall(expr, env.clone()),
-            None => ProcedureReturn::Value(Expr::Void),
+            Some(expr) => proc_result_tailcall!(expr, env.clone()),
+            None => proc_result_value!(Expr::Void),
         }
-    };
-
-    Ok(ret)
+    }
 }
 
 fn begin_fn(args: Exprs, env: &mut EnvRef) -> ProcedureResult {
