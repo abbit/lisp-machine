@@ -3,6 +3,7 @@ pub mod equivalence;
 pub mod eval;
 pub mod forms;
 pub mod lists;
+pub mod macros;
 pub mod modularity;
 pub mod nums;
 pub mod strings;
