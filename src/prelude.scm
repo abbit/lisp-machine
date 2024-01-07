@@ -100,6 +100,19 @@
   (mem eqv? obj ls))
 (define (member obj ls)
   (mem equal? obj ls))
+
+(define (ass predicate obj ls)
+  (if (null? ls)
+      #f
+      (if (predicate obj (caar ls))
+          (car ls)
+          (ass predicate obj (cdr ls)))))
+(define (assq obj ls)
+  (ass eq? obj ls))
+(define (assv obj ls)
+  (ass eqv? obj ls))
+(define (assoc obj ls)
+  (ass equal? obj ls))
 ; chars
 (define (char=? . c)
   (apply = (map char->integer c)))

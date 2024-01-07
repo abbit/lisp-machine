@@ -105,9 +105,9 @@
 	- [x] `memq`
 	- [x] `memv`
 	- [x] `member`
-	- [ ] `assq`
-	- [ ] `assv`
-	- [ ] `assoc`
+	- [x] `assq`
+	- [x] `assv`
+	- [x] `assoc`
 	- [ ] `list-copy`
 - [ ] symbols:
 	- [ ] `symbol?`
