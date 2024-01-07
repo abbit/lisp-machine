@@ -51,7 +51,7 @@ fn define_macro_fn(mut args: Exprs, env: &mut EnvRef) -> ProcedureResult {
 
     let body: Body = args.into();
     let procedure = create_procedure(Some(name.to_string()), params_expr, body, env)?;
-    env.add_macro(name.to_string(), procedure.into_procedure().unwrap());
+    env.add_macro(name.to_string(), procedure);
 
     proc_result_value!(Expr::Void)
 }

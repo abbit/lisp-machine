@@ -50,7 +50,7 @@ impl Procedure {
         name: Option<String>,
         params: ProcedureParams,
         body: Body,
-        env: &mut EnvRef,
+        env: EnvRef,
     ) -> Self {
         debug!(
             "creating procedure with name {:?}, params: {:?} and body: {:?}",
@@ -201,17 +201,12 @@ pub struct CompoundProcedure {
 }
 
 impl CompoundProcedure {
-    pub fn new(
-        name: Option<String>,
-        params: ProcedureParams,
-        body: Body,
-        env: &mut EnvRef,
-    ) -> Self {
+    pub fn new(name: Option<String>, params: ProcedureParams, body: Body, env: EnvRef) -> Self {
         CompoundProcedure {
             name,
             params,
+            env,
             body: Box::new(body),
-            env: env.clone(),
         }
     }
 }

@@ -42,8 +42,8 @@ pub fn create_procedure(
     name: Option<String>,
     params: Expr,
     body: Body,
-    env: &mut EnvRef,
-) -> EvalResult {
+    env: &EnvRef,
+) -> Result<Procedure, EvalError> {
     let params = match params {
         Expr::List(list) => {
             let kind = list.kind();
@@ -73,7 +73,5 @@ pub fn create_procedure(
         }
     };
 
-    let procedure = Expr::Procedure(Procedure::new_compound(name, params, body, env));
-
-    Ok(procedure)
+    Ok(Procedure::new_compound(name, params, body, env.clone()))
 }

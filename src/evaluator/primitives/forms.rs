@@ -100,7 +100,7 @@ fn define_fn(mut args: Exprs, env: &mut EnvRef) -> ProcedureResult {
 
     let body: Body = args.into();
     let procedure = create_procedure(Some(name.to_string()), params_expr, body, env)?;
-    env.add(name.to_string(), procedure);
+    env.add(name.to_string(), procedure.into());
 
     proc_result_value!(Expr::Void)
 }
@@ -115,8 +115,9 @@ fn set_fn(mut args: Exprs, env: &mut EnvRef) -> ProcedureResult {
 fn lambda_fn(mut args: Exprs, env: &mut EnvRef) -> ProcedureResult {
     let params = args.pop_front().unwrap();
     let body: Body = args.into();
+    let proc = create_procedure(None, params, body, env)?;
 
-    create_procedure(None, params, body, env).map(ProcedureReturn::Value)
+    proc_result_value!(proc.into())
 }
 
 fn if_fn(mut args: Exprs, env: &mut EnvRef) -> ProcedureResult {

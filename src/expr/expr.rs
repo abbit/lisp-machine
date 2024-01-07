@@ -207,6 +207,12 @@ impl fmt::Display for Expr {
     }
 }
 
+impl From<Procedure> for Expr {
+    fn from(proc: Procedure) -> Self {
+        Expr::Procedure(proc)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
