@@ -103,11 +103,11 @@ fn eval_expanded_expr(mut expr: Expr, env: &mut EnvRef) -> EvalResult {
     let mut env = env.clone();
     loop {
         match expr {
-            Expr::Boolean(boolean) => return Ok(Expr::Boolean(boolean)),
-            Expr::Integer(int) => return Ok(Expr::Integer(int)),
-            Expr::Float(float) => return Ok(Expr::Float(float)),
-            Expr::Char(char) => return Ok(Expr::Char(char)),
-            Expr::String(str) => return Ok(Expr::String(str)),
+            expr @ Expr::Boolean(_) => return Ok(expr),
+            expr @ Expr::Integer(_) => return Ok(expr),
+            expr @ Expr::Float(_) => return Ok(expr),
+            expr @ Expr::Char(_) => return Ok(expr),
+            expr @ Expr::String(_) => return Ok(expr),
             Expr::Symbol(symbol) => return eval_symbol(symbol, &mut env),
             Expr::List(list) => match list.kind() {
                 ListKind::Proper => match eval_list(list.into(), &mut env)? {
