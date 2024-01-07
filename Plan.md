@@ -88,11 +88,11 @@
 	- [x] `cons`
 	- [x] `car`
 	- [x] `cdr`
-	- [ ] `caar`
-	- [ ] `cadr`
-	- [ ] `cdar`
-	- [ ] `cddr`
-	- [ ] `caaar`, `caadr`, ..., `cddar`, `cdddr`
+	- [x] `caar`
+	- [x] `cadr`
+	- [x] `cdar`
+	- [x] `cddr`
+	- [x] `caaar`, `caadr`, ..., `cddar`, `cdddr`
 	- [ ] `null?`
 	- [ ] `list?`
 	- [ ] `make-list`
