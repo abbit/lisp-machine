@@ -79,6 +79,7 @@
 - [ ] equivalence predicates:
   - [ ] `eqv?`
   - [ ] `eq?`
+  - [x] `eqv?`
   - [ ] `equal?`
 - [ ] numbers:
   - [ ] `number?`

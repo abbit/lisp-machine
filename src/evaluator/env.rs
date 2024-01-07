@@ -1,4 +1,4 @@
-use super::primitives::{eval, forms, lists, modularity, nums, system};
+use super::primitives::{equivalence, eval, forms, lists, modularity, nums, system};
 use crate::{
     evaluator::primitives::strings,
     expr::{Expr, Procedure},
@@ -145,6 +145,8 @@ pub fn new_root_env() -> EnvRef {
         // evaluation
         eval::eval,
         eval::apply,
+        // equivalence
+        equivalence::eqv,
         // modularity
         modularity::include,
         modularity::load,
