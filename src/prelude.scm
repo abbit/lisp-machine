@@ -80,6 +80,11 @@
       ((lambda (lol)
          (append-helper (cdr lol) (car lol)))
        (reverse o))))
+
+(define (list-tail l k)
+  (if (zero? k)
+      l
+      (list-tail (cdr l) (- k 1))))
 ; chars
 (define (char=? . c)
   (apply = (map char->integer c)))
