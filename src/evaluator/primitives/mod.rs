@@ -1,5 +1,5 @@
 pub mod booleans;
-pub mod equivalence;
+pub mod equal;
 pub mod eval;
 pub mod forms;
 pub mod lists;

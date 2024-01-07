@@ -1,5 +1,5 @@
 use super::primitives::{
-    booleans, equivalence, eval, forms, lists, macros, modularity, nums, strings, system,
+    booleans, equal, eval, forms, lists, macros, modularity, nums, strings, system,
 };
 use crate::expr::{Expr, Procedure};
 use core::fmt;
@@ -150,7 +150,8 @@ pub fn new_root_env() -> EnvRef {
         eval::eval,
         eval::apply,
         // equivalence
-        equivalence::eqv,
+        equal::eqv,
+        equal::equal,
         // boolean
         booleans::and,
         booleans::or,

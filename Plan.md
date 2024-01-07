@@ -64,7 +64,7 @@
 
 - [x] `let*`
 - [x] `letrec*`
-- [ ] `case`
+- [x] `case`
 - [x] `when`
 - [x] `unless`
 

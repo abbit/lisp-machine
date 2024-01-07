@@ -2,9 +2,6 @@
 
 (define (not x) (if x #f #t))
 
-(define-macro (when test . body) `(if ,test (begin ,@body)))
-(define-macro (unless test . body) `(if (not ,test) (begin ,@body)))
-
 (define (zero? x) (= x 0))
 
 (define (list . args) args)
@@ -38,6 +35,23 @@
 (define (cdddar x) (cdr (cdr (cdr (car x)))))
 (define (cddddr x) (cdr (cdr (cdr (cdr x)))))
 
+(define (mem predicate obj ls)
+  (if (null? ls)
+      #f
+      (if (predicate obj (car ls))
+          ls
+          (mem predicate obj (cdr ls)))))
+(define (memq obj ls)
+  (mem eq? obj ls))
+(define (memv obj ls)
+  (mem eqv? obj ls))
+(define (member obj ls)
+  (mem equal? obj ls))
+
+
+
+
+
 (define (map1 proc lst)
   (if (null? lst)
     '()
@@ -50,9 +64,19 @@
     (cons (apply proc (map1 car lists))
           (apply map proc (map1 cdr lists)))))
 
+(define-macro (when test . body) `(if ,test (begin ,@body)))
+(define-macro (unless test . body) `(if (not ,test) (begin ,@body)))
+
 (define-macro (let* bindings . body)
   (if (null? bindings)
       `(let ,bindings ,@body)
       `(let ,(list (car bindings)) (let* ,(cdr bindings) ,@body))))
 
 (define-macro (letrec* bindings . body) `(letrec ,bindings ,@body))
+
+(define-macro (case key . clauses)
+  (let ((tmp (gensym)))
+    `(let ((,tmp ,key))
+       (cond ,@(map (lambda (clause)
+                      `((memv ,tmp ',(car clause)) ,(cadr clause)))
+                    clauses)))))
