@@ -85,9 +85,21 @@
   (if (zero? k)
       l
       (list-tail (cdr l) (- k 1))))
-
 (define (list-ref l k)
   (car (list-tail l k)))
+
+(define (mem predicate obj ls)
+  (if (null? ls)
+      #f
+      (if (predicate obj (car ls))
+          ls
+          (mem predicate obj (cdr ls)))))
+(define (memq obj ls)
+  (mem eq? obj ls))
+(define (memv obj ls)
+  (mem eqv? obj ls))
+(define (member obj ls)
+  (mem equal? obj ls))
 ; chars
 (define (char=? . c)
   (apply = (map char->integer c)))

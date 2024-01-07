@@ -102,9 +102,9 @@
 	- [x] `reverse`
 	- [x] `list-tail`
 	- [x] `list-ref`
-	- [ ] `memq`
-	- [ ] `memv`
-	- [ ] `member`
+	- [x] `memq`
+	- [x] `memv`
+	- [x] `member`
 	- [ ] `assq`
 	- [ ] `assv`
 	- [ ] `assoc`
