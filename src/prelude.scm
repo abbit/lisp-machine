@@ -5,6 +5,8 @@
 (define-macro (when test . body) `(if ,test (begin ,@body)))
 (define-macro (unless test . body) `(if (not ,test) (begin ,@body)))
 
+(define (zero? x) (= x 0))
+
 (define (list . args) args)
 
 (define (caar x) (car (car x)))
@@ -48,8 +50,9 @@
     (cons (apply proc (map1 car lists))
           (apply map proc (map1 cdr lists)))))
 
-(define-macro (let bindings . body)
+(define-macro (let* bindings . body)
   (if (null? bindings)
-      `(begin ,@body)
-      `((lambda ,(map car bindings) ,@body) ,@(map cadr bindings))))
+      `(let ,bindings ,@body)
+      `(let ,(list (car bindings)) (let* ,(cdr bindings) ,@body))))
 
+(define-macro (letrec* bindings . body) `(letrec ,bindings ,@body))

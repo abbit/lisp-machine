@@ -3,18 +3,23 @@ use crate::{
     evaluator::{
         error::runtime_error,
         eval::{self, EvalResult},
+        procedure::ApplyProcedure,
         EnvRef,
     },
     expr::{
         proc_result_tailcall, proc_result_value, Arity, Body, Expr, Exprs, ListKind,
         ProcedureResult, ProcedureReturn,
     },
+    utils::debug,
 };
+use std::collections::VecDeque;
 
 define_special_forms! {
     define = ("define", define_fn, Arity::AtLeast(2)),
     set = ("set!", set_fn, Arity::Exact(2)),
     lambda = ("lambda", lambda_fn, Arity::Exact(2)),
+    let_ = ("let", let_fn, Arity::AtLeast(1)),
+    letrec = ("letrec", letrec_fn, Arity::AtLeast(1)),
     if_ = ("if", if_fn, Arity::Range(2, 3)),
     begin = ("begin", begin_fn, Arity::Any),
     quote = ("quote", quote_fn, Arity::Exact(1)),
@@ -110,6 +115,139 @@ fn set_fn(mut args: Exprs, env: &mut EnvRef) -> ProcedureResult {
     let body_expr = args.pop_front().unwrap();
 
     modify_env(symbol_expr, body_expr, env, ModifyEnv::Set)
+}
+
+fn let_fn(mut args: Exprs, env: &mut EnvRef) -> ProcedureResult {
+    let first_arg = args.pop_front().unwrap();
+
+    if first_arg.is_symbol() {
+        let name = first_arg.into_symbol().unwrap();
+        return named_let_form(name, args, env);
+    }
+
+    let mut bindings = first_arg.into_list().map_err(|expr| {
+        runtime_error!(
+            "expected bindings list as first argument of let, got {}",
+            expr
+        )
+    })?;
+
+    let mut eval_env = env.extend();
+    while !bindings.is_empty() {
+        let mut binding = bindings
+            .pop_front()
+            .unwrap()
+            .into_list()
+            .map_err(|expr| runtime_error!("expected list as binding in let, got {}", expr))?;
+
+        if binding.len() != 2 {
+            return Err(runtime_error!(
+                "expected 2 elements in binding in let, got {}",
+                binding.len()
+            ));
+        }
+
+        let symbol = binding.pop_front().unwrap().into_symbol().map_err(|expr| {
+            runtime_error!(
+                "expected symbol as first element of binding in let, got {}",
+                expr.kind()
+            )
+        })?;
+        let value = binding.pop_front().unwrap();
+        // use `env` here to disallow recursion
+        let value = eval::eval_expr(value, env)?;
+        eval_env.add(symbol, value);
+    }
+
+    eval::eval_exprs_with_tailcall(args, &mut eval_env)
+}
+
+// named let (let <symbol> <bindings> <body>)
+fn named_let_form(name: String, mut args: Exprs, env: &mut EnvRef) -> ProcedureResult {
+    debug!(
+        "evaluating named let form - name: \"{}\", args: {:?}",
+        name, args
+    );
+
+    let mut bindings = args.pop_front().unwrap().into_list().map_err(|expr| {
+        runtime_error!(
+            "expected bindings list as first argument of let, got {}",
+            expr
+        )
+    })?;
+
+    let mut lambda_args = VecDeque::new();
+    let mut lambda_params = Exprs::new();
+    while !bindings.is_empty() {
+        let mut binding = bindings
+            .pop_front()
+            .unwrap()
+            .into_list()
+            .map_err(|expr| runtime_error!("expected list as binding in let, got {}", expr))?;
+
+        if binding.len() != 2 {
+            return Err(runtime_error!(
+                "expected 2 elements in binding in let, got {}",
+                binding.len()
+            ));
+        }
+
+        let symbol = binding.pop_front().unwrap().into_symbol().map_err(|expr| {
+            runtime_error!(
+                "expected symbol as first element of binding in let, got {}",
+                expr.kind()
+            )
+        })?;
+        lambda_args.push_back(symbol.clone());
+        let value = binding.pop_front().unwrap();
+        let value = eval::eval_expr(value, env)?;
+        lambda_params.push_back(value);
+    }
+
+    let mut eval_env = env.extend();
+    let proc = create_procedure(
+        Some(name.clone()),
+        Expr::new_proper_list(lambda_args.into_iter().map(Expr::Symbol).collect()),
+        args.into(),
+        &eval_env,
+    )?;
+    eval_env.add(name.clone(), proc.clone().into());
+    proc.apply(lambda_params, &mut eval_env)
+}
+
+fn letrec_fn(mut args: Exprs, env: &mut EnvRef) -> ProcedureResult {
+    let mut bindings = args.pop_front().unwrap().into_list().map_err(|expr| {
+        runtime_error!(
+            "expected bindings list as first argument of letrec, got {}",
+            expr
+        )
+    })?;
+
+    let mut eval_env = env.extend();
+    while !bindings.is_empty() {
+        let mut binding =
+            bindings.pop_front().unwrap().into_list().map_err(|expr| {
+                runtime_error!("expected list as binding in letrec, got {}", expr)
+            })?;
+        if binding.len() != 2 {
+            return Err(runtime_error!(
+                "expected 2 elements in binding in letrec, got {}",
+                binding.len()
+            ));
+        }
+        let symbol = binding.pop_front().unwrap().into_symbol().map_err(|expr| {
+            runtime_error!(
+                "expected symbol as first element of binding in letrec, got {}",
+                expr.kind()
+            )
+        })?;
+        let value = binding.pop_front().unwrap();
+        // use `eval_env` here to allow recursion
+        let value = eval::eval_expr(value, &mut eval_env)?;
+        eval_env.add(symbol, value);
+    }
+
+    eval::eval_exprs_with_tailcall(args, &mut eval_env)
 }
 
 fn lambda_fn(mut args: Exprs, env: &mut EnvRef) -> ProcedureResult {

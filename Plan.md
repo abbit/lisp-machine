@@ -46,7 +46,13 @@
 - [x] `define-macro`
 - [x] `set!`
 - [x] `lambda`
+- [x] `let` (and named let)
+- [x] `letrec`
 - [x] `if`
+- [ ] `cond`
+- [x] `and`
+- [x] `or`
+- [ ] `do`
 - [x] `quote`
 - [x] `quasiquote`
 - [x] `unquote`
@@ -56,19 +62,11 @@
 
 ### Реализация на Scheme должна содержать:
 
-- [x] `let`
-- [ ] `let*`
-- [ ] `letrec`
-- [ ] `letrec*`
-- [ ] `let-values`
-- [ ] `let*-values`
-- [x] `and`
-- [x] `or`
-- [ ] `cond`
+- [x] `let*`
+- [x] `letrec*`
+- [ ] `case`
 - [x] `when`
 - [x] `unless`
-- [ ] `cond-expand`
-- [ ] `do`
 
 ## Стандартная библиотека
 

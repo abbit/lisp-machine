@@ -136,6 +136,8 @@ pub fn new_root_env() -> EnvRef {
         forms::lambda,
         forms::define,
         forms::set,
+        forms::let_,
+        forms::letrec,
         forms::quote,
         forms::quasiquote,
         forms::if_,

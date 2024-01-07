@@ -419,6 +419,41 @@ mod tests {
     }
 
     #[test]
+    fn eval_let_simple() {
+        let source = "(let ((x 2) (y 3)) (* x y))";
+        let mut env = env::new_root_env();
+        let result = eval_str(source, &mut env).unwrap();
+        assert_eq!(result, Expr::Integer(6));
+    }
+
+    #[test]
+    fn eval_let_nested() {
+        let source = "(let ((x 2) (y 3)) (let ((x 7) (z (+ x y))) (* z x)))";
+        let mut env = env::new_root_env();
+        let result = eval_str(source, &mut env).unwrap();
+        assert_eq!(result, Expr::Integer(35));
+    }
+
+    #[test]
+    fn eval_let_named() {
+        let source = "(let fac ((n 10)) (if (= n 0) 1 (* n (fac (- n 1)))))";
+        let mut env = env::new_root_env();
+        let result = eval_str(source, &mut env).unwrap();
+        assert_eq!(result, Expr::Integer(3628800));
+    }
+
+    #[test]
+    fn eval_letrec_mutual() {
+        let source = "(letrec ((zero? (lambda (n) (= n 0)))
+                               (even? (lambda (n) (if (zero? n) #t (odd? (- n 1)))))
+                               (odd? (lambda (n) (if (zero? n) #f (even? (- n 1))))))
+                          (even? 100))";
+        let mut env = env::new_root_env();
+        let result = eval_str(source, &mut env).unwrap();
+        assert_eq!(result, Expr::Boolean(true));
+    }
+
+    #[test]
     fn eval_program_circle_area() {
         let program = "
                 (define pi 314)
@@ -847,6 +882,28 @@ mod tests {
             );
             let mut env = env::new_root_env();
             // should not stack overflow
+            let result = eval_str(&source, &mut env).unwrap();
+            assert_eq!(result, Expr::Boolean(ITERATIONS % 2 == 0));
+        }
+
+        #[test]
+        fn named_let_tco() {
+            let source = format!("(let f ((x {})) (if (= x 0) 0 (f (- x 1))))", ITERATIONS);
+            let mut env = env::new_root_env();
+            let result = eval_str(&source, &mut env).unwrap();
+            assert_eq!(result, Expr::Integer(0));
+        }
+
+        #[test]
+        fn letrec_tco() {
+            let source = format!(
+                "(letrec ((zero? (lambda (n) (= n 0)))
+                               (even? (lambda (n) (if (zero? n) #t (odd? (- n 1)))))
+                               (odd? (lambda (n) (if (zero? n) #f (even? (- n 1))))))
+                        (even? {}))",
+                ITERATIONS
+            );
+            let mut env = env::new_root_env();
             let result = eval_str(&source, &mut env).unwrap();
             assert_eq!(result, Expr::Boolean(ITERATIONS % 2 == 0));
         }
