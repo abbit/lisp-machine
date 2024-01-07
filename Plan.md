@@ -49,7 +49,7 @@
 - [x] `let` (and named let)
 - [x] `letrec`
 - [x] `if`
-- [ ] `cond`
+- [x] `cond`
 - [x] `and`
 - [x] `or`
 - [ ] `do`
