@@ -1,8 +1,7 @@
-use super::primitives::{equivalence, eval, forms, lists, modularity, nums, system};
-use crate::{
-    evaluator::primitives::strings,
-    expr::{Expr, Procedure},
+use super::primitives::{
+    booleans, equivalence, eval, forms, lists, macros, modularity, nums, strings, system,
 };
+use crate::expr::{Expr, Procedure};
 use core::fmt;
 use std::{cell::RefCell, collections::HashMap, path::PathBuf, rc::Rc};
 
@@ -147,6 +146,9 @@ pub fn new_root_env() -> EnvRef {
         eval::apply,
         // equivalence
         equivalence::eqv,
+        // boolean
+        booleans::and,
+        booleans::or,
         // modularity
         modularity::include,
         modularity::load,

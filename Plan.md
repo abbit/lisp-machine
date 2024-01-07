@@ -114,9 +114,9 @@
   - [ ] `string->number`
 - [ ] booleans:
   - [ ] `boolean?`
-  - [ ] `not`
-  - [ ] `and`
-  - [ ] `or`
+  - [x] `not`
+  - [x] `and`
+  - [x] `or`
 - [ ] pairs and lists:
   - [ ] `pair?`
   - [x] `cons`
