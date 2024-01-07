@@ -62,8 +62,8 @@
 - [ ] `letrec*`
 - [ ] `let-values`
 - [ ] `let*-values`
-- [ ] `and`
-- [ ] `or`
+- [x] `and`
+- [x] `or`
 - [ ] `cond`
 - [x] `when`
 - [x] `unless`
