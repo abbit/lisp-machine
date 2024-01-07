@@ -52,6 +52,13 @@
       (list? (cdr x))
       (null? x)))
 
+(define (length ls)
+  (define (length* ls acc)
+    (if (null? ls)
+        acc
+        (length* (cdr ls) (+ 1 acc))))
+  (length* ls 0))
+
 ; chars
 (define (char=? . c)
   (apply = (map char->integer c)))

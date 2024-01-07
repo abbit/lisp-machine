@@ -97,7 +97,7 @@
 	- [x] `list?`
 	- [ ] `make-list`
 	- [x] `list`
-	- [ ] `length`
+	- [x] `length`
 	- [ ] `append`
 	- [ ] `reverse`
 	- [ ] `list-tail`
