@@ -47,6 +47,11 @@
 
 (define (null? x) (equal? x '()))
 
+(define (list? x)
+  (if (pair? x)
+      (list? (cdr x))
+      (null? x)))
+
 ; chars
 (define (char=? . c)
   (apply = (map char->integer c)))
