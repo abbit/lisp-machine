@@ -56,7 +56,7 @@
 
 ### Реализация на Scheme должна содержать:
 
-- [ ] `let`
+- [x] `let`
 - [ ] `let*`
 - [ ] `letrec`
 - [ ] `letrec*`
@@ -65,11 +65,10 @@
 - [ ] `and`
 - [ ] `or`
 - [ ] `cond`
-- [ ] `when`
-- [ ] `unless`
+- [x] `when`
+- [x] `unless`
 - [ ] `cond-expand`
 - [ ] `do`
-- [ ] `named let`
 
 ## Стандартная библиотека
 
@@ -77,9 +76,8 @@
 Остальные должны быть реализованы на Scheme.
 
 - [ ] equivalence predicates:
-  - [ ] `eqv?`
-  - [ ] `eq?`
   - [x] `eqv?`
+  - [x] `eq?`
   - [ ] `equal?`
 - [ ] numbers:
   - [ ] `number?`
@@ -124,8 +122,8 @@
   - [x] `cons`
   - [x] `car`
   - [x] `cdr`
-  - [ ] `caar`
-  - [ ] `cadr`
+  - [x] `caar`
+  - [x] `cadr`
   - [ ] `cdar`
   - [ ] `cddr`
   - [ ] `caaar`, `caadr`, ..., `cddar`, `cdddr`
@@ -193,7 +191,7 @@
   - [ ] `procedure?`
   - [x] `apply`
   - [x] `eval`
-  - [ ] `map`
+  - [x] `map`
   - [ ] `string-map`
   - [ ] `for-each`
   - [ ] `string-for-each`
