@@ -117,6 +117,10 @@ impl Expr {
         matches!(self, Expr::Symbol(_))
     }
 
+    pub fn is_specific_symbol(&self, s: &str) -> bool {
+        matches!(self, Expr::Symbol(symbol) if symbol == s)
+    }
+
     pub fn is_empty_list(&self) -> bool {
         matches!(self, Expr::List(list) if list.is_empty())
     }

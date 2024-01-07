@@ -7,7 +7,7 @@ use crate::{
         EnvRef,
     },
     expr::{
-        proc_result_tailcall, proc_result_value, Arity, Body, Expr, Exprs, ListKind,
+        exprs, proc_result_tailcall, proc_result_value, Arity, Body, Expr, Exprs, ListKind,
         ProcedureResult, ProcedureReturn,
     },
     utils::debug,
@@ -21,6 +21,7 @@ define_special_forms! {
     let_ = ("let", let_fn, Arity::AtLeast(1)),
     letrec = ("letrec", letrec_fn, Arity::AtLeast(1)),
     if_ = ("if", if_fn, Arity::Range(2, 3)),
+    cond = ("cond", cond_fn, Arity::AtLeast(1)),
     begin = ("begin", begin_fn, Arity::Any),
     quote = ("quote", quote_fn, Arity::Exact(1)),
     quasiquote = ("quasiquote", quasiquote_fn, Arity::Exact(1)),
@@ -274,6 +275,104 @@ fn if_fn(mut args: Exprs, env: &mut EnvRef) -> ProcedureResult {
     }
 }
 
+enum TestResult {
+    Normal(Expr),
+    Else,
+}
+
+impl TestResult {
+    fn is_truthy(&self) -> bool {
+        match self {
+            Self::Normal(expr) => expr.is_truthy(),
+            Self::Else => true,
+        }
+    }
+}
+
+fn cond_fn(args: Exprs, env: &mut EnvRef) -> ProcedureResult {
+    let args_len = args.len();
+    for (clause, idx) in args.into_iter().zip(1..) {
+        let mut clause = clause
+            .into_list()
+            .map_err(|expr| runtime_error!("expected list as clause in cond, got {}", expr))?;
+
+        if clause.is_empty() {
+            return Err(runtime_error!("expected at least 1 element in clause",));
+        }
+
+        let test = clause.pop_front().unwrap();
+        // check if clause test is special `else` clause
+        let test_result = if test.is_specific_symbol("else") {
+            // `else` clause should be last in cond
+            if idx != args_len {
+                return Err(runtime_error!("else clause must be last in cond"));
+            }
+            TestResult::Else
+        } else {
+            // if its normal clause test then evaluate it and check if it is a true value
+            TestResult::Normal(eval::eval_expr(test, env)?)
+        };
+
+        if test_result.is_truthy() {
+            return match test_result {
+                TestResult::Normal(result_expr) => {
+                    if clause.car().is_some_and(|e| e.is_specific_symbol("=>")) {
+                        clause.pop_front(); // pop "=>" symbol
+                        let proc_expr = clause.pop_front().ok_or(runtime_error!(
+                            "expected expression after `=>` in cond clause"
+                        ))?;
+                        // if clause uses `=>` then next expr should evaluate to a procedure
+                        let proc =
+                            eval::eval_expr(proc_expr, env)?
+                                .into_procedure()
+                                .map_err(|expr| {
+                                    runtime_error!(
+                                        "expected procedure after `=>` in cond clause, got {}",
+                                        expr.kind()
+                                    )
+                                })?;
+
+                        // procedure should accept 1 argument
+                        if !matches!(proc.arity(), Arity::Exact(1)) {
+                            return Err(runtime_error!(
+                                "expected procedure with 1 argument after `=>` in cond clause"
+                            ));
+                        }
+
+                        // evaluate procedure with test result as argument
+                        proc.apply(exprs![result_expr], env)
+                    } else {
+                        // normal clause, so just evaluates expressions in clause
+                        let exprs = clause.into_exprs();
+                        if exprs.is_empty() {
+                            // if clause contains only `test` then check which type of clause it is
+                            // for normal clause return value of `test` as result
+                            return proc_result_value!(result_expr);
+                        }
+                        // if clause test is truthy and it has at least 1 expression
+                        // then just evaluate expressions and return result of the last one
+                        eval::eval_exprs_with_tailcall(exprs, env)
+                    }
+                }
+                TestResult::Else => {
+                    let exprs = clause.into_exprs();
+                    if exprs.is_empty() {
+                        // `else` clause should contain at least 1 expression
+                        return Err(runtime_error!(
+                            "else clause should contain at least 1 expression"
+                        ));
+                    }
+                    // if clause test is truthy and it has at least 1 expression
+                    // then just evaluate expressions and return result of the last one
+                    eval::eval_exprs_with_tailcall(exprs, env)
+                }
+            };
+        }
+    }
+
+    proc_result_value!(Expr::Void)
+}
+
 fn begin_fn(args: Exprs, env: &mut EnvRef) -> ProcedureResult {
     eval::eval_exprs_with_tailcall(args, env)
 }
@@ -297,14 +396,14 @@ fn quasiquote_list(list: Exprs, env: &mut EnvRef) -> EvalResult {
             // if expr is a list, check if it's unquote call
             let mut expr_list = expr.into_list().unwrap();
             match expr_list.car() {
-                Some(Expr::Symbol(symbol)) if symbol == "unquote" => {
+                Some(expr) if expr.is_specific_symbol("unquote") => {
                     expr_list.pop_front(); // pop "unquote" symbol
                     let expr = expr_list
                         .pop_front()
                         .ok_or(runtime_error!("expected expression after unquote"))?;
                     new_list.push_back(eval::eval_expr(expr, env)?);
                 }
-                Some(Expr::Symbol(symbol)) if symbol == "unquote-splicing" => {
+                Some(expr) if expr.is_specific_symbol("unquote-splicing") => {
                     expr_list.pop_front(); // pop "unquote-splicing" symbol
                     let expr = expr_list
                         .pop_front()

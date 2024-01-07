@@ -65,6 +65,17 @@ impl Procedure {
             Procedure::Compound(_) => false,
         }
     }
+
+    pub fn arity(&self) -> Arity {
+        match self {
+            Procedure::Atomic(proc) => proc.arity(),
+            Procedure::Compound(proc) => match &proc.params {
+                ProcedureParams::Fixed(params) => Arity::Exact(params.len()),
+                ProcedureParams::Variadic(_) => Arity::Any,
+                ProcedureParams::Mixed(params, _) => Arity::AtLeast(params.len()),
+            },
+        }
+    }
 }
 
 impl NamedProcedure for Procedure {

@@ -296,6 +296,30 @@ mod tests {
     }
 
     #[test]
+    fn eval_list() {
+        let source = "(list 1 (list 2 (+ 3 4)))";
+        let mut env = env::new_root_env();
+        let result = eval_str(source, &mut env).unwrap();
+
+        assert_eq!(
+            result,
+            Expr::new_proper_list(exprs![
+                Expr::Integer(1),
+                Expr::new_proper_list(exprs![Expr::Integer(2), Expr::Integer(7)])
+            ])
+        );
+    }
+
+    #[test]
+    fn eval_apply() {
+        let source = "(apply + (list 1 2))";
+        let mut env = env::new_root_env();
+        let result = eval_str(source, &mut env).unwrap();
+
+        assert_eq!(result, Expr::Integer(3));
+    }
+
+    #[test]
     fn eval_define() {
         let source = "(define x 1)";
         let mut env = env::new_root_env();
@@ -306,7 +330,7 @@ mod tests {
     }
 
     #[test]
-    fn eval_lambda() {
+    fn eval_lambda_creation() {
         let source = "(lambda (x) (* x x))";
         let mut env = env::new_root_env();
         let result = eval_str(source, &mut env).unwrap();
@@ -394,29 +418,9 @@ mod tests {
         }
     }
 
-    #[test]
-    fn eval_list() {
-        let source = "(list 1 (list 2 (+ 3 4)))";
-        let mut env = env::new_root_env();
-        let result = eval_str(source, &mut env).unwrap();
-
-        assert_eq!(
-            result,
-            Expr::new_proper_list(exprs![
-                Expr::Integer(1),
-                Expr::new_proper_list(exprs![Expr::Integer(2), Expr::Integer(7)])
-            ])
-        );
-    }
-
-    #[test]
-    fn eval_apply() {
-        let source = "(apply + (list 1 2))";
-        let mut env = env::new_root_env();
-        let result = eval_str(source, &mut env).unwrap();
-
-        assert_eq!(result, Expr::Integer(3));
-    }
+    // ========================================================================
+    //                           `let` tests
+    // ========================================================================
 
     #[test]
     fn eval_let_simple() {
@@ -452,6 +456,78 @@ mod tests {
         let result = eval_str(source, &mut env).unwrap();
         assert_eq!(result, Expr::Boolean(true));
     }
+
+    // ========================================================================
+    //                           `cond` tests
+    // ========================================================================
+
+    #[test]
+    fn eval_cond_simple() {
+        let source = "(cond ((> 3 2) 'greater) ((< 3 2) 'less))";
+        let mut env = env::new_root_env();
+        let result = eval_str(source, &mut env).unwrap();
+        assert_eq!(result, Expr::new_symbol("greater"));
+    }
+
+    #[test]
+    fn eval_cond_no_else() {
+        let source = "(cond ((> 3 3) 'greater) ((< 3 3) 'less))";
+        let mut env = env::new_root_env();
+        let result = eval_str(source, &mut env).unwrap();
+        assert_eq!(result, Expr::Void);
+    }
+
+    #[test]
+    fn eval_cond_else() {
+        let source = "(cond ((> 3 3) 'greater) ((< 3 3) 'less) (else 'equal))";
+        let mut env = env::new_root_env();
+        let result = eval_str(source, &mut env).unwrap();
+        assert_eq!(result, Expr::new_symbol("equal"));
+    }
+
+    #[test]
+    fn eval_cond_with_arrow() {
+        let source = "(cond (1 => (lambda (x) x)))";
+        let mut env = env::new_root_env();
+        let result = eval_str(source, &mut env).unwrap();
+        assert_eq!(result, Expr::Integer(1));
+    }
+
+    #[test]
+    fn eval_cond_no_clauses() {
+        let source = "(cond)";
+        let mut env = env::new_root_env();
+        let result = eval_str(source, &mut env);
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn eval_cond_else_with_no_expr() {
+        let source = "(cond (else))";
+        let mut env = env::new_root_env();
+        let result = eval_str(source, &mut env);
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn eval_cond_with_arrow_not_procedure() {
+        let source = "(cond (1 => 1))";
+        let mut env = env::new_root_env();
+        let result = eval_str(source, &mut env);
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn eval_cond_with_arrow_incorrect_args() {
+        let source = "(cond (1 => (lambda (x y) x)))";
+        let mut env = env::new_root_env();
+        let result = eval_str(source, &mut env);
+        assert!(result.is_err());
+    }
+
+    // ========================================================================
+    //                           simple program tests
+    // ========================================================================
 
     #[test]
     fn eval_program_circle_area() {

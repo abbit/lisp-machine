@@ -141,6 +141,7 @@ pub fn new_root_env() -> EnvRef {
         forms::quote,
         forms::quasiquote,
         forms::if_,
+        forms::cond,
         forms::begin,
         // macros
         macros::define_macro,
