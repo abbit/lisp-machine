@@ -11,8 +11,9 @@ mod expr;
 mod parser;
 mod utils;
 
-use evaluator::{EnvRef, EvalError};
-pub use expr::Expr;
+pub use evaluator::EnvRef;
+use evaluator::EvalError;
+pub use expr::{Expr, Exprs};
 use parser::ParseError;
 
 const PRELUDE: &str = include_str!("./prelude.scm");
@@ -52,6 +53,11 @@ impl Engine {
     pub fn eval(&mut self, src: &str) -> Result<expr::Expr, LispDMError> {
         let ast = parser::parse_str(src).map_err(LispDMError::ParseError)?;
         evaluator::eval_exprs(ast, &mut self.root_env).map_err(LispDMError::EvalError)
+    }
+
+    /// Returns reference to the root environment.
+    pub fn env(&self) -> EnvRef {
+        self.root_env.clone()
     }
 }
 

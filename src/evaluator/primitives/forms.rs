@@ -7,9 +7,10 @@ use crate::{
         EnvRef,
     },
     expr::{
-        exprs, proc_result_tailcall, proc_result_value, Arity, Body, Expr, Exprs, ListKind,
+        proc_result_tailcall, proc_result_value, Arity, Body, Expr, Exprs, ListKind,
         ProcedureResult, ProcedureReturn,
     },
+    exprs,
 };
 use std::collections::VecDeque;
 

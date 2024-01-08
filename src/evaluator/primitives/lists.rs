@@ -1,7 +1,8 @@
 use super::utils::define_procedures;
 use crate::{
     evaluator::{error::runtime_error, EnvRef},
-    expr::{exprs, proc_result_value, Arity, Expr, Exprs, ListKind, ProcedureResult},
+    expr::{proc_result_value, Arity, Expr, Exprs, ListKind, ProcedureResult},
+    exprs,
 };
 
 define_procedures! {
