@@ -10,6 +10,7 @@ define_procedures! {
     cdr_ = ("cdr", cdr_fn, Arity::Exact(1)),
     list_ = ("list", list_fn, Arity::Any),
     make_list = ("make-list", make_list_fn, Arity::AtLeast(1)), 
+    list_copy = ("list-copy", list_copy_fn, Arity::Exact(1)),
 }
 
 fn cons_fn(mut args: Exprs, _: &mut EnvRef) -> ProcedureResult {
@@ -81,4 +82,18 @@ fn make_list_fn(mut args: Exprs, _: &mut EnvRef) -> ProcedureResult {
         let list = std::iter::repeat(fill.clone()).take(k as usize).collect::<Exprs>();
         proc_result_value!(Expr::List(List::new_proper(list)))
     }
+}
+
+fn list_copy_fn(mut args: Exprs, _: &mut EnvRef) -> ProcedureResult {
+    let obj = args.pop_front().unwrap();
+
+    let copy_list = match obj {
+        Expr::List(original_list) => {
+            let cloned_elements: Exprs = original_list.iter().cloned().collect();
+            Expr::List(List::new_proper(cloned_elements))
+        }
+        _ => obj,
+    };
+
+    proc_result_value!(copy_list)
 }

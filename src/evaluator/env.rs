@@ -169,6 +169,7 @@ pub fn new_root_env() -> EnvRef {
         lists::cdr_,
         lists::list_,
         lists::make_list,
+        lists::list_copy,
         // type convertion
         convert::number_to_string,
         convert::string_to_number,

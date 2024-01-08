@@ -113,6 +113,7 @@
   (ass eqv? obj ls))
 (define (assoc obj ls)
   (ass equal? obj ls))
+
 ; chars
 (define (char=? . c)
   (apply = (map char->integer c)))

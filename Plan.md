@@ -30,7 +30,7 @@
 
 ### Базовые типы данных
 
-- [x] `boolean` (#t, #f, #true, #false)
+- [x] `boolean` (#t, #f)
 - [x] `number` (integer, float)
 - [x] `string`
 - [x] `symbol`
@@ -83,7 +83,7 @@
 	- [x] `not`
     - [x] `and`
     - [x] `or`
-- [ ] pairs and lists:
+- [x] pairs and lists:
 	- [x] `pair?`
 	- [x] `cons`
 	- [x] `car`
@@ -108,7 +108,7 @@
 	- [x] `assq`
 	- [x] `assv`
 	- [x] `assoc`
-	- [ ] `list-copy`
+	- [x] `list-copy`
 - [ ] symbols:
 	- [ ] `symbol?`
 	- [ ] `symbol->string`
