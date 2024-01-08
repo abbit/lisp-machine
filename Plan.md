@@ -52,7 +52,7 @@
 - [x] `cond`
 - [x] `and`
 - [x] `or`
-- [ ] `do`
+- [x] `do`
 - [x] `quote`
 - [x] `quasiquote`
 - [x] `unquote`

@@ -10,7 +10,6 @@ use crate::{
         exprs, proc_result_tailcall, proc_result_value, Arity, Body, Expr, Exprs, ListKind,
         ProcedureResult, ProcedureReturn,
     },
-    utils::debug,
 };
 use std::collections::VecDeque;
 
@@ -23,6 +22,7 @@ define_special_forms! {
     if_ = ("if", if_fn, Arity::Range(2, 3)),
     cond = ("cond", cond_fn, Arity::AtLeast(1)),
     begin = ("begin", begin_fn, Arity::Any),
+    do_ = ("do", do_fn, Arity::Any),
     quote = ("quote", quote_fn, Arity::Exact(1)),
     quasiquote = ("quasiquote", quasiquote_fn, Arity::Exact(1)),
 }
@@ -165,11 +165,6 @@ fn let_fn(mut args: Exprs, env: &mut EnvRef) -> ProcedureResult {
 
 // named let (let <symbol> <bindings> <body>)
 fn named_let_form(name: String, mut args: Exprs, env: &mut EnvRef) -> ProcedureResult {
-    debug!(
-        "evaluating named let form - name: \"{}\", args: {:?}",
-        name, args
-    );
-
     let mut bindings = args.pop_front().unwrap().into_list().map_err(|expr| {
         runtime_error!(
             "expected bindings list as first argument of let, got {}",
@@ -375,6 +370,82 @@ fn cond_fn(args: Exprs, env: &mut EnvRef) -> ProcedureResult {
 
 fn begin_fn(args: Exprs, env: &mut EnvRef) -> ProcedureResult {
     eval::eval_exprs_with_tailcall(args, env)
+}
+
+fn do_fn(mut args: Exprs, env: &mut EnvRef) -> ProcedureResult {
+    let mut bindings = args.pop_front().unwrap().into_list().map_err(|expr| {
+        runtime_error!(
+            "expected bindings list as first argument of do, got {}",
+            expr
+        )
+    })?;
+
+    let mut init_env = env.extend();
+    let mut steps: Vec<(String, Expr)> = Vec::new();
+    while !bindings.is_empty() {
+        let mut binding = bindings
+            .pop_front()
+            .unwrap()
+            .into_list()
+            .map_err(|expr| runtime_error!("expected list as binding in do, got {}", expr))?;
+
+        if binding.len() < 2 || binding.len() > 3 {
+            return Err(runtime_error!(
+                "expected 2 or 3 elements in binding in do, got {}",
+                binding.len()
+            ));
+        }
+
+        let symbol = binding.pop_front().unwrap().into_symbol().map_err(|expr| {
+            runtime_error!(
+                "expected symbol as first element of binding in do, got {}",
+                expr.kind()
+            )
+        })?;
+        let init = binding.pop_front().unwrap();
+        let init = eval::eval_expr(init, env)?;
+        init_env.add(symbol.clone(), init);
+
+        // `step` is optional, so if it's not present then use `symbol` as `step`
+        let step = match binding.pop_front() {
+            Some(step) => step,
+            None => Expr::Symbol(symbol.clone()),
+        };
+        steps.push((symbol, step));
+    }
+
+    let mut test_expr_list =
+        args.pop_front().unwrap().into_list().map_err(|expr| {
+            runtime_error!("expected list as test expression in do, got {}", expr)
+        })?;
+    let test = test_expr_list
+        .pop_front()
+        .ok_or(runtime_error!("expected test expression in do"))?;
+    let ret_exprs = test_expr_list.into_exprs();
+    let commands = args;
+
+    let mut eval_env = init_env;
+    loop {
+        let test_result = eval::eval_expr(test.clone(), &mut eval_env)?;
+        if test_result.is_truthy() {
+            break;
+        }
+
+        // evaluate commands
+        eval::eval_exprs(commands.clone(), &mut eval_env)?;
+        // evaluate steps
+        // copy `eval_env` to evaluate `steps` in the same environment
+        let mut freezed_eval_env = eval_env.copy();
+        for (symbol, step) in steps.clone() {
+            let step = eval::eval_expr(step, &mut freezed_eval_env)?;
+            eval_env
+                .set(symbol, step)
+                .map_err(|err_msg| runtime_error!("{}", err_msg))?;
+        }
+    }
+
+    // evaluate test success expressions and return result of the last one
+    eval::eval_exprs_with_tailcall(ret_exprs, &mut eval_env)
 }
 
 fn quote_fn(mut args: Exprs, _: &mut EnvRef) -> ProcedureResult {

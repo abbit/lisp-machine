@@ -93,6 +93,10 @@ impl EnvRef {
         self.0.borrow().parent.is_none()
     }
 
+    pub fn copy(&self) -> Self {
+        EnvRef(Rc::new(RefCell::new(self.0.borrow().clone())))
+    }
+
     pub fn extend(&self) -> Self {
         EnvRef(Rc::new(RefCell::new(Env::extend(self.clone()))))
     }
@@ -143,6 +147,7 @@ pub fn new_root_env() -> EnvRef {
         forms::if_,
         forms::cond,
         forms::begin,
+        forms::do_,
         // macros
         macros::define_macro,
         macros::gensym,

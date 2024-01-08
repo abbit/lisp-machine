@@ -526,6 +526,75 @@ mod tests {
     }
 
     // ========================================================================
+    //                           `do` tests
+    // ========================================================================
+
+    #[test]
+    fn eval_do_simple() {
+        let source = "(do ((i 0 (+ i 1))
+                             (sum 0 (+ sum i)))
+                            ((> i 10) sum))";
+        let mut env = env::new_root_env();
+        let result = eval_str(source, &mut env).unwrap();
+        assert_eq!(result, Expr::Integer(55));
+    }
+
+    #[test]
+    fn eval_do_from_standard() {
+        let source = "
+            (let ((x '(1 3 5 7 9)))
+             (do ((x x (cdr x))
+                  (sum 0 (+ sum (car x))))
+              ((null? x) sum)))";
+        let mut env = env::new_root_env();
+        let result = eval_str(source, &mut env).unwrap();
+        assert_eq!(result, Expr::Integer(25));
+    }
+
+    #[test]
+    fn eval_do_with_mutation() {
+        let source = "(do ((i 0 (+ i 1))
+                             (sum 0 (+ sum i)))
+                            ((> i 10) sum)
+                            (set! sum (+ sum i)))";
+        let mut env = env::new_root_env();
+        let result = eval_str(source, &mut env).unwrap();
+        assert_eq!(result, Expr::Integer(110));
+    }
+
+    #[test]
+    fn eval_do_with_no_step() {
+        let source = "(do ((i 1)
+                             (sum 0 (+ sum i)))
+                            ((> sum 10) sum))";
+        let mut env = env::new_root_env();
+        let result = eval_str(source, &mut env).unwrap();
+        assert_eq!(result, Expr::Integer(11));
+    }
+
+    #[test]
+    fn eval_do_with_no_expr() {
+        let source = "(do ((i 0 (+ i 1))
+                             (sum 0 (+ sum i)))
+                            ((> i 10) sum)
+                            ())";
+        let mut env = env::new_root_env();
+        let result = eval_str(source, &mut env);
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn eval_do_with_no_test() {
+        let source = "(do ((i 0 (+ i 1))
+                             (sum 0 (+ sum i)))
+                            ()
+                            (display sum))";
+        let mut env = env::new_root_env();
+        let result = eval_str(source, &mut env);
+        assert!(result.is_err());
+    }
+
+    // ========================================================================
     //                           simple program tests
     // ========================================================================
 
@@ -982,6 +1051,34 @@ mod tests {
             let mut env = env::new_root_env();
             let result = eval_str(&source, &mut env).unwrap();
             assert_eq!(result, Expr::Boolean(ITERATIONS % 2 == 0));
+        }
+
+        #[test]
+        fn do_loop() {
+            let source = format!(
+                "(do ((i 0 (+ i 1))
+                         (sum 0 (+ sum i)))
+                        ((> i {}) sum))",
+                ITERATIONS
+            );
+            let mut env = env::new_root_env();
+            let result = eval_str(&source, &mut env).unwrap();
+            assert_eq!(result, Expr::Integer(ITERATIONS * (ITERATIONS + 1) / 2));
+        }
+
+        #[test]
+        fn do_tco() {
+            let source = format!(
+                "(define (f x) (if (= x 0)
+                0
+                (do ((i 0 (+ i 1)))
+                 ((> i 5) (f (- x 1))))))
+                (f {})",
+                ITERATIONS / 5
+            );
+            let mut env = env::new_root_env();
+            let result = eval_str(&source, &mut env).unwrap();
+            assert_eq!(result, Expr::Integer(0));
         }
     }
 }
