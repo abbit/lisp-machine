@@ -68,7 +68,7 @@ pub fn expand_macros(expr: Expr, env: &mut EnvRef) -> EvalResult {
     }
 }
 
-pub fn eval_exprs<I: Iterator<Item = Expr>>(exprs: I, env: &mut EnvRef) -> EvalResult {
+pub fn eval_exprs<I: IntoIterator<Item = Expr>>(exprs: I, env: &mut EnvRef) -> EvalResult {
     let res = exprs
         .into_iter()
         .try_fold(Expr::Void, |_, expr| eval_expr(expr, env))?;
@@ -172,7 +172,7 @@ mod tests {
 
     fn eval_str(source: &str, env: &mut EnvRef) -> Result<Expr, EvalError> {
         let exprs = parser::parse_str(source).unwrap();
-        eval_exprs(exprs.into_iter(), env)
+        eval_exprs(exprs, env)
     }
 
     #[test]

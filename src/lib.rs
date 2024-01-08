@@ -51,7 +51,7 @@ impl Engine {
     /// Evaluates the given source code and returns the result.
     pub fn eval(&mut self, src: &str) -> Result<expr::Expr, LispDMError> {
         let ast = parser::parse_str(src).map_err(LispDMError::ParseError)?;
-        evaluator::eval_exprs(ast.into_iter(), &mut self.root_env).map_err(LispDMError::EvalError)
+        evaluator::eval_exprs(ast, &mut self.root_env).map_err(LispDMError::EvalError)
     }
 }
 
