@@ -552,6 +552,14 @@ fn eval_lambda_with_mixed_params() {
     )
 }
 
+#[test]
+fn eval_lambda_with_multiple_body_exprs() {
+    let source = "((lambda (x) (define y 1) (set! y 10) (+ x y)) 1)";
+    let mut engine = Engine::default();
+    let result = engine.eval::<i64>(source).unwrap().unwrap();
+    assert_eq!(result, 11)
+}
+
 // ========================================================================
 //                            macros tests
 // ========================================================================
