@@ -36,9 +36,9 @@ fn main() {
                         std::process::exit(1);
                     }
                 };
-                match engine.eval::<Expr>(src).unwrap() {
+                match engine.eval::<Expr>(src) {
                     Ok(val) => {
-                        println!("{}", val);
+                        println!("{}", val.unwrap());
                         std::process::exit(0);
                     }
                     Err(err) => {

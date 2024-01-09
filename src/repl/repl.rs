@@ -34,9 +34,9 @@ pub fn start(mut engine: Engine) {
                     continue;
                 }
 
-                match engine.eval::<Expr>(&input).unwrap() {
+                match engine.eval::<Expr>(&input) {
                     Ok(expr) => {
-                        println!("{}", expr);
+                        println!("{}", expr.unwrap());
                     }
                     Err(err) => println!("Error: {}", err),
                 }
