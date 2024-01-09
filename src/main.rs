@@ -1,6 +1,6 @@
 mod repl;
 
-use lispdm::Engine;
+use lispdm::{Engine, Expr};
 
 fn print_help() {
     println!("LispDM {}", env!("CARGO_PKG_VERSION"));
@@ -36,7 +36,7 @@ fn main() {
                         std::process::exit(1);
                     }
                 };
-                match engine.eval(src) {
+                match engine.eval::<Expr>(src) {
                     Ok(val) => {
                         println!("{}", val);
                         std::process::exit(0);
@@ -57,7 +57,7 @@ fn main() {
                         std::process::exit(1);
                     }
                 };
-                if let Err(err) = engine.eval(&src) {
+                if let Err(err) = engine.eval::<()>(&src) {
                     println!("Error: {}", err);
                     std::process::exit(1);
                 }

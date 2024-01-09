@@ -17,6 +17,5 @@ macro_rules! runtime_error {
     ($($arg:tt)*) => (
         crate::evaluator::error::EvalError::RuntimeError(format!($($arg)*))
     )
-    // add String as an argument
 }
 pub(super) use runtime_error;

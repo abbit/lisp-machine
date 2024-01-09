@@ -55,7 +55,7 @@ macro_rules! exprs {
     ($($x:expr,)*) => (exprs![$($x),*])
 }
 
-type ExprIntoResult<T> = Result<T, Expr>;
+pub type FromExprResult<T> = Result<T, Expr>;
 
 impl Expr {
     pub fn new_empty_list() -> Self {
@@ -135,56 +135,56 @@ impl Expr {
 
     // exctraction methods
 
-    pub fn into_boolean(self) -> ExprIntoResult<bool> {
+    pub fn into_boolean(self) -> FromExprResult<bool> {
         match self {
             Expr::Boolean(boolean) => Ok(boolean),
             _ => Err(self),
         }
     }
 
-    pub fn into_char(self) -> ExprIntoResult<char> {
+    pub fn into_char(self) -> FromExprResult<char> {
         match self {
             Expr::Char(char) => Ok(char),
             _ => Err(self),
         }
     }
 
-    pub fn into_integer(self) -> ExprIntoResult<i64> {
+    pub fn into_integer(self) -> FromExprResult<i64> {
         match self {
             Expr::Integer(integer) => Ok(integer),
             _ => Err(self),
         }
     }
 
-    pub fn into_float(self) -> ExprIntoResult<f64> {
+    pub fn into_float(self) -> FromExprResult<f64> {
         match self {
             Expr::Float(float) => Ok(float),
             _ => Err(self),
         }
     }
 
-    pub fn into_symbol(self) -> ExprIntoResult<String> {
+    pub fn into_symbol(self) -> FromExprResult<String> {
         match self {
             Expr::Symbol(symbol) => Ok(symbol),
             _ => Err(self),
         }
     }
 
-    pub fn into_string(self) -> ExprIntoResult<Rc<RefCell<String>>> {
+    pub fn into_string(self) -> FromExprResult<Rc<RefCell<String>>> {
         match self {
             Expr::String(string) => Ok(Rc::clone(&string)),
             _ => Err(self),
         }
     }
 
-    pub fn into_list(self) -> ExprIntoResult<List> {
+    pub fn into_list(self) -> FromExprResult<List> {
         match self {
             Expr::List(list) => Ok(list),
             _ => Err(self),
         }
     }
 
-    pub fn into_procedure(self) -> ExprIntoResult<Procedure> {
+    pub fn into_procedure(self) -> FromExprResult<Procedure> {
         match self {
             Expr::Procedure(proc) => Ok(proc),
             _ => Err(self),
@@ -215,9 +215,178 @@ impl fmt::Display for Expr {
     }
 }
 
+impl From<bool> for Expr {
+    fn from(boolean: bool) -> Self {
+        Expr::Boolean(boolean)
+    }
+}
+
+impl From<char> for Expr {
+    fn from(char: char) -> Self {
+        Expr::Char(char)
+    }
+}
+
+impl From<i64> for Expr {
+    fn from(integer: i64) -> Self {
+        Expr::Integer(integer)
+    }
+}
+
+impl From<f64> for Expr {
+    fn from(float: f64) -> Self {
+        Expr::Float(float)
+    }
+}
+
+impl From<String> for Expr {
+    fn from(string: String) -> Self {
+        Expr::String(Rc::new(RefCell::new(string)))
+    }
+}
+
+impl From<&str> for Expr {
+    fn from(string: &str) -> Self {
+        Expr::String(Rc::new(RefCell::new(string.to_string())))
+    }
+}
+
+impl From<List> for Expr {
+    fn from(list: List) -> Self {
+        Expr::List(list)
+    }
+}
+
 impl From<Procedure> for Expr {
     fn from(proc: Procedure) -> Self {
         Expr::Procedure(proc)
+    }
+}
+
+impl<T: Into<Expr>> From<Vec<T>> for Expr {
+    fn from(vec: Vec<T>) -> Self {
+        Expr::List(List::new_proper(
+            vec.into_iter().map(|e| e.into()).collect(),
+        ))
+    }
+}
+
+impl<T: Into<Expr>> From<VecDeque<T>> for Expr {
+    fn from(vec: VecDeque<T>) -> Self {
+        Expr::List(List::new_proper(
+            vec.into_iter().map(|e| e.into()).collect(),
+        ))
+    }
+}
+
+impl<A: Into<Expr>, B: Into<Expr>> From<(A, B)> for Expr {
+    fn from((a, b): (A, B)) -> Self {
+        Expr::List(List::new_dotted(exprs![a.into()], b.into()))
+    }
+}
+
+/// The exit point for turning [`Expr`] into outside world values
+/// This trait implemented for most primitives
+/// You can also manually implement this for any type.
+pub trait FromExpr: Sized {
+    /// Tries to convert [`Expr`] into `Self`
+    /// If conversion is not possible, returns `Err(expr)` with original expression
+    fn from_expr(expr: Expr) -> FromExprResult<Self>;
+}
+
+impl FromExpr for () {
+    fn from_expr(_: Expr) -> FromExprResult<Self> {
+        Ok(())
+    }
+}
+
+impl FromExpr for Expr {
+    fn from_expr(expr: Expr) -> FromExprResult<Self> {
+        Ok(expr)
+    }
+}
+
+impl FromExpr for bool {
+    fn from_expr(expr: Expr) -> FromExprResult<Self> {
+        expr.into_boolean()
+    }
+}
+
+impl FromExpr for char {
+    fn from_expr(expr: Expr) -> FromExprResult<Self> {
+        expr.into_char()
+    }
+}
+
+impl FromExpr for i64 {
+    fn from_expr(expr: Expr) -> FromExprResult<Self> {
+        expr.into_integer()
+    }
+}
+
+impl FromExpr for f64 {
+    fn from_expr(expr: Expr) -> FromExprResult<Self> {
+        expr.into_float()
+    }
+}
+
+impl FromExpr for String {
+    fn from_expr(expr: Expr) -> FromExprResult<Self> {
+        expr.into_symbol()
+    }
+}
+
+impl FromExpr for Rc<RefCell<String>> {
+    fn from_expr(expr: Expr) -> FromExprResult<Self> {
+        expr.into_string()
+    }
+}
+
+impl FromExpr for List {
+    fn from_expr(expr: Expr) -> FromExprResult<Self> {
+        expr.into_list()
+    }
+}
+
+impl FromExpr for Procedure {
+    fn from_expr(expr: Expr) -> FromExprResult<Self> {
+        expr.into_procedure()
+    }
+}
+
+impl<T: FromExpr> FromExpr for Vec<T> {
+    fn from_expr(expr: Expr) -> FromExprResult<Self> {
+        match expr {
+            Expr::List(list) => list.into_exprs().into_iter().map(T::from_expr).collect(),
+            _ => Err(expr),
+        }
+    }
+}
+
+impl<T: FromExpr> FromExpr for VecDeque<T> {
+    fn from_expr(expr: Expr) -> FromExprResult<Self> {
+        match expr {
+            Expr::List(list) => list.into_exprs().into_iter().map(T::from_expr).collect(),
+            _ => Err(expr),
+        }
+    }
+}
+
+impl<A: FromExpr, B: FromExpr> FromExpr for (A, B) {
+    fn from_expr(expr: Expr) -> FromExprResult<Self> {
+        match &expr {
+            Expr::List(list) => {
+                if list.len() == 2 {
+                    let mut iter = list.clone().into_iter();
+                    let a = iter.next().unwrap();
+                    let b = iter.next().unwrap();
+                    Ok((A::from_expr(a)?, B::from_expr(b)?))
+                } else {
+                    Err(expr)
+                }
+            }
+            _ => Err(expr),
+        }
     }
 }
 

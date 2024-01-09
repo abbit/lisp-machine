@@ -1,7 +1,7 @@
 use super::primitives::{
     booleans, equal, eval, forms, lists, macros, modularity, nums, strings, system,
 };
-use crate::expr::{Expr, Procedure};
+use crate::expr::{Expr, FromExpr, FromExprResult, Procedure};
 use core::fmt;
 use std::{cell::RefCell, collections::HashMap, path::PathBuf, rc::Rc};
 
@@ -28,7 +28,7 @@ impl Env {
     fn get(&self, name: &str) -> Option<Expr> {
         match self.bindings.get(name) {
             Some(value) => Some(value.clone()),
-            None => self.parent.as_ref().and_then(|e| e.get(name).clone()),
+            None => self.parent.as_ref().and_then(|e| e.get_expr(name).clone()),
         }
     }
 
@@ -101,30 +101,43 @@ impl EnvRef {
         EnvRef(Rc::new(RefCell::new(Env::extend(self.clone()))))
     }
 
-    pub fn get(&self, name: &str) -> Option<Expr> {
+    /// Returns the expression associated with the given name.
+    /// If the no expression is found, returns None.
+    pub fn get_expr(&self, name: &str) -> Option<Expr> {
         self.0.borrow().get(name)
     }
 
-    pub fn add(&mut self, name: String, val: Expr) {
-        self.0.borrow_mut().add(name, val)
+    /// version of [`get_expr`](#method.get_expr) with a type conversion.
+    pub fn get<T: FromExpr>(&self, name: &str) -> Option<FromExprResult<T>> {
+        Some(T::from_expr(self.get_expr(name)?))
     }
 
-    pub fn set(&mut self, name: String, val: Expr) -> Result<(), String> {
-        self.0.borrow_mut().set(name, val)
+    /// Adds a new binding to the environment.
+    /// If the binding already exists, it is overwritten.
+    pub fn add<T: Into<Expr>>(&mut self, name: String, expr: T) {
+        self.0.borrow_mut().add(name, expr.into())
     }
 
-    pub fn get_macro(&self, name: &str) -> Option<Procedure> {
+    /// Sets new value to an existing binding.
+    /// Returns an error if the binding does not exist.
+    pub fn set<T: Into<Expr>>(&mut self, name: String, expr: T) -> Result<(), String> {
+        self.0.borrow_mut().set(name, expr.into())
+    }
+
+    pub(super) fn get_macro(&self, name: &str) -> Option<Procedure> {
         self.0.borrow().get_macro(name)
     }
 
-    pub fn add_macro(&mut self, name: String, macro_: Procedure) {
+    pub(super) fn add_macro(&mut self, name: String, macro_: Procedure) {
         self.0.borrow_mut().add_macro(name, macro_)
     }
 
+    /// Returns the current working directory of the environment.
     pub fn cwd(&self) -> PathBuf {
         self.0.borrow().cwd.clone()
     }
 
+    /// Sets the current working directory of the environment.
     pub fn set_cwd(&mut self, cwd: PathBuf) {
         self.0.borrow_mut().cwd = cwd;
     }
