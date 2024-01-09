@@ -10,8 +10,6 @@ define_procedures! {
     cdr_ = ("cdr", cdr_fn, Arity::Exact(1)),
     make_list = ("make-list", make_list_fn, Arity::AtLeast(1)), 
     list_copy = ("list-copy", list_copy_fn, Arity::Exact(1)),
-    list_ = ("list", list_fn, Arity::Any),
-    is_null = ("null?", null_fn, Arity::Exact(1)),
 }
 
 fn cons_fn(mut args: Exprs, _: &mut EnvRef) -> ProcedureResult {
@@ -66,10 +64,6 @@ fn cdr_fn(mut args: Exprs, _: &mut EnvRef) -> ProcedureResult {
     proc_result_value!(res)
 }
 
-fn list_fn(args: Exprs, _: &mut EnvRef) -> ProcedureResult {
-    proc_result_value!(Expr::new_proper_list(args))
-}
-
 fn make_list_fn(mut args: Exprs, _: &mut EnvRef) -> ProcedureResult {
     let k = args.pop_front().unwrap().into_integer().map_err(|_| {
         runtime_error!("make-list expected an integer as its first argument")
@@ -97,14 +91,4 @@ fn list_copy_fn(mut args: Exprs, _: &mut EnvRef) -> ProcedureResult {
     };
 
     proc_result_value!(copy_list)
-}
-
-fn null_fn(mut args: Exprs, _: &mut EnvRef) -> ProcedureResult {
-    let res = args
-        .pop_front()
-        .unwrap()
-        .into_list()
-        .map_or(false, |list| list.is_empty());
-
-    proc_result_value!(Expr::Boolean(res))
 }
