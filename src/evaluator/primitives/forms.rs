@@ -107,7 +107,7 @@ fn define_fn(mut args: Exprs, env: &mut EnvRef) -> ProcedureResult {
 
     let body: Body = args.into();
     let procedure = create_procedure(Some(name.to_string()), params_expr, body, env)?;
-    env.add(name.to_string(), procedure.into());
+    env.add(name, procedure);
 
     proc_result_value!(Expr::Void)
 }
@@ -208,7 +208,7 @@ fn named_let_form(name: String, mut args: Exprs, env: &mut EnvRef) -> ProcedureR
         args.into(),
         &eval_env,
     )?;
-    eval_env.add(name.clone(), proc.clone().into());
+    eval_env.add(name.clone(), proc.clone());
     proc.apply(lambda_params, &mut eval_env)
 }
 
@@ -410,7 +410,7 @@ fn do_fn(mut args: Exprs, env: &mut EnvRef) -> ProcedureResult {
         // `step` is optional, so if it's not present then use `symbol` as `step`
         let step = match binding.pop_front() {
             Some(step) => step,
-            None => Expr::Symbol(symbol.clone()),
+            None => Expr::new_symbol(&symbol),
         };
         steps.push((symbol, step));
     }

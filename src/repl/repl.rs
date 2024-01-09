@@ -1,4 +1,4 @@
-use lispdm::Engine;
+use lispdm::{Engine, Expr};
 use rustyline::history::MemHistory;
 use rustyline::{error::ReadlineError, validate::MatchingBracketValidator};
 use rustyline::{highlight::MatchingBracketHighlighter, Editor};
@@ -34,7 +34,7 @@ pub fn start(mut engine: Engine) {
                     continue;
                 }
 
-                match engine.eval(&input) {
+                match engine.eval::<Expr>(&input).unwrap() {
                     Ok(expr) => {
                         println!("{}", expr);
                     }

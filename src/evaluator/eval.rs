@@ -131,7 +131,7 @@ fn eval_expanded_expr(mut expr: Expr, env: &mut EnvRef) -> EvalResult {
 fn eval_symbol(symbol: String, env: &mut EnvRef) -> EvalResult {
     debug!("eval_symbol: {}", symbol);
     let value = env
-        .get(&symbol)
+        .get_expr(&symbol)
         .ok_or(runtime_error!("undefined symbol: {}", symbol))?;
     debug!("symbol {} resolved to {}", symbol, value);
     Ok(value)
@@ -210,7 +210,7 @@ mod tests {
         let result = eval_str(source, &mut env).unwrap();
 
         assert_eq!(result, Expr::Void);
-        match env.get("square") {
+        match env.get_expr("square") {
             Some(Expr::Procedure(proc)) => match proc {
                 Procedure::Compound(compound) => {
                     assert_eq!(
@@ -239,7 +239,7 @@ mod tests {
         let result = eval_str(source, &mut env).unwrap();
 
         assert_eq!(result, Expr::Void);
-        match env.get("square") {
+        match env.get_expr("square") {
             Some(Expr::Procedure(proc)) => match proc {
                 Procedure::Compound(compound) => {
                     assert_eq!(compound.name(), "square");
@@ -269,7 +269,7 @@ mod tests {
         let result = eval_str(source, &mut env).unwrap();
 
         assert_eq!(result, Expr::Void);
-        match env.get("f") {
+        match env.get_expr("f") {
             Some(Expr::Procedure(proc)) => match proc {
                 Procedure::Compound(compound) => {
                     assert_eq!(compound.name(), "f");
@@ -292,7 +292,7 @@ mod tests {
         let result = eval_str(source, &mut env).unwrap();
 
         assert_eq!(result, Expr::Void);
-        match env.get("f") {
+        match env.get_expr("f") {
             Some(Expr::Procedure(proc)) => match proc {
                 Procedure::Compound(compound) => {
                     assert_eq!(compound.name(), "f");

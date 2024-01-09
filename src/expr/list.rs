@@ -123,11 +123,7 @@ impl List {
     }
 
     pub fn into_exprs(self) -> Exprs {
-        let mut data = self.but_last;
-        if let Some(expr) = self.last {
-            data.push_back(*expr);
-        }
-        data
+        self.into_iter().collect()
     }
 }
 

@@ -2,7 +2,7 @@ use super::{env::EnvRef, eval};
 use crate::{
     evaluator::utils::CheckArity,
     expr::{
-        Arity, AtomicProcedure, CompoundProcedure, Expr, Exprs, NamedProcedure, Procedure,
+        Arity, AtomicProcedure, CompoundProcedure, Exprs, NamedProcedure, Procedure,
         ProcedureParams, ProcedureResult,
     },
     utils::debug,
@@ -48,7 +48,7 @@ impl ApplyProcedure for CompoundProcedure {
                 }
             }
             ProcedureParams::Variadic(param) => {
-                eval_env.add(param, Expr::new_proper_list(args));
+                eval_env.add(param, args);
             }
             ProcedureParams::Mixed(params, variadic) => {
                 // validate that the number of arguments is at least the number of required parameters
@@ -64,7 +64,7 @@ impl ApplyProcedure for CompoundProcedure {
                 for (param, arg) in params.into_iter().zip(fixed_args) {
                     eval_env.add(param, arg);
                 }
-                eval_env.add(variadic, Expr::new_proper_list(rest_args));
+                eval_env.add(variadic, rest_args);
             }
         }
 
