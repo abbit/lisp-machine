@@ -1,6 +1,7 @@
-use super::expr::{exprs, Expr, Exprs};
+use super::expr::{Expr, Exprs};
 use crate::{
     evaluator::{EnvRef, EvalError},
+    exprs,
     utils::debug,
 };
 
@@ -50,7 +51,7 @@ impl Procedure {
         name: Option<String>,
         params: ProcedureParams,
         body: Body,
-        env: &mut EnvRef,
+        env: EnvRef,
     ) -> Self {
         debug!(
             "creating procedure with name {:?}, params: {:?} and body: {:?}",
@@ -63,6 +64,17 @@ impl Procedure {
         match self {
             Procedure::Atomic(proc) => proc.is_special_form(),
             Procedure::Compound(_) => false,
+        }
+    }
+
+    pub fn arity(&self) -> Arity {
+        match self {
+            Procedure::Atomic(proc) => proc.arity(),
+            Procedure::Compound(proc) => match &proc.params {
+                ProcedureParams::Fixed(params) => Arity::Exact(params.len()),
+                ProcedureParams::Variadic(_) => Arity::Any,
+                ProcedureParams::Mixed(params, _) => Arity::AtLeast(params.len()),
+            },
         }
     }
 }
@@ -201,17 +213,12 @@ pub struct CompoundProcedure {
 }
 
 impl CompoundProcedure {
-    pub fn new(
-        name: Option<String>,
-        params: ProcedureParams,
-        body: Body,
-        env: &mut EnvRef,
-    ) -> Self {
+    pub fn new(name: Option<String>, params: ProcedureParams, body: Body, env: EnvRef) -> Self {
         CompoundProcedure {
             name,
             params,
+            env,
             body: Box::new(body),
-            env: env.clone(),
         }
     }
 }

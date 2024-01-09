@@ -38,10 +38,15 @@ impl AsExprs for Exprs {
     }
 }
 
+/// Creates [`Exprs`] from given expressions
+#[macro_export]
 macro_rules! exprs {
+    () => {{
+        $crate::Exprs::new()
+    }};
     ($($x:expr),*) => {{
         #[allow(unused_mut)]
-        let mut exprs = $crate::expr::Exprs::new();
+        let mut exprs = $crate::Exprs::new();
         $(
             exprs.push_back($x);
         )*
@@ -49,7 +54,6 @@ macro_rules! exprs {
     }};
     ($($x:expr,)*) => (exprs![$($x),*])
 }
-pub(crate) use exprs;
 
 type ExprIntoResult<T> = Result<T, Expr>;
 
@@ -115,6 +119,10 @@ impl Expr {
 
     pub fn is_symbol(&self) -> bool {
         matches!(self, Expr::Symbol(_))
+    }
+
+    pub fn is_specific_symbol(&self, s: &str) -> bool {
+        matches!(self, Expr::Symbol(symbol) if symbol == s)
     }
 
     pub fn is_empty_list(&self) -> bool {
@@ -207,10 +215,16 @@ impl fmt::Display for Expr {
     }
 }
 
+impl From<Procedure> for Expr {
+    fn from(proc: Procedure) -> Self {
+        Expr::Procedure(proc)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::expr::exprs;
+    use crate::exprs;
 
     #[test]
     fn display_empty_list() {

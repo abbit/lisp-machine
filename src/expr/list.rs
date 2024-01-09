@@ -225,7 +225,7 @@ impl fmt::Display for List {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::expr::exprs;
+    use crate::exprs;
 
     #[test]
     fn validate_empty() {

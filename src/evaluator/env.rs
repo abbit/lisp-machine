@@ -1,8 +1,7 @@
-use super::primitives::{eval, forms, lists, modularity, nums, system};
-use crate::{
-    evaluator::primitives::strings,
-    expr::{Expr, Procedure},
+use super::primitives::{
+    booleans, equal, eval, forms, lists, macros, modularity, nums, strings, system,
 };
+use crate::expr::{Expr, Procedure};
 use core::fmt;
 use std::{cell::RefCell, collections::HashMap, path::PathBuf, rc::Rc};
 
@@ -94,6 +93,10 @@ impl EnvRef {
         self.0.borrow().parent.is_none()
     }
 
+    pub fn copy(&self) -> Self {
+        EnvRef(Rc::new(RefCell::new(self.0.borrow().clone())))
+    }
+
     pub fn extend(&self) -> Self {
         EnvRef(Rc::new(RefCell::new(Env::extend(self.clone()))))
     }
@@ -137,14 +140,26 @@ pub fn new_root_env() -> EnvRef {
         forms::lambda,
         forms::define,
         forms::set,
+        forms::let_,
+        forms::letrec,
         forms::quote,
         forms::quasiquote,
         forms::if_,
+        forms::cond,
         forms::begin,
-        forms::define_macro,
+        forms::do_,
+        // macros
+        macros::define_macro,
+        macros::gensym,
         // evaluation
         eval::eval,
         eval::apply,
+        // equivalence
+        equal::eqv,
+        equal::equal,
+        // boolean
+        booleans::and,
+        booleans::or,
         // modularity
         modularity::include,
         modularity::load,
@@ -163,7 +178,7 @@ pub fn new_root_env() -> EnvRef {
         lists::cdr_,
         lists::list_,
         // type checking
-        // "null?" => builtin::is_null,
+        lists::is_null,
         // "pair?" => builtin::is_pair,
         // "number?" => builtin::is_number,
         // "symbol?" => builtin::is_symbol,

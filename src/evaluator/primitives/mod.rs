@@ -1,6 +1,9 @@
+pub mod booleans;
+pub mod equal;
 pub mod eval;
 pub mod forms;
 pub mod lists;
+pub mod macros;
 pub mod modularity;
 pub mod nums;
 pub mod strings;

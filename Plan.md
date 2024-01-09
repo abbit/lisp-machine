@@ -46,7 +46,13 @@
 - [x] `define-macro`
 - [x] `set!`
 - [x] `lambda`
+- [x] `let` (and named let)
+- [x] `letrec`
 - [x] `if`
+- [x] `cond`
+- [x] `and`
+- [x] `or`
+- [x] `do`
 - [x] `quote`
 - [x] `quasiquote`
 - [x] `unquote`
@@ -56,20 +62,11 @@
 
 ### Реализация на Scheme должна содержать:
 
-- [ ] `let`
-- [ ] `let*`
-- [ ] `letrec`
-- [ ] `letrec*`
-- [ ] `let-values`
-- [ ] `let*-values`
-- [ ] `and`
-- [ ] `or`
-- [ ] `cond`
-- [ ] `when`
-- [ ] `unless`
-- [ ] `cond-expand`
-- [ ] `do`
-- [ ] `named let`
+- [x] `let*`
+- [x] `letrec*`
+- [x] `case`
+- [x] `when`
+- [x] `unless`
 
 ## Стандартная библиотека
 
@@ -115,20 +112,20 @@
   - [ ] `string->number`
 - [ ] booleans:
   - [ ] `boolean?`
-  - [ ] `not`
-  - [ ] `and`
-  - [ ] `or`
+  - [x] `not`
+  - [x] `and`
+  - [x] `or`
 - [ ] pairs and lists:
   - [ ] `pair?`
   - [x] `cons`
   - [x] `car`
   - [x] `cdr`
-  - [ ] `caar`
-  - [ ] `cadr`
-  - [ ] `cdar`
-  - [ ] `cddr`
-  - [ ] `caaar`, `caadr`, ..., `cddar`, `cdddr`
-  - [ ] `null?`
+  - [x] `caar`
+  - [x] `cadr`
+  - [x] `cdar`
+  - [x] `cddr`
+  - [x] `caaar`, `caadr`, ..., `cddar`, `cdddr`
+  - [x] `null?`
   - [ ] `list?`
   - [ ] `make-list`
   - [x] `list`
@@ -192,7 +189,7 @@
   - [ ] `procedure?`
   - [x] `apply`
   - [x] `eval`
-  - [ ] `map`
+  - [x] `map`
   - [ ] `string-map`
   - [ ] `for-each`
   - [ ] `string-for-each`

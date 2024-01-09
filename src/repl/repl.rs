@@ -29,12 +29,18 @@ pub fn start(mut engine: Engine) {
     loop {
         let readline = rl.readline("> ");
         match readline {
-            Ok(input) => match engine.eval(&input) {
-                Ok(expr) => {
-                    println!("{}", expr);
+            Ok(input) => {
+                if input.trim().is_empty() {
+                    continue;
                 }
-                Err(err) => println!("Error: {}", err),
-            },
+
+                match engine.eval(&input) {
+                    Ok(expr) => {
+                        println!("{}", expr);
+                    }
+                    Err(err) => println!("Error: {}", err),
+                }
+            }
             Err(ReadlineError::Interrupted) => {
                 println!("CTRL-C");
                 continue;
