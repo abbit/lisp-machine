@@ -1,0 +1,27 @@
+name: Rust Docs CI
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - run: rustup update stable && rustup default stable
+
+    - name: Generate Documentation
+      run: cargo doc --no-deps
+
+    - name: Deploy to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./target/doc
+        user_name: GitHub Actions
+        user_email: actions@github.com
+        commit_message: "Deploy docs to GitHub Pages"
