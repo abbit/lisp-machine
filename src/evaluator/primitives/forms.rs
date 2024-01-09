@@ -17,7 +17,7 @@ use std::collections::VecDeque;
 define_special_forms! {
     define = ("define", define_fn, Arity::AtLeast(2)),
     set = ("set!", set_fn, Arity::Exact(2)),
-    lambda = ("lambda", lambda_fn, Arity::Exact(2)),
+    lambda = ("lambda", lambda_fn, Arity::AtLeast(2)),
     let_ = ("let", let_fn, Arity::AtLeast(1)),
     letrec = ("letrec", letrec_fn, Arity::AtLeast(1)),
     if_ = ("if", if_fn, Arity::Range(2, 3)),
