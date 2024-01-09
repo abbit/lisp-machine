@@ -18,7 +18,7 @@
 - [x] Присваивание для ранее определенных символов
 - [x] Макросы (как defmacro из Clojure)
 - [ ] Ввод-вывод (консольный и файловый)
-- [ ] Возможность добавления встроенных функций на Rust
+- [x] Возможность добавления встроенных функций на Rust
 
 Поведение языка должно соответствовать стандарту R7RS.
 
@@ -26,11 +26,9 @@
 
 Реализация на Rust должна содержать минимальный набор встроенных функций, необходимых для написания программ на языке Scheme. Все остальные необходимые элементы языка должны быть выражены в этом минимальном базисе.
 
-## Реализация на Rust должна содержать:
+## Базовые типы данных
 
-### Базовые типы данных
-
-- [x] `boolean` (#t, #f)
+- [x] `boolean` (#t, #f, #true, #false)
 - [x] `number` (integer, float)
 - [x] `string`
 - [x] `symbol`
@@ -40,7 +38,40 @@
 - [x] `procedure`
 - [ ] `port`
 
-### Стандартная библиотека
+## Специальные формы
+
+### Реализация на Rust должна содержать:
+
+- [x] `define`
+- [x] `define-macro`
+- [x] `set!`
+- [x] `lambda`
+- [x] `let` (and named let)
+- [x] `letrec`
+- [x] `if`
+- [x] `cond`
+- [x] `and`
+- [x] `or`
+- [x] `do`
+- [x] `quote`
+- [x] `quasiquote`
+- [x] `unquote`
+- [x] `unquote-splicing`
+- [x] `include`
+- [x] `load`
+
+### Реализация на Scheme должна содержать:
+
+- [x] `let*`
+- [x] `letrec*`
+- [x] `case`
+- [x] `when`
+- [x] `unless`
+
+## Стандартная библиотека
+
+Функции стандартной библиотеки, которые нельзя выразить через другие реализовываются на Rust.
+Остальные должны быть реализованы на Scheme.
 
 - [x] equivalence predicates:
 	- [x] `eqv?`
@@ -157,7 +188,7 @@
 	- [x] `procedure?`
 	- [x] `apply`
 	- [x] `eval`
-	- [ ] `map`
+	- [x] `map`
 	- [ ] `string-map`
 	- [ ] `for-each`
 	- [ ] `string-for-each`
@@ -204,35 +235,6 @@
 	- [ ] `get-environment-variable`
 	- [ ] `get-environment-variables`
 	- [ ] `current-second`
-
-### Специальные формы
-
-- [x] `define`
-- [x] `define-macro`
-- [x] `set!`
-- [x] `lambda`
-- [x] `if`
-- [x] `quote`
-- [x] `quasiquote`
-- [x] `unquote`
-- [x] `unquote-splicing`
-- [x] `include`
-- [x] `load`
-
-## Специальные формы, которые должны быть реализованы на языке Scheme
-
-- [ ] `let`
-- [ ] `let*`
-- [ ] `letrec`
-- [ ] `letrec*`
-- [ ] `let-values`
-- [ ] `let*-values`
-- [ ] `cond`
-- [ ] `when`
-- [ ] `unless`
-- [ ] `cond-expand`
-- [ ] `do`
-- [ ] `named let`
 
 ## Дополнительные требования:
 

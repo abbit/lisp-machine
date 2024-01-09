@@ -19,6 +19,8 @@
           buildInputs = with pkgs; [
             libiconv
             gambit
+            clojure
+            ast-grep
           ];
         };
         formatter = pkgs.alejandra;

@@ -2,8 +2,8 @@ use super::{env::EnvRef, eval};
 use crate::{
     evaluator::utils::CheckArity,
     expr::{
-        proc_result_tailcall, Arity, AsExprs, AtomicProcedure, CompoundProcedure, Expr, Exprs,
-        NamedProcedure, Procedure, ProcedureParams, ProcedureResult,
+        Arity, AtomicProcedure, CompoundProcedure, Exprs, NamedProcedure, Procedure,
+        ProcedureParams, ProcedureResult,
     },
     utils::debug,
 };
@@ -48,7 +48,7 @@ impl ApplyProcedure for CompoundProcedure {
                 }
             }
             ProcedureParams::Variadic(param) => {
-                eval_env.add(param, Expr::new_proper_list(args));
+                eval_env.add(param, args);
             }
             ProcedureParams::Mixed(params, variadic) => {
                 // validate that the number of arguments is at least the number of required parameters
@@ -64,16 +64,11 @@ impl ApplyProcedure for CompoundProcedure {
                 for (param, arg) in params.into_iter().zip(fixed_args) {
                     eval_env.add(param, arg);
                 }
-                eval_env.add(variadic, Expr::new_proper_list(rest_args));
+                eval_env.add(variadic, rest_args);
             }
         }
 
-        // safe to unwrap because body always has at least one element
-        let (body, body_tail) = self.body.deref().as_exprs().clone().split_tail().unwrap();
-        for expr in body {
-            eval::eval_expr(expr, &mut eval_env)?;
-        }
-
-        proc_result_tailcall!(body_tail, eval_env)
+        let body = self.body.deref().as_exprs().clone();
+        eval::eval_exprs_with_tailcall(body, &mut eval_env)
     }
 }

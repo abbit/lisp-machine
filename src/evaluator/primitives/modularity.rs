@@ -62,7 +62,7 @@ fn include_fn(args: Exprs, env: &mut EnvRef) -> ProcedureResult {
         exprs.extend(read_exprs(&src_path)?);
     }
 
-    exprs.push_front(Expr::Symbol("begin".to_string()));
+    exprs.push_front(Expr::new_symbol("begin"));
     proc_result_tailcall!(Expr::new_proper_list(exprs), env)
 }
 
@@ -75,7 +75,7 @@ fn load_fn(mut args: Exprs, env: &mut EnvRef) -> ProcedureResult {
     let exprs = read_exprs(&src_path)?;
     let mut eval_env = env.extend();
     eval_env.set_cwd(src_path.parent().unwrap().to_path_buf());
-    let res = eval::eval_exprs(exprs.into_iter(), &mut eval_env)?;
+    let res = eval::eval_exprs(exprs, &mut eval_env)?;
 
     proc_result_value!(res)
 }

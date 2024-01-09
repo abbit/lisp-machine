@@ -101,6 +101,17 @@
 (define (member obj ls)
   (mem equal? obj ls))
 
+ (define (map1 proc lst)
+  (if (null? lst)
+    '()
+    (cons (proc (car lst))
+          (map1 proc (cdr lst)))))
+(define (map proc . lists)
+  (if (null? (car lists))
+    '()
+    (cons (apply proc (map1 car lists))
+          (apply map proc (map1 cdr lists))))) 
+
 (define (ass predicate obj ls)
   (if (null? ls)
       #f
@@ -131,3 +142,21 @@
   (substring string 0 (string-length string)))
 (define (list->string lst)
   (apply string lst))
+
+; special forms
+(define-macro (when test . body) `(if ,test (begin ,@body)))
+(define-macro (unless test . body) `(if (not ,test) (begin ,@body)))
+
+(define-macro (let* bindings . body)
+  (if (null? bindings)
+      `(let ,bindings ,@body)
+      `(let ,(list (car bindings)) (let* ,(cdr bindings) ,@body))))
+
+(define-macro (letrec* bindings . body) `(letrec ,bindings ,@body))
+
+(define-macro (case key . clauses)
+  (let ((tmp (gensym)))
+    `(let ((,tmp ,key))
+       (cond ,@(map (lambda (clause)
+                      `((memv ,tmp ',(car clause)) ,(cadr clause)))
+                    clauses)))))

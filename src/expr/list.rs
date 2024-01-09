@@ -1,6 +1,5 @@
-use std::fmt;
-
 use super::expr::{Expr, Exprs};
+use core::fmt;
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct List {
@@ -124,11 +123,7 @@ impl List {
     }
 
     pub fn into_exprs(self) -> Exprs {
-        let mut data = self.but_last;
-        if let Some(expr) = self.last {
-            data.push_back(*expr);
-        }
-        data
+        self.into_iter().collect()
     }
 }
 
@@ -226,7 +221,7 @@ impl fmt::Display for List {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::expr::exprs;
+    use crate::exprs;
 
     #[test]
     fn validate_empty() {

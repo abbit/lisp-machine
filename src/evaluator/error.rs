@@ -13,10 +13,21 @@ impl std::fmt::Display for EvalError {
     }
 }
 
+impl From<String> for EvalError {
+    fn from(err: String) -> Self {
+        EvalError::RuntimeError(err)
+    }
+}
+
+impl From<&str> for EvalError {
+    fn from(err: &str) -> Self {
+        EvalError::RuntimeError(err.to_string())
+    }
+}
+
 macro_rules! runtime_error {
     ($($arg:tt)*) => (
         crate::evaluator::error::EvalError::RuntimeError(format!($($arg)*))
     )
-    // add String as an argument
 }
 pub(super) use runtime_error;

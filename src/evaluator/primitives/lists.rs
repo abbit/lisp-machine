@@ -1,16 +1,17 @@
 use super::utils::define_procedures;
 use crate::{
     evaluator::{error::runtime_error, EnvRef},
-    expr::{exprs, proc_result_value, Arity, Expr, Exprs, ListKind, ProcedureResult, list::List},
+    expr::{proc_result_value, Arity, Expr, Exprs, ListKind, ProcedureResult, list::List}, exprs,
 };
 
 define_procedures! {
     cons = ("cons", cons_fn, Arity::Exact(2)),
     car_ = ("car", car_fn, Arity::Exact(1)),
     cdr_ = ("cdr", cdr_fn, Arity::Exact(1)),
-    list_ = ("list", list_fn, Arity::Any),
     make_list = ("make-list", make_list_fn, Arity::AtLeast(1)), 
     list_copy = ("list-copy", list_copy_fn, Arity::Exact(1)),
+    list_ = ("list", list_fn, Arity::Any),
+    is_null = ("null?", null_fn, Arity::Exact(1)),
 }
 
 fn cons_fn(mut args: Exprs, _: &mut EnvRef) -> ProcedureResult {
@@ -96,4 +97,14 @@ fn list_copy_fn(mut args: Exprs, _: &mut EnvRef) -> ProcedureResult {
     };
 
     proc_result_value!(copy_list)
+}
+
+fn null_fn(mut args: Exprs, _: &mut EnvRef) -> ProcedureResult {
+    let res = args
+        .pop_front()
+        .unwrap()
+        .into_list()
+        .map_or(false, |list| list.is_empty());
+
+    proc_result_value!(Expr::Boolean(res))
 }

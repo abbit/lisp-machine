@@ -60,7 +60,9 @@ fn equal_fn(mut args: Exprs, _: &mut EnvRef) -> ProcedureResult {
         (Expr::Integer(a), Expr::Integer(b)) => Expr::Boolean(a == b),
         (Expr::Float(a), Expr::Float(b)) => Expr::Boolean(a == b),
         (Expr::Char(a), Expr::Char(b)) => Expr::Boolean(a == b),
-        (Expr::String(a), Expr::String(b)) => Expr::Boolean(a.borrow().as_str() == b.borrow().as_str()),
+        (Expr::String(a), Expr::String(b)) => {
+            Expr::Boolean(a.borrow().as_str() == b.borrow().as_str())
+        }
         (Expr::Symbol(a), Expr::Symbol(b)) => Expr::Boolean(a == b),
         (Expr::List(a), Expr::List(b)) => Expr::Boolean(equal_lists(&a, &b)),
         (Expr::Procedure(a), Expr::Procedure(b)) => Expr::Boolean(a == b),
