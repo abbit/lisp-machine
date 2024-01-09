@@ -50,7 +50,23 @@
 
 
 
+(define-macro (and . args)
+    (if (null? args)
+      #t
+      (if (null? (cdr args))
+        `(if ,(car args) ,(car args) #f)
+        (let ((tmp (gensym)))
+          `(let ((,tmp ,(car args)))
+             (if ,tmp (and ,@(cdr args)) ,tmp))))))
 
+(define-macro (or . args)
+    (if (null? args)
+      #f
+      (if (null? (cdr args))
+        `(if ,(car args) ,(car args) #f)
+        (let ((tmp (gensym)))
+          `(let ((,tmp ,(car args)))
+             (if ,tmp ,tmp (or ,@(cdr args))))))))
 
 (define (map1 proc lst)
   (if (null? lst)

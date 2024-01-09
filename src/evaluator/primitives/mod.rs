@@ -1,4 +1,3 @@
-pub mod booleans;
 pub mod equal;
 pub mod eval;
 pub mod forms;

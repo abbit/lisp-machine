@@ -561,6 +561,105 @@ fn eval_lambda_with_multiple_body_exprs() {
 }
 
 // ========================================================================
+//                            `and` tests
+// ========================================================================
+
+#[test]
+fn eval_and_simple() {
+    let source = "(and #t #t #t)";
+    let mut engine = Engine::default();
+    let result = engine.eval::<bool>(source).unwrap().unwrap();
+    assert!(result);
+}
+
+#[test]
+fn eval_and_empty() {
+    let source = "(and)";
+    let mut engine = Engine::default();
+    let result = engine.eval::<bool>(source).unwrap().unwrap();
+    assert!(result);
+}
+
+#[test]
+fn eval_and_single() {
+    let source = "(and 1)";
+    let mut engine = Engine::default();
+    let result = engine.eval::<i64>(source).unwrap().unwrap();
+    assert_eq!(result, 1);
+}
+
+#[test]
+fn eval_and_evaluation() {
+    let source = "
+        (define x 1)
+        (and #t (set! x 10) 2)";
+    let mut engine = Engine::default();
+    let result = engine.eval::<i64>(source).unwrap().unwrap();
+    assert_eq!(result, 2);
+    assert_eq!(engine.env().get::<i64>("x").unwrap().unwrap(), 10);
+}
+
+#[test]
+fn eval_and_no_evaluation() {
+    let source = "
+        (define x 1)
+        (and #f (set! x 10) 2)";
+    let mut engine = Engine::default();
+    let result = engine.eval::<bool>(source).unwrap().unwrap();
+    assert!(!result);
+    assert_eq!(engine.env().get::<i64>("x").unwrap().unwrap(), 1);
+}
+
+// ========================================================================
+//                            `or` tests
+// ========================================================================
+
+#[test]
+fn eval_or_simple() {
+    let source = "(or #t #t #t)";
+    let mut engine = Engine::default();
+    let result = engine.eval::<bool>(source).unwrap().unwrap();
+    assert!(result);
+}
+
+#[test]
+fn eval_or_empty() {
+    let source = "(or)";
+    let mut engine = Engine::default();
+    let result = engine.eval::<bool>(source).unwrap().unwrap();
+    assert!(!result);
+}
+
+#[test]
+fn eval_or_single() {
+    let source = "(or 1)";
+    let mut engine = Engine::default();
+    let result = engine.eval::<i64>(source).unwrap().unwrap();
+    assert_eq!(result, 1);
+}
+
+#[test]
+fn eval_or_no_evaluation() {
+    let source = "
+        (define x 1)
+        (or 2 (set! x 10) 1)";
+    let mut engine = Engine::default();
+    let result = engine.eval::<i64>(source).unwrap().unwrap();
+    assert_eq!(result, 2);
+    assert_eq!(engine.env().get::<i64>("x").unwrap().unwrap(), 1);
+}
+
+#[test]
+fn eval_or_evaluation() {
+    let source = "
+        (define x 1)
+        (or #f (set! x 10) 3)";
+    let mut engine = Engine::default();
+    engine.eval::<()>(source).unwrap().unwrap();
+    assert_eq!(engine.env().get::<i64>("x").unwrap().unwrap(), 10);
+}
+
+// ========================================================================
 //                            macros tests
 // ========================================================================
 
