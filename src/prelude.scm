@@ -112,6 +112,9 @@
     (cons (apply proc (map1 car lists))
           (apply map proc (map1 cdr lists))))) 
 
+(define (for-each fn . lists)
+  (apply map fn lists))
+
 (define (ass predicate obj ls)
   (if (null? ls)
       #f

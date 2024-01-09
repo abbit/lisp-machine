@@ -190,7 +190,7 @@
 	- [x] `eval`
 	- [x] `map`
 	- [ ] `string-map`
-	- [ ] `for-each`
+	- [x] `for-each`
 	- [ ] `string-for-each`
 - [ ] ports:
 	- [ ] `port?`
