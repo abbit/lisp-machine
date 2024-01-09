@@ -235,6 +235,8 @@ pub fn new_root_env() -> EnvRef {
         convert::char_to_integer,
         convert::integer_to_char,
         convert::string_to_list,
+        convert::symbol_to_string,
+        convert::string_to_symbol,
         // type checking
         types::is_pair,
         types::is_number,

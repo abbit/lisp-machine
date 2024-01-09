@@ -3,7 +3,7 @@ use std::{cell::RefCell, rc::Rc};
 use super::utils::define_procedures;
 use crate::{
     evaluator::{error::runtime_error, EnvRef},
-    expr::{Arity, Expr, Exprs, ProcedureResult, ProcedureReturn, list::List},
+    expr::{Arity, Expr, Exprs, ProcedureResult, ProcedureReturn, list::List, proc_result_value},
 };
 
 define_procedures! {
@@ -12,6 +12,8 @@ define_procedures! {
     char_to_integer = ("char->integer", char_to_integer_fn, Arity::Exact(1)),
     integer_to_char = ("integer->char", integer_to_char_fn, Arity::Exact(1)),
     string_to_list = ("string->list", string_to_list_fn, Arity::AtLeast(1)),
+    symbol_to_string = ("symbol->string", symbol_to_string_fn, Arity::Exact(1)),
+    string_to_symbol = ("string->symbol", string_to_symbol_fn, Arity::Exact(1)),
 }
 
 fn number_to_string_fn(mut args: Exprs, _env: &mut EnvRef) -> ProcedureResult {
@@ -205,4 +207,29 @@ fn string_to_list_fn(mut args: Exprs, _: &mut EnvRef) -> ProcedureResult {
 
     Ok(Expr::List(List::new_proper(result_list)))
         .map(ProcedureReturn::Value)
+}
+
+fn symbol_to_string_fn(mut args: Exprs, _: &mut EnvRef) -> ProcedureResult {
+    let expr = args.pop_front().unwrap();
+
+    let symbol_str = match expr {
+        Expr::Symbol(sym) => sym.to_string(),
+        _ => return Err(runtime_error!("symbol->string expected a symbol as its argument")),
+    };
+
+    proc_result_value!(Expr::String(Rc::new(RefCell::new(symbol_str))))
+}
+
+fn string_to_symbol_fn(mut args: Exprs, _: &mut EnvRef) -> ProcedureResult {
+    let expr = args.pop_front().unwrap();
+
+    let symbol = match expr {
+        Expr::String(string_expr) => {
+            let string_value = string_expr.borrow().clone();
+            Expr::Symbol(string_value)
+        }
+        _ => return Err(runtime_error!("string->symbol expected a string as its argument")),
+    };
+
+    proc_result_value!(symbol)
 }

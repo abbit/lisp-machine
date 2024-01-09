@@ -140,10 +140,10 @@
 	- [x] `assv`
 	- [x] `assoc`
 	- [x] `list-copy`
-- [ ] symbols:
+- [x] symbols:
 	- [x] `symbol?`
-	- [ ] `symbol->string`
-	- [ ] `string->symbol`
+	- [x] `symbol->string`
+	- [x] `string->symbol`
 - [x] characters:
 	- [x] `char?`
     - [x] `char=?`
