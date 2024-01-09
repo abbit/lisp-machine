@@ -25,6 +25,10 @@ impl Env {
         }
     }
 
+    fn has(&self, name: &str) -> bool {
+        self.bindings.contains_key(name)
+    }
+
     fn get(&self, name: &str) -> Option<Expr> {
         match self.bindings.get(name) {
             Some(value) => Some(value.clone()),
@@ -67,13 +71,22 @@ macro_rules! insert_procedures(
     { $env:expr, $($proc:expr,)* } => {
         {
             $(
-                $env.add($proc.0.to_string(), Expr::Procedure(Procedure::new_atomic($proc.0.to_string(), $proc.1, $proc.2, $proc.3)));
+                $env.add(
+                    $proc.0.to_string(),
+                    $crate::expr::Procedure::new_atomic($proc.0.to_string(), $proc.1, $proc.2, $proc.3),
+                );
             )*
         }
     };
 );
 
 #[derive(Clone, Default)]
+/// Reference to the environment.
+///
+/// Environment holds:
+/// - bindings of symbols to expressions.
+/// - current working directory.
+/// - reference to the parent environment.
 pub struct EnvRef(Rc<RefCell<Env>>);
 
 impl PartialEq for EnvRef {
@@ -89,25 +102,37 @@ impl fmt::Debug for EnvRef {
 }
 
 impl EnvRef {
+    /// Checks if `self` is the root environment.
     pub fn is_root(&self) -> bool {
         self.0.borrow().parent.is_none()
     }
 
+    /// Creates a reference to the deep copy of underlying environment.
     pub fn copy(&self) -> Self {
         EnvRef(Rc::new(RefCell::new(self.0.borrow().clone())))
     }
 
+    /// Creates a reference to a new environment that has this environment as a parent.
     pub fn extend(&self) -> Self {
         EnvRef(Rc::new(RefCell::new(Env::extend(self.clone()))))
     }
 
-    /// Returns the expression associated with the given name.
-    /// If the no expression is found, returns None.
+    /// Checks if `self` contains a binding for the given `name`.
+    pub fn has(&self, name: &str) -> bool {
+        self.0.borrow().has(name)
+    }
+
+    /// Returns the expression associated with the given `name`.
+    /// If the no expression is found, returns [`None`].
     pub fn get_expr(&self, name: &str) -> Option<Expr> {
         self.0.borrow().get(name)
     }
 
-    /// version of [`get_expr`](#method.get_expr) with a type conversion.
+    /// [`get_expr`](#method.get_expr) with a type conversion.
+    ///
+    /// If no binding is found for `name`, returns [`None`].
+    ///
+    /// If binding is found returns [`Some`] with result of conversion [`FromExprResult`].
     pub fn get<T: FromExpr>(&self, name: &str) -> Option<FromExprResult<T>> {
         Some(T::from_expr(self.get_expr(name)?))
     }
@@ -119,7 +144,7 @@ impl EnvRef {
     }
 
     /// Sets new value to an existing binding.
-    /// Returns an error if the binding does not exist.
+    /// Returns an [`Err`] if the binding does not exist.
     pub fn set<T: Into<Expr>>(&mut self, name: String, expr: T) -> Result<(), String> {
         self.0.borrow_mut().set(name, expr.into())
     }

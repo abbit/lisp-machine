@@ -6,20 +6,53 @@ use core::fmt;
 use std::{cell::RefCell, collections::VecDeque, rc::Rc};
 
 #[derive(PartialEq, Debug, Clone)]
+/// Represents all possible values in interpreter.
+///
+/// This is the only type that can be used in interpreter.
+/// All other types are converted to this one.
 pub enum Expr {
+    /// Integer number
     Integer(i64),
+    /// Real number
     Float(f64),
+    /// Symbol
     Symbol(String),
+    /// A reference to mutable string.
     String(Rc<RefCell<String>>),
+    /// Character
     Char(char),
+    /// Boolean
     Boolean(bool),
+    /// An immutable list of expressions.
+    ///
+    /// `'()` (null) is represented as empty list.
+    ///  Dotted lists (nested pairs) and proper lists are represented as list of expressions.
+    ///
+    /// Internal `List` struct does not exported, so you can't construct list directly.
+    /// To construct a list you should use [`Expr::new_empty_list`], [`Expr::new_proper_list`] and [`Expr::new_dotted_list`] instead.
+    ///
+    /// NOTE: Since lists are immutable, they are flattened on creation.
+    /// This means that `(1 2 3)` and `(1 . (2 . (3 . '()))` are represented as same list internally.
     List(List),
-
-    // expressions, that created on evaluation stage
+    /// Unspecified value
+    ///
+    /// <div class="warning">
+    /// This expression is created only on evaluation stage and evaluating it will cause error.
+    /// </div>
     Void,
+    /// Procedure
+    ///
+    /// <div class="warning">
+    /// This expression is created only on evaluation stage and evaluating it will cause error.
+    ///
+    /// Because of this, internal <code>Procedure</code> struct does not exported, so you can't construct procedure directly.
+    /// </div>
     Procedure(Procedure),
 }
 
+/// A list of [`Expr`]s. Also can be created with [`exprs!`] macro.
+///
+/// [`exprs!`]: ./macro.exprs.html
 pub type Exprs = VecDeque<Expr>;
 
 pub trait AsExprs {
@@ -38,7 +71,7 @@ impl AsExprs for Exprs {
     }
 }
 
-/// Creates [`Exprs`] from given expressions
+/// A helper macro to construct [`Exprs`] from given expressions
 #[macro_export]
 macro_rules! exprs {
     () => {{
@@ -55,13 +88,26 @@ macro_rules! exprs {
     ($($x:expr,)*) => (exprs![$($x),*])
 }
 
+/// Represents result of conversion from [`Expr`] to another type
+///
+/// If conversion was successful, returns `Ok(T)`, where `T` is a type that implements [`FromExpr`].
+///
+/// If conversion failed, returns `Err(Expr)` with original [`Expr`].
+///
+/// You can safely [`unwrap`](#method.unwrap) this result, if converting to [`Expr`].
 pub type FromExprResult<T> = Result<T, Expr>;
 
 impl Expr {
+    /// Creates new empty list `'()`
     pub fn new_empty_list() -> Self {
         Expr::List(List::new_empty())
     }
 
+    /// Creates new dotted list like `'(1 2 . 3)` from [`Exprs`]
+    ///
+    /// Last element of `list` is used as `cdr` of last nested pair
+    ///
+    /// If list is empty, returns empty list
     pub fn new_dotted_list(mut list: Exprs) -> Self {
         let tail = match list.pop_back() {
             Some(tail) => tail,
@@ -70,27 +116,30 @@ impl Expr {
         Expr::List(List::new_dotted(list, tail))
     }
 
+    /// Creates new proper list like `'(1 2 3)` from [`Exprs`]
     pub fn new_proper_list(list: Exprs) -> Self {
         Expr::List(List::new_proper(list))
     }
 
-    pub fn new_list(list: Exprs, kind: ListKind) -> Self {
+    pub(crate) fn new_list(list: Exprs, kind: ListKind) -> Self {
         match kind {
             ListKind::Proper => Expr::new_proper_list(list),
             ListKind::Dotted => Expr::new_dotted_list(list),
         }
     }
 
+    /// Creates new [`Expr::String`] from any type that implements [`Into<String>`]
     pub fn new_string<S: Into<String>>(string: S) -> Self {
         Expr::String(Rc::new(RefCell::new(string.into())))
     }
 
+    /// Creates new [`Expr::Symbol`] from any type that implements [`Into<String>`]
     pub fn new_symbol<S: Into<String>>(string: S) -> Self {
         Expr::Symbol(string.into())
     }
 
-    /// Returns kind of expression as string
-    /// Note: This method is named `kind` instead of `type` because `type` is a reserved keyword
+    /// Returns string representation of the type of `self`
+    // Note: This method is named `kind` instead of `type` because `type` is a reserved keyword
     pub fn kind(&self) -> &'static str {
         match self {
             Expr::Boolean(_) => "boolean",
@@ -108,6 +157,7 @@ impl Expr {
         }
     }
 
+    /// Returns true if `self` represents a true value
     pub fn is_truthy(&self) -> bool {
         match self {
             Expr::Boolean(boolean) => *boolean,
@@ -117,81 +167,101 @@ impl Expr {
 
     // check methods
 
+    /// Checks if `self` is a [`Expr::Symbol`]
     pub fn is_symbol(&self) -> bool {
         matches!(self, Expr::Symbol(_))
     }
 
-    pub fn is_specific_symbol(&self, s: &str) -> bool {
-        matches!(self, Expr::Symbol(symbol) if symbol == s)
+    /// Checks if `self` is a [`Expr::Symbol`] with given `name`
+    pub fn is_specific_symbol(&self, name: &str) -> bool {
+        matches!(self, Expr::Symbol(sym) if sym == name)
     }
 
-    pub fn is_empty_list(&self) -> bool {
-        matches!(self, Expr::List(list) if list.is_empty())
-    }
-
+    /// checks if `self` is a [`Expr::List`]
     pub fn is_list(&self) -> bool {
         matches!(self, Expr::List(_))
     }
 
+    /// Checks if `self` represents an empty list `'()`
+    pub fn is_empty_list(&self) -> bool {
+        matches!(self, Expr::List(list) if list.is_empty())
+    }
+
+    /// Checks if `self` represents a proper list
+    pub fn is_proper_list(&self) -> bool {
+        matches!(self, Expr::List(list) if list.is_proper())
+    }
+
+    /// Checks if `self` represents a dotted list
+    /// This means that last element of last nested list is not `'()`
+    pub fn is_dotted_list(&self) -> bool {
+        matches!(self, Expr::List(list) if list.is_dotted())
+    }
+
     // exctraction methods
 
-    pub fn into_boolean(self) -> FromExprResult<bool> {
+    /// Tries to convert `self` into `T`, which is a type that implements [`FromExpr`]
+    pub fn into<T: FromExpr>(self) -> FromExprResult<T> {
+        T::from_expr(self)
+    }
+
+    pub(crate) fn into_boolean(self) -> FromExprResult<bool> {
         match self {
             Expr::Boolean(boolean) => Ok(boolean),
             _ => Err(self),
         }
     }
 
-    pub fn into_char(self) -> FromExprResult<char> {
+    pub(crate) fn into_char(self) -> FromExprResult<char> {
         match self {
             Expr::Char(char) => Ok(char),
             _ => Err(self),
         }
     }
 
-    pub fn into_integer(self) -> FromExprResult<i64> {
+    pub(crate) fn into_integer(self) -> FromExprResult<i64> {
         match self {
             Expr::Integer(integer) => Ok(integer),
             _ => Err(self),
         }
     }
 
-    pub fn into_float(self) -> FromExprResult<f64> {
+    pub(crate) fn into_float(self) -> FromExprResult<f64> {
         match self {
             Expr::Float(float) => Ok(float),
             _ => Err(self),
         }
     }
 
-    pub fn into_symbol(self) -> FromExprResult<String> {
+    pub(crate) fn into_symbol(self) -> FromExprResult<String> {
         match self {
             Expr::Symbol(symbol) => Ok(symbol),
             _ => Err(self),
         }
     }
 
-    pub fn into_string(self) -> FromExprResult<Rc<RefCell<String>>> {
+    pub(crate) fn into_string(self) -> FromExprResult<Rc<RefCell<String>>> {
         match self {
             Expr::String(string) => Ok(Rc::clone(&string)),
             _ => Err(self),
         }
     }
 
-    pub fn into_list(self) -> FromExprResult<List> {
+    pub(crate) fn into_list(self) -> FromExprResult<List> {
         match self {
             Expr::List(list) => Ok(list),
             _ => Err(self),
         }
     }
 
-    pub fn into_procedure(self) -> FromExprResult<Procedure> {
+    pub(crate) fn into_procedure(self) -> FromExprResult<Procedure> {
         match self {
             Expr::Procedure(proc) => Ok(proc),
             _ => Err(self),
         }
     }
 
-    pub fn as_list(&self) -> Option<&List> {
+    pub(crate) fn as_list(&self) -> Option<&List> {
         match self {
             Expr::List(list) => Some(list),
             _ => None,
@@ -285,18 +355,34 @@ impl<A: Into<Expr>, B: Into<Expr>> From<(A, B)> for Expr {
     }
 }
 
-/// The exit point for turning [`Expr`] into outside world values
-/// This trait implemented for most primitives
+/// The exit point for turning [`Expr`] into Rust types.
+///
+/// This trait implemented for most primitives.
 /// You can also manually implement this for any type.
+///
+/// # Implemented conversions
+/// | [`Expr`] | Rust type |
+/// | ---- | ---- |
+/// | [`Expr::Void`] | [`unit`]
+/// | [`Expr::Boolean`] | [`bool`]
+/// | [`Expr::Char`] | [`char`]
+/// | [`Expr::Integer`] | [`i64`]
+/// | [`Expr::Float`] | [`f64`]
+/// | [`Expr::Symbol`] | [`String`]
+/// | [`Expr::String`] | [`Rc<RefCell<String>>`]
+/// | proper [`Expr::List`] | [`Vec<T>`] or [`VecDeque<T>`], where `T` is a type that implements [`FromExpr`]
+/// | dotted [`Expr::List`] with 2 elements | `(A, B)`, where `A` and `B` are types that implements [`FromExpr`]
 pub trait FromExpr: Sized {
-    /// Tries to convert [`Expr`] into `Self`
-    /// If conversion is not possible, returns `Err(expr)` with original expression
+    /// Tries to convert [`Expr`] into `Self`. Returns [`FromExprResult<Self>`] with result of conversion.
     fn from_expr(expr: Expr) -> FromExprResult<Self>;
 }
 
 impl FromExpr for () {
-    fn from_expr(_: Expr) -> FromExprResult<Self> {
-        Ok(())
+    fn from_expr(expr: Expr) -> FromExprResult<Self> {
+        match expr {
+            Expr::Void => Ok(()),
+            _ => Err(expr),
+        }
     }
 }
 
@@ -342,22 +428,12 @@ impl FromExpr for Rc<RefCell<String>> {
     }
 }
 
-impl FromExpr for List {
-    fn from_expr(expr: Expr) -> FromExprResult<Self> {
-        expr.into_list()
-    }
-}
-
-impl FromExpr for Procedure {
-    fn from_expr(expr: Expr) -> FromExprResult<Self> {
-        expr.into_procedure()
-    }
-}
-
 impl<T: FromExpr> FromExpr for Vec<T> {
     fn from_expr(expr: Expr) -> FromExprResult<Self> {
         match expr {
-            Expr::List(list) => list.into_exprs().into_iter().map(T::from_expr).collect(),
+            Expr::List(list) if list.is_proper() => {
+                list.into_exprs().into_iter().map(T::from_expr).collect()
+            }
             _ => Err(expr),
         }
     }
@@ -366,7 +442,9 @@ impl<T: FromExpr> FromExpr for Vec<T> {
 impl<T: FromExpr> FromExpr for VecDeque<T> {
     fn from_expr(expr: Expr) -> FromExprResult<Self> {
         match expr {
-            Expr::List(list) => list.into_exprs().into_iter().map(T::from_expr).collect(),
+            Expr::List(list) if list.is_proper() => {
+                list.into_exprs().into_iter().map(T::from_expr).collect()
+            }
             _ => Err(expr),
         }
     }
