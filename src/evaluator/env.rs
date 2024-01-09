@@ -238,7 +238,7 @@ pub fn new_root_env() -> EnvRef {
         // type checking
         types::is_pair,
         types::is_number,
-        // "symbol?" => builtin::is_symbol,
+        types::is_symbol,
         types::is_string,
         types::is_procedure,
         types::is_char,

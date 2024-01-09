@@ -141,7 +141,7 @@
 	- [x] `assoc`
 	- [x] `list-copy`
 - [ ] symbols:
-	- [ ] `symbol?`
+	- [x] `symbol?`
 	- [ ] `symbol->string`
 	- [ ] `string->symbol`
 - [x] characters:

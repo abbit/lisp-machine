@@ -10,6 +10,7 @@ define_procedures! {
     is_string = ("string?", is_string_fn, Arity::Exact(1)),
     is_pair = ("pair?", is_pair_fn, Arity::Exact(1)),
     is_procedure = ("procedure?", is_procedure_fn, Arity::Exact(1)),
+    is_symbol = ("symbol?", is_symbol_fn, Arity::Exact(1)),
 }
 
 fn is_char_fn(mut args: Exprs, _env: &mut EnvRef) -> ProcedureResult {
@@ -65,4 +66,15 @@ fn is_procedure_fn(mut args: Exprs, _: &mut EnvRef) -> ProcedureResult {
         _ => false,
     };
     Ok(Expr::Boolean(procedure)).map(ProcedureReturn::Value)
+}
+
+fn is_symbol_fn(mut args: Exprs, _: &mut EnvRef) -> ProcedureResult {
+    let expr = args.pop_front().unwrap();
+
+    let symbol = match expr {
+        Expr::Symbol(_) => true,
+        _ => false,
+    };
+
+    proc_result_value!(Expr::Boolean(symbol))
 }
