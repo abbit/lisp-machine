@@ -1,5 +1,35 @@
 use lispdm::{exprs, Engine, Expr};
 
+macro_rules! assert_absent_in_env {
+    ($env:expr, $name:expr) => {
+        assert!(!$env.has($name));
+        assert!(!$env.has_macro($name));
+    };
+}
+
+#[test]
+fn ensure_special_forms_defined_in_scheme_prelude() {
+    let engine = Engine::new_without_prelude();
+    let env = engine.env();
+    assert_absent_in_env!(env, "let*");
+    assert_absent_in_env!(env, "letrec*");
+    assert_absent_in_env!(env, "case");
+    assert_absent_in_env!(env, "when");
+    assert_absent_in_env!(env, "unless");
+    assert_absent_in_env!(env, "and");
+    assert_absent_in_env!(env, "or");
+
+    let engine = Engine::default();
+    let env = engine.env();
+    assert!(env.has_macro("let*"));
+    assert!(env.has_macro("letrec*"));
+    assert!(env.has_macro("case"));
+    assert!(env.has_macro("when"));
+    assert!(env.has_macro("unless"));
+    assert!(env.has_macro("and"));
+    assert!(env.has_macro("or"));
+}
+
 #[test]
 fn eval_number() {
     let source = "1";

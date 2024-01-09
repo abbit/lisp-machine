@@ -52,6 +52,10 @@ impl Env {
         }
     }
 
+    fn has_macro(&self, name: &str) -> bool {
+        self.macros.contains_key(name)
+    }
+
     fn get_macro(&self, name: &str) -> Option<Procedure> {
         match self.macros.get(name) {
             Some(value) => Some(value.clone()),
@@ -115,12 +119,17 @@ impl EnvRef {
         EnvRef(Rc::new(RefCell::new(Env::extend(self.clone()))))
     }
 
-    /// Checks if `self` contains a binding for the given `name`.
+    /// Checks if `self` contains a binding with `name`.
     pub fn has(&self, name: &str) -> bool {
         self.0.borrow().has(name)
     }
 
-    /// Returns the expression associated with the given `name`.
+    /// Checks if `self` contains a macro with `name`.
+    pub fn has_macro(&self, name: &str) -> bool {
+        self.0.borrow().has_macro(name)
+    }
+
+    /// Returns the expression bound to `name`.
     /// If the no expression is found, returns [`None`].
     pub fn get_expr(&self, name: &str) -> Option<Expr> {
         self.0.borrow().get(name)

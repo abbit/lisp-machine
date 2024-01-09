@@ -50,8 +50,6 @@
 - [x] `letrec`
 - [x] `if`
 - [x] `cond`
-- [x] `and`
-- [x] `or`
 - [x] `do`
 - [x] `quote`
 - [x] `quasiquote`
@@ -67,6 +65,8 @@
 - [x] `case`
 - [x] `when`
 - [x] `unless`
+- [x] `and`
+- [x] `or`
 
 ## Стандартная библиотека
 
