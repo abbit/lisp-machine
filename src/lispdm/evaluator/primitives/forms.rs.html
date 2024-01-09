@@ -514,7 +514,7 @@
 <span class="macro">define_special_forms! </span>{
     define = (<span class="string">&quot;define&quot;</span>, define_fn, Arity::AtLeast(<span class="number">2</span>)),
     set = (<span class="string">&quot;set!&quot;</span>, set_fn, Arity::Exact(<span class="number">2</span>)),
-    lambda = (<span class="string">&quot;lambda&quot;</span>, lambda_fn, Arity::Exact(<span class="number">2</span>)),
+    lambda = (<span class="string">&quot;lambda&quot;</span>, lambda_fn, Arity::AtLeast(<span class="number">2</span>)),
     let_ = (<span class="string">&quot;let&quot;</span>, let_fn, Arity::AtLeast(<span class="number">1</span>)),
     letrec = (<span class="string">&quot;letrec&quot;</span>, letrec_fn, Arity::AtLeast(<span class="number">1</span>)),
     if_ = (<span class="string">&quot;if&quot;</span>, if_fn, Arity::Range(<span class="number">2</span>, <span class="number">3</span>)),
