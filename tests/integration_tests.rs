@@ -251,6 +251,69 @@ fn eval_cond_with_arrow_incorrect_args() {
 // ========================================================================
 
 #[test]
+fn eval_case_simple() {
+    let source = "(case (* 2 3) ((2 3 5 7) 'prime)
+                             ((1 4 6 8 9) 'composite))";
+    let mut engine = Engine::default();
+    let result = engine.eval::<Expr>(source).unwrap().unwrap();
+    assert_eq!(result, Expr::new_symbol("composite"));
+}
+
+#[test]
+fn eval_case_no_else() {
+    let source = "(case (car '(c d))
+        ((a) 'a)
+        ((b) 'b))";
+    let mut engine = Engine::default();
+    let result = engine.eval::<Expr>(source).unwrap().unwrap();
+    assert_eq!(result, Expr::Void);
+}
+
+#[test]
+fn eval_case_with_arrow() {
+    let source = "(case (car '(2 1))
+        ((1 3 5 7 9) => (lambda (x) (+ x 1)))
+        ((2 4 6 8) => (lambda (x) (* x 2))))";
+    let mut engine = Engine::default();
+    let result = engine.eval::<i64>(source).unwrap().unwrap();
+    assert_eq!(result, 4);
+}
+
+#[test]
+fn eval_case_else() {
+    let source = "(case 10 ((2 3 5 7) 'prime)
+                            ((1 4 6 8 9) 'composite)
+                            (else 'other))";
+    let mut engine = Engine::default();
+    let result = engine.eval::<Expr>(source).unwrap().unwrap();
+    assert_eq!(result, Expr::new_symbol("other"));
+}
+
+#[test]
+fn eval_case_else_single() {
+    let source = "(case (car '(c d))
+        (else => (lambda (x) x)))";
+    let mut engine = Engine::default();
+    let result = engine.eval::<Expr>(source).unwrap().unwrap();
+    assert_eq!(result, Expr::new_symbol("c"));
+}
+
+#[test]
+fn eval_case_else_with_arrow() {
+    let source = "(case (car '(c d))
+        ((a e i o u) 'vowel)
+        ((w y) 'semivowel)
+        (else => (lambda (x) x)))";
+    let mut engine = Engine::default();
+    let result = engine.eval::<Expr>(source).unwrap().unwrap();
+    assert_eq!(result, Expr::new_symbol("c"));
+}
+
+// ========================================================================
+//                           `do` tests
+// ========================================================================
+
+#[test]
 fn eval_do_simple() {
     let source = "(do ((i 0 (+ i 1))
                              (sum 0 (+ sum i)))
