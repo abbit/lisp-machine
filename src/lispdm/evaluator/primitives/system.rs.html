@@ -66,6 +66,9 @@
 <a href="#66" id="66">66</a>
 <a href="#67" id="67">67</a>
 <a href="#68" id="68">68</a>
+<a href="#69" id="69">69</a>
+<a href="#70" id="70">70</a>
+<a href="#71" id="71">71</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">super</span>::utils::define_procedures;
 <span class="kw">use crate</span>::{
     evaluator::{error::runtime_error, EnvRef},
@@ -131,6 +134,10 @@
 }
 
 <span class="kw">fn </span>current_second_fn(<span class="kw">_</span>: Exprs, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>EnvRef) -&gt; ProcedureResult {
-    <span class="kw">let </span>current_time = SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs_f64();
+    <span class="kw">let </span>current_time = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .unwrap()
+        .as_secs_f64();
     <span class="macro">proc_result_value!</span>(Expr::Float(current_time))
-}</code></pre></div></section></main></body></html>
+}
+</code></pre></div></section></main></body></html>

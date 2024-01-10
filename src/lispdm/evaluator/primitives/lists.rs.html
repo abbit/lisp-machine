@@ -92,17 +92,25 @@
 <a href="#92" id="92">92</a>
 <a href="#93" id="93">93</a>
 <a href="#94" id="94">94</a>
+<a href="#95" id="95">95</a>
+<a href="#96" id="96">96</a>
+<a href="#97" id="97">97</a>
+<a href="#98" id="98">98</a>
+<a href="#99" id="99">99</a>
+<a href="#100" id="100">100</a>
+<a href="#101" id="101">101</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">super</span>::utils::define_procedures;
 <span class="kw">use crate</span>::{
     evaluator::{error::runtime_error, EnvRef},
-    expr::{proc_result_value, Arity, Expr, Exprs, ListKind, ProcedureResult, list::List}, exprs,
+    expr::{list::List, proc_result_value, Arity, Expr, Exprs, ListKind, ProcedureResult},
+    exprs,
 };
 
 <span class="macro">define_procedures! </span>{
     cons = (<span class="string">&quot;cons&quot;</span>, cons_fn, Arity::Exact(<span class="number">2</span>)),
     car_ = (<span class="string">&quot;car&quot;</span>, car_fn, Arity::Exact(<span class="number">1</span>)),
     cdr_ = (<span class="string">&quot;cdr&quot;</span>, cdr_fn, Arity::Exact(<span class="number">1</span>)),
-    make_list = (<span class="string">&quot;make-list&quot;</span>, make_list_fn, Arity::AtLeast(<span class="number">1</span>)), 
+    make_list = (<span class="string">&quot;make-list&quot;</span>, make_list_fn, Arity::AtLeast(<span class="number">1</span>)),
     list_copy = (<span class="string">&quot;list-copy&quot;</span>, list_copy_fn, Arity::Exact(<span class="number">1</span>)),
 }
 
@@ -159,16 +167,22 @@
 }
 
 <span class="kw">fn </span>make_list_fn(<span class="kw-2">mut </span>args: Exprs, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>EnvRef) -&gt; ProcedureResult {
-    <span class="kw">let </span>k = args.pop_front().unwrap().into_integer().map_err(|<span class="kw">_</span>| {
-        <span class="macro">runtime_error!</span>(<span class="string">&quot;make-list expected an integer as its first argument&quot;</span>)
-    })<span class="question-mark">?</span>;
+    <span class="kw">let </span>k = args
+        .pop_front()
+        .unwrap()
+        .into_integer()
+        .map_err(|<span class="kw">_</span>| <span class="macro">runtime_error!</span>(<span class="string">&quot;make-list expected an integer as its first argument&quot;</span>))<span class="question-mark">?</span>;
 
     <span class="kw">if </span>args.is_empty() {
-        <span class="kw">let </span>list = std::iter::repeat(Expr::Integer(<span class="number">0</span>)).take(k <span class="kw">as </span>usize).collect::&lt;Exprs&gt;();
+        <span class="kw">let </span>list = std::iter::repeat(Expr::Integer(<span class="number">0</span>))
+            .take(k <span class="kw">as </span>usize)
+            .collect::&lt;Exprs&gt;();
         <span class="macro">proc_result_value!</span>(Expr::List(List::new_proper(list)))
     } <span class="kw">else </span>{
         <span class="kw">let </span>fill = args.pop_front().unwrap();
-        <span class="kw">let </span>list = std::iter::repeat(fill.clone()).take(k <span class="kw">as </span>usize).collect::&lt;Exprs&gt;();
+        <span class="kw">let </span>list = std::iter::repeat(fill.clone())
+            .take(k <span class="kw">as </span>usize)
+            .collect::&lt;Exprs&gt;();
         <span class="macro">proc_result_value!</span>(Expr::List(List::new_proper(list)))
     }
 }
