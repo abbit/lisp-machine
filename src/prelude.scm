@@ -3,11 +3,15 @@
 
 ; math
 (define (zero? x) (= 0 x))
+
 (define (positive? x) (> x 0))
+
 (define (negative? x) (< x 0))
+
 (define (even? x)
   (and (integer? x)
        (zero? (modulo x 2))))
+
 (define (odd? x)
   (and (integer? x)
        (not (zero? (modulo x 2)))))
@@ -16,6 +20,8 @@
 (define (boolean? x) (if (eq? x #t) #t (eq? x #f)))
 
 ; lists and pairs
+(define (list . x) x)
+
 (define (caar x) (car (car x)))
 (define (cadr x) (car (cdr x)))
 (define (cdar x) (cdr (car x)))
@@ -63,6 +69,7 @@
   (if (null? l)
       acc
       (acc-reverse (cdr l) (cons (car l) acc))))
+
 (define (reverse l)
   (acc-reverse l '()))
 
@@ -70,10 +77,12 @@
   (if (null? l)
       res
       (append2 (cdr l) (cons (car l) res))))
+
 (define (append-helper ls res)
   (if (null? ls)
       res
       (append-helper (cdr ls) (append2 (reverse (car ls)) res))))
+
 (define (append . o)
   (if (null? o)
       '()
@@ -85,6 +94,7 @@
   (if (zero? k)
       l
       (list-tail (cdr l) (- k 1))))
+
 (define (list-ref l k)
   (car (list-tail l k)))
 
@@ -94,10 +104,13 @@
       (if (predicate obj (car ls))
           ls
           (mem predicate obj (cdr ls)))))
+
 (define (memq obj ls)
   (mem eq? obj ls))
+
 (define (memv obj ls)
   (mem eqv? obj ls))
+
 (define (member obj ls)
   (mem equal? obj ls))
 
@@ -158,10 +171,13 @@
       (if (predicate obj (caar ls))
           (car ls)
           (ass predicate obj (cdr ls)))))
+
 (define (assq obj ls)
   (ass eq? obj ls))
+
 (define (assv obj ls)
   (ass eqv? obj ls))
+
 (define (assoc obj ls)
   (ass equal? obj ls))
 
@@ -180,11 +196,13 @@
 ; strings
 (define (string-copy string)
   (substring string 0 (string-length string)))
+
 (define (list->string lst)
   (apply string lst))
 
 ; special forms
 (define-macro (when test . body) `(if ,test (begin ,@body)))
+
 (define-macro (unless test . body) `(if (not ,test) (begin ,@body)))
 
 (define-macro (let* bindings . body)

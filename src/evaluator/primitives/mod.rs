@@ -1,4 +1,3 @@
-pub mod booleans;
 pub mod chars;
 pub mod convert;
 pub mod equal;

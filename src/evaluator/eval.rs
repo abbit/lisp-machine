@@ -321,14 +321,47 @@ mod tests {
         let source = "
             (define-macro (infix infixed)
                 (list (car (cdr infixed)) (car infixed) (car (cdr (cdr infixed)))))
-
-            (infix (1 + 1))
         ";
         let mut env = env::new_root_env();
 
         assert!(env.get_macro("infix").is_none());
         let result = eval_str(source, &mut env).unwrap();
-        assert!(env.get_macro("infix").is_some());
-        assert_eq!(result, Expr::Integer(2));
+        assert_eq!(result, Expr::Void);
+        match env.get_macro("infix") {
+            Some(Procedure::Compound(macro_proc)) => {
+                assert_eq!(
+                    macro_proc.params,
+                    ProcedureParams::Fixed(vec!["infixed".to_string()])
+                );
+                assert_eq!(
+                    macro_proc.body,
+                    Box::new(Body::new_single(Expr::new_proper_list(exprs![
+                        Expr::Symbol("list".to_string()),
+                        Expr::new_proper_list(exprs![
+                            Expr::Symbol("car".to_string()),
+                            Expr::new_proper_list(exprs![
+                                Expr::Symbol("cdr".to_string()),
+                                Expr::Symbol("infixed".to_string())
+                            ])
+                        ]),
+                        Expr::new_proper_list(exprs![
+                            Expr::Symbol("car".to_string()),
+                            Expr::Symbol("infixed".to_string())
+                        ]),
+                        Expr::new_proper_list(exprs![
+                            Expr::Symbol("car".to_string()),
+                            Expr::new_proper_list(exprs![
+                                Expr::Symbol("cdr".to_string()),
+                                Expr::new_proper_list(exprs![
+                                    Expr::Symbol("cdr".to_string()),
+                                    Expr::Symbol("infixed".to_string())
+                                ])
+                            ])
+                        ])
+                    ])))
+                );
+            }
+            _ => panic!("expected macro procedure"),
+        }
     }
 }

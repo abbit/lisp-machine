@@ -1,4 +1,6 @@
-use super::primitives::{eval, forms, lists, modularity, nums, system, convert, booleans, types, chars, equal, strings, macros};
+use super::primitives::{
+    chars, convert, equal, eval, forms, lists, macros, modularity, nums, strings, system, types,
+};
 use crate::expr::{Expr, FromExpr, FromExprResult, Procedure};
 use core::fmt;
 use std::{cell::RefCell, collections::HashMap, path::PathBuf, rc::Rc};
@@ -124,7 +126,6 @@ impl EnvRef {
         self.0.borrow().has(name)
     }
 
-
     /// Checks if `self` contains a macro with `name`.
     pub fn has_macro(&self, name: &str) -> bool {
         self.0.borrow().has_macro(name)
@@ -232,8 +233,6 @@ pub fn new_root_env() -> EnvRef {
         nums::remainder,
         nums::modulo,
         // boolean
-        booleans::and,
-        booleans::or,
         // equal
         equal::eqv,
         equal::eq,
