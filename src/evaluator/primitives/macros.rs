@@ -1,16 +1,11 @@
-use super::utils::{define_procedures, define_special_forms};
+use super::utils::define_special_forms;
 use crate::{
     evaluator::{error::runtime_error, primitives::utils::create_procedure, EnvRef},
     expr::{proc_result_value, Arity, Body, Expr, Exprs, ListKind, ProcedureResult},
 };
-use uuid::Uuid;
 
 define_special_forms! {
     define_macro = ("define-macro", define_macro_fn, Arity::AtLeast(2)),
-}
-
-define_procedures! {
-    gensym = ("gensym", gensym_fn, Arity::Exact(0)),
 }
 
 fn define_macro_fn(mut args: Exprs, env: &mut EnvRef) -> ProcedureResult {
@@ -54,9 +49,4 @@ fn define_macro_fn(mut args: Exprs, env: &mut EnvRef) -> ProcedureResult {
     env.add_macro(name.to_string(), procedure);
 
     proc_result_value!(Expr::Void)
-}
-
-fn gensym_fn(_args: Exprs, _env: &mut EnvRef) -> ProcedureResult {
-    let name = format!("gensym-{}", Uuid::new_v4());
-    proc_result_value!(Expr::Symbol(name))
 }

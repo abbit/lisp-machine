@@ -201,6 +201,12 @@
   (apply string lst))
 
 ; special forms
+(define #:gensym-counter 0)
+
+(define (gensym)
+  (set! #:gensym-counter (+ #:gensym-counter 1))
+  (string->symbol (string-append "#:gensym-" (number->string #:gensym-counter))))
+
 (define-macro (when test . body) `(if ,test (begin ,@body)))
 
 (define-macro (unless test . body) `(if (not ,test) (begin ,@body)))

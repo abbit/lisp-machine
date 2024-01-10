@@ -198,7 +198,6 @@ pub fn new_root_env() -> EnvRef {
         forms::do_,
         // macros
         macros::define_macro,
-        macros::gensym,
         // evaluation
         eval::eval,
         eval::apply,
