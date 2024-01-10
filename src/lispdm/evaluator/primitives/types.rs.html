@@ -57,31 +57,10 @@
 <a href="#57" id="57">57</a>
 <a href="#58" id="58">58</a>
 <a href="#59" id="59">59</a>
-<a href="#60" id="60">60</a>
-<a href="#61" id="61">61</a>
-<a href="#62" id="62">62</a>
-<a href="#63" id="63">63</a>
-<a href="#64" id="64">64</a>
-<a href="#65" id="65">65</a>
-<a href="#66" id="66">66</a>
-<a href="#67" id="67">67</a>
-<a href="#68" id="68">68</a>
-<a href="#69" id="69">69</a>
-<a href="#70" id="70">70</a>
-<a href="#71" id="71">71</a>
-<a href="#72" id="72">72</a>
-<a href="#73" id="73">73</a>
-<a href="#74" id="74">74</a>
-<a href="#75" id="75">75</a>
-<a href="#76" id="76">76</a>
-<a href="#77" id="77">77</a>
-<a href="#78" id="78">78</a>
-<a href="#79" id="79">79</a>
-<a href="#80" id="80">80</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">super</span>::utils::define_procedures;
 <span class="kw">use crate</span>::{
     evaluator::EnvRef,
-    expr::{Arity, Expr, Exprs, ProcedureResult, ProcedureReturn, proc_result_value},
+    expr::{proc_result_value, Arity, Expr, Exprs, ProcedureResult},
 };
 
 <span class="macro">define_procedures! </span>{
@@ -94,67 +73,47 @@
 }
 
 <span class="kw">fn </span>is_char_fn(<span class="kw-2">mut </span>args: Exprs, _env: <span class="kw-2">&amp;mut </span>EnvRef) -&gt; ProcedureResult {
-    <span class="kw">let </span>value = args.pop_front().unwrap();
-    <span class="kw">let </span>char = <span class="kw">match </span>value {
-        Expr::Char(<span class="kw">_</span>) =&gt; <span class="bool-val">true</span>,
-        <span class="kw">_ </span>=&gt; <span class="bool-val">false</span>,
-    };
+    <span class="kw">let </span>expr = args.pop_front().unwrap();
+    <span class="kw">let </span>is_type = expr.is_char();
 
-    <span class="prelude-val">Ok</span>(Expr::Boolean(char)).map(ProcedureReturn::Value)
+    <span class="macro">proc_result_value!</span>(Expr::Boolean(is_type))
 }
 
 <span class="kw">fn </span>is_number_fn(<span class="kw-2">mut </span>args: Exprs, _env: <span class="kw-2">&amp;mut </span>EnvRef) -&gt; ProcedureResult {
-    <span class="kw">let </span>value = args.pop_front().unwrap();
-    <span class="kw">let </span>number = <span class="kw">match </span>value {
-        Expr::Integer(<span class="kw">_</span>) | Expr::Float(<span class="kw">_</span>) =&gt; <span class="bool-val">true</span>,
-        <span class="kw">_ </span>=&gt; <span class="bool-val">false</span>,
-    };
+    <span class="kw">let </span>expr = args.pop_front().unwrap();
+    <span class="kw">let </span>is_type = expr.is_integer() || expr.is_float();
 
-    <span class="prelude-val">Ok</span>(Expr::Boolean(number)).map(ProcedureReturn::Value)
+    <span class="macro">proc_result_value!</span>(Expr::Boolean(is_type))
 }
 
-<span class="kw">fn </span>is_string_fn(args: Exprs, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>EnvRef) -&gt; ProcedureResult {
-    <span class="kw">let </span>expr = args.into_iter().next().unwrap();
+<span class="kw">fn </span>is_string_fn(<span class="kw-2">mut </span>args: Exprs, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>EnvRef) -&gt; ProcedureResult {
+    <span class="kw">let </span>expr = args.pop_front().unwrap();
+    <span class="kw">let </span>is_type = expr.is_string();
 
-    <span class="kw">let </span>string = <span class="kw">match </span>expr {
-        Expr::String(<span class="kw">_</span>) =&gt; <span class="bool-val">true</span>,
-        <span class="kw">_ </span>=&gt; <span class="bool-val">false</span>,
-    };
-
-    <span class="prelude-val">Ok</span>(Expr::Boolean(string)).map(ProcedureReturn::Value)
+    <span class="macro">proc_result_value!</span>(Expr::Boolean(is_type))
 }
 
 <span class="kw">fn </span>is_pair_fn(<span class="kw-2">mut </span>args: Exprs, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>EnvRef) -&gt; ProcedureResult {
-    <span class="kw">let </span>arg = args.pop_front().unwrap();
-    <span class="kw">let </span>result = <span class="kw">match </span>arg {
-        Expr::List(list) =&gt; {
-            <span class="kw">if </span>(list.is_proper() || list.is_dotted()) &amp;&amp; !list.is_empty()  {
-                Expr::Boolean(<span class="bool-val">true</span>)
-            } <span class="kw">else </span>{
-                Expr::Boolean(<span class="bool-val">false</span>)
-            }
-        }
-        <span class="kw">_ </span>=&gt; Expr::Boolean(<span class="bool-val">false</span>),
+    <span class="kw">let </span>expr = args.pop_front().unwrap();
+    <span class="kw">let </span>is_type = <span class="kw">match </span>expr {
+        Expr::List(list) =&gt; !list.is_empty(),
+        <span class="kw">_ </span>=&gt; <span class="bool-val">false</span>,
     };
-    <span class="macro">proc_result_value!</span>(result)
+
+    <span class="macro">proc_result_value!</span>(Expr::Boolean(is_type))
 }
 
 <span class="kw">fn </span>is_procedure_fn(<span class="kw-2">mut </span>args: Exprs, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>EnvRef) -&gt; ProcedureResult {
-    <span class="kw">let </span>arg = args.pop_front().unwrap();
-    <span class="kw">let </span>procedure = <span class="kw">match </span>arg {
-        Expr::Procedure(<span class="kw">_</span>) =&gt; <span class="bool-val">true</span>,
-        <span class="kw">_ </span>=&gt; <span class="bool-val">false</span>,
-    };
-    <span class="prelude-val">Ok</span>(Expr::Boolean(procedure)).map(ProcedureReturn::Value)
+    <span class="kw">let </span>expr = args.pop_front().unwrap();
+    <span class="kw">let </span>is_type = expr.is_procedure();
+
+    <span class="macro">proc_result_value!</span>(Expr::Boolean(is_type))
 }
 
 <span class="kw">fn </span>is_symbol_fn(<span class="kw-2">mut </span>args: Exprs, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>EnvRef) -&gt; ProcedureResult {
     <span class="kw">let </span>expr = args.pop_front().unwrap();
+    <span class="kw">let </span>is_type = expr.is_symbol();
 
-    <span class="kw">let </span>symbol = <span class="kw">match </span>expr {
-        Expr::Symbol(<span class="kw">_</span>) =&gt; <span class="bool-val">true</span>,
-        <span class="kw">_ </span>=&gt; <span class="bool-val">false</span>,
-    };
-
-    <span class="macro">proc_result_value!</span>(Expr::Boolean(symbol))
-}</code></pre></div></section></main></body></html>
+    <span class="macro">proc_result_value!</span>(Expr::Boolean(is_type))
+}
+</code></pre></div></section></main></body></html>

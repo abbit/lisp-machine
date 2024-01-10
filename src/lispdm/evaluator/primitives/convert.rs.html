@@ -233,12 +233,16 @@
 <a href="#233" id="233">233</a>
 <a href="#234" id="234">234</a>
 <a href="#235" id="235">235</a>
+<a href="#236" id="236">236</a>
+<a href="#237" id="237">237</a>
+<a href="#238" id="238">238</a>
+<a href="#239" id="239">239</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::{cell::RefCell, rc::Rc};
 
 <span class="kw">use </span><span class="kw">super</span>::utils::define_procedures;
 <span class="kw">use crate</span>::{
     evaluator::{error::runtime_error, EnvRef},
-    expr::{Arity, Expr, Exprs, ProcedureResult, ProcedureReturn, list::List, proc_result_value},
+    expr::{proc_result_value, Arity, Expr, Exprs, ProcedureResult},
 };
 
 <span class="macro">define_procedures! </span>{
@@ -284,7 +288,7 @@
         }
     };
 
-    <span class="prelude-val">Ok</span>(result).map(ProcedureReturn::Value)
+    <span class="macro">proc_result_value!</span>(result)
 }
 
 <span class="kw">trait </span>ToRadix {
@@ -293,7 +297,7 @@
 
 <span class="kw">impl </span>ToRadix <span class="kw">for </span>i64 {
     <span class="kw">fn </span>to_string_radix(<span class="kw-2">&amp;</span><span class="self">self</span>, radix: u32) -&gt; String {
-        <span class="kw">if </span>radix &lt; <span class="number">2 </span>|| radix &gt; <span class="number">36 </span>{
+        <span class="kw">if </span>!(<span class="number">2</span>..=<span class="number">36</span>).contains(<span class="kw-2">&amp;</span>radix) {
             <span class="macro">panic!</span>(<span class="string">&quot;Radix out of range: {}&quot;</span>, radix);
         }
 
@@ -357,7 +361,7 @@
         }
     };
 
-    <span class="prelude-val">Ok</span>(result).map(ProcedureReturn::Value)
+    <span class="macro">proc_result_value!</span>(result)
 }
 
 <span class="kw">fn </span>char_to_integer_fn(<span class="kw-2">mut </span>args: Exprs, _env: <span class="kw-2">&amp;mut </span>EnvRef) -&gt; ProcedureResult {
@@ -372,7 +376,7 @@
         }
     };
 
-    <span class="prelude-val">Ok</span>(Expr::Integer(unicode_code_point)).map(ProcedureReturn::Value)
+    <span class="macro">proc_result_value!</span>(Expr::Integer(unicode_code_point))
 }
 
 <span class="kw">fn </span>integer_to_char_fn(<span class="kw-2">mut </span>args: Exprs, _env: <span class="kw-2">&amp;mut </span>EnvRef) -&gt; ProcedureResult {
@@ -395,7 +399,7 @@
         }
     };
 
-    <span class="prelude-val">Ok</span>(Expr::Char(character)).map(ProcedureReturn::Value)
+    <span class="macro">proc_result_value!</span>(Expr::Char(character))
 }
 
 <span class="kw">fn </span>string_to_list_fn(<span class="kw-2">mut </span>args: Exprs, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>EnvRef) -&gt; ProcedureResult {
@@ -435,13 +439,9 @@
         <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">runtime_error!</span>(<span class="string">&quot;string-&gt;list: indices are out of bounds&quot;</span>));
     }
 
-    <span class="kw">let </span>result_list: Exprs = string[start..end]
-        .chars()
-        .map(|c| Expr::Char(c))
-        .collect();
+    <span class="kw">let </span>result_list: Exprs = string[start..end].chars().map(Expr::Char).collect();
 
-    <span class="prelude-val">Ok</span>(Expr::List(List::new_proper(result_list)))
-        .map(ProcedureReturn::Value)
+    <span class="macro">proc_result_value!</span>(Expr::new_proper_list(result_list))
 }
 
 <span class="kw">fn </span>symbol_to_string_fn(<span class="kw-2">mut </span>args: Exprs, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>EnvRef) -&gt; ProcedureResult {
@@ -449,7 +449,11 @@
 
     <span class="kw">let </span>symbol_str = <span class="kw">match </span>expr {
         Expr::Symbol(sym) =&gt; sym.to_string(),
-        <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">runtime_error!</span>(<span class="string">&quot;symbol-&gt;string expected a symbol as its argument&quot;</span>)),
+        <span class="kw">_ </span>=&gt; {
+            <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">runtime_error!</span>(
+                <span class="string">&quot;symbol-&gt;string expected a symbol as its argument&quot;
+            </span>))
+        }
     };
 
     <span class="macro">proc_result_value!</span>(Expr::String(Rc::new(RefCell::new(symbol_str))))
@@ -463,7 +467,11 @@
             <span class="kw">let </span>string_value = string_expr.borrow().clone();
             Expr::Symbol(string_value)
         }
-        <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">runtime_error!</span>(<span class="string">&quot;string-&gt;symbol expected a string as its argument&quot;</span>)),
+        <span class="kw">_ </span>=&gt; {
+            <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">runtime_error!</span>(
+                <span class="string">&quot;string-&gt;symbol expected a string as its argument&quot;
+            </span>))
+        }
     };
 
     <span class="macro">proc_result_value!</span>(symbol)

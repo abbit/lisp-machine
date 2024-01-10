@@ -360,7 +360,7 @@
     <span class="kw">let </span>k = args.pop_front().unwrap().into_integer().map_err(|<span class="kw">_</span>| <span class="macro">runtime_error!</span>(<span class="string">&quot;make-string expected an integer as its first argument&quot;</span>))<span class="question-mark">?</span>;
     
     <span class="kw">if </span>args.is_empty() {
-        <span class="kw">let </span>result_string: String = std::iter::repeat(<span class="string">&#39;#&#39;</span>).take(k <span class="kw">as </span>usize).collect();
+        <span class="kw">let </span>result_string: String = <span class="string">&quot;#&quot;</span>.repeat(k <span class="kw">as </span>usize);
         <span class="macro">proc_result_value!</span>(Expr::String(Rc::new(RefCell::new(result_string))))
     } <span class="kw">else </span>{
         <span class="kw">let </span>char_arg = args.pop_front().unwrap().into_char().map_err(|<span class="kw">_</span>| <span class="macro">runtime_error!</span>(<span class="string">&quot;make-string expected a character as its second argument&quot;</span>))<span class="question-mark">?</span>;
@@ -465,7 +465,7 @@
     <span class="kw">let </span>from_chars = from.borrow().chars().collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
 
     <span class="kw">if </span>args.is_empty() {
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(char_from) = from_chars.get(<span class="number">0</span>) {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(char_from) = from_chars.first() {
             to_string.replace_range(at..(at + <span class="number">1</span>), <span class="kw-2">&amp;</span>char_from.to_string());
         } <span class="kw">else </span>{
             <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">runtime_error!</span>(<span class="string">&quot;string-copy! source string is empty&quot;</span>));

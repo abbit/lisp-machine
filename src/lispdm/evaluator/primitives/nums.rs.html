@@ -676,7 +676,7 @@
             )),
         })<span class="question-mark">?</span>;
 
-    <span class="prelude-val">Ok</span>(Expr::Float(min_value)).map(ProcedureReturn::Value)
+    <span class="macro">proc_result_value!</span>(Expr::Float(min_value))
 }
 
 <span class="kw">fn </span>max_fn(args: Exprs, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>EnvRef) -&gt; ProcedureResult {
@@ -691,7 +691,7 @@
             )),
         })<span class="question-mark">?</span>;
 
-    <span class="prelude-val">Ok</span>(Expr::Float(max_value)).map(ProcedureReturn::Value)
+    <span class="macro">proc_result_value!</span>(Expr::Float(max_value))
 }
 
 <span class="kw">fn </span>floor_fn(args: Exprs, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>EnvRef) -&gt; ProcedureResult {
