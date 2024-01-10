@@ -1,5 +1,3 @@
-use std::usize;
-
 use super::error::{runtime_error, EvalError};
 use crate::expr::{Arity, Expr, Exprs};
 

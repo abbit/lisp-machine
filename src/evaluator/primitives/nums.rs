@@ -226,7 +226,7 @@ fn expt_fn(args: Exprs, _: &mut EnvRef) -> ProcedureResult {
 fn min_fn(args: Exprs, _: &mut EnvRef) -> ProcedureResult {
     let min_value = args
         .into_iter()
-        .try_fold(std::f64::INFINITY, |acc, arg| match arg {
+        .try_fold(f64::INFINITY, |acc, arg| match arg {
             Expr::Integer(n) => Ok(acc.min(n as f64)),
             Expr::Float(f) => Ok(acc.min(f)),
             _ => Err(runtime_error!(
@@ -241,7 +241,7 @@ fn min_fn(args: Exprs, _: &mut EnvRef) -> ProcedureResult {
 fn max_fn(args: Exprs, _: &mut EnvRef) -> ProcedureResult {
     let max_value = args
         .into_iter()
-        .try_fold(std::f64::NEG_INFINITY, |acc, arg| match arg {
+        .try_fold(f64::NEG_INFINITY, |acc, arg| match arg {
             Expr::Integer(n) => Ok(acc.max(n as f64)),
             Expr::Float(f) => Ok(acc.max(f)),
             _ => Err(runtime_error!(
