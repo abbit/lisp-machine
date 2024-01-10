@@ -189,7 +189,7 @@
 	- [x] `apply`
 	- [x] `eval`
 	- [x] `map`
-	- [ ] `string-map`
+	- [x] `string-map`
 	- [x] `for-each`
 	- [ ] `string-for-each`
 - [ ] ports:

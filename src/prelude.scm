@@ -112,6 +112,12 @@
     (cons (apply proc (map1 car lists))
           (apply map proc (map1 cdr lists))))) 
 
+(define (string-map proc str)
+  (if (string=? str "")
+      ""
+      (string-append (string (proc (string-ref str 0)))
+                     (string-map proc (substring str 1 (string-length str))))))
+
 (define (for-each fn . lists)
   (apply map fn lists))
 
