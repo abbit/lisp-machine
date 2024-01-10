@@ -59,12 +59,20 @@
 <a href="#59" id="59">59</a>
 <a href="#60" id="60">60</a>
 <a href="#61" id="61">61</a>
+<a href="#62" id="62">62</a>
+<a href="#63" id="63">63</a>
+<a href="#64" id="64">64</a>
+<a href="#65" id="65">65</a>
+<a href="#66" id="66">66</a>
+<a href="#67" id="67">67</a>
+<a href="#68" id="68">68</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">super</span>::utils::define_procedures;
 <span class="kw">use crate</span>::{
     evaluator::{error::runtime_error, EnvRef},
     expr::{proc_result_value, Arity, Expr, Exprs, ProcedureResult},
     parser,
 };
+<span class="kw">use </span>std::time::{SystemTime, UNIX_EPOCH};
 
 <span class="macro">define_procedures! </span>{
     read = (<span class="string">&quot;read&quot;</span>, read_fn, Arity::Exact(<span class="number">0</span>)),
@@ -72,6 +80,7 @@
     display = (<span class="string">&quot;display&quot;</span>, display_fn, Arity::Exact(<span class="number">1</span>)),
     newline = (<span class="string">&quot;newline&quot;</span>, newline_fn, Arity::Exact(<span class="number">0</span>)),
     exit = (<span class="string">&quot;exit&quot;</span>, exit_fn, Arity::Exact(<span class="number">0</span>)),
+    current_second = (<span class="string">&quot;current-second&quot;</span>, current_second_fn, Arity::Exact(<span class="number">0</span>)),
 }
 
 <span class="kw">fn </span>exit_fn(<span class="kw">_</span>: Exprs, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>EnvRef) -&gt; ProcedureResult {
@@ -120,4 +129,8 @@
     <span class="macro">println!</span>();
     <span class="macro">proc_result_value!</span>(Expr::Void)
 }
-</code></pre></div></section></main></body></html>
+
+<span class="kw">fn </span>current_second_fn(<span class="kw">_</span>: Exprs, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>EnvRef) -&gt; ProcedureResult {
+    <span class="kw">let </span>current_time = SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs_f64();
+    <span class="macro">proc_result_value!</span>(Expr::Float(current_time))
+}</code></pre></div></section></main></body></html>

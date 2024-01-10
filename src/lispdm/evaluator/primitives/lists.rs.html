@@ -78,19 +78,32 @@
 <a href="#78" id="78">78</a>
 <a href="#79" id="79">79</a>
 <a href="#80" id="80">80</a>
+<a href="#81" id="81">81</a>
+<a href="#82" id="82">82</a>
+<a href="#83" id="83">83</a>
+<a href="#84" id="84">84</a>
+<a href="#85" id="85">85</a>
+<a href="#86" id="86">86</a>
+<a href="#87" id="87">87</a>
+<a href="#88" id="88">88</a>
+<a href="#89" id="89">89</a>
+<a href="#90" id="90">90</a>
+<a href="#91" id="91">91</a>
+<a href="#92" id="92">92</a>
+<a href="#93" id="93">93</a>
+<a href="#94" id="94">94</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">super</span>::utils::define_procedures;
 <span class="kw">use crate</span>::{
     evaluator::{error::runtime_error, EnvRef},
-    expr::{proc_result_value, Arity, Expr, Exprs, ListKind, ProcedureResult},
-    exprs,
+    expr::{proc_result_value, Arity, Expr, Exprs, ListKind, ProcedureResult, list::List}, exprs,
 };
 
 <span class="macro">define_procedures! </span>{
     cons = (<span class="string">&quot;cons&quot;</span>, cons_fn, Arity::Exact(<span class="number">2</span>)),
     car_ = (<span class="string">&quot;car&quot;</span>, car_fn, Arity::Exact(<span class="number">1</span>)),
     cdr_ = (<span class="string">&quot;cdr&quot;</span>, cdr_fn, Arity::Exact(<span class="number">1</span>)),
-    list_ = (<span class="string">&quot;list&quot;</span>, list_fn, Arity::Any),
-    is_null = (<span class="string">&quot;null?&quot;</span>, null_fn, Arity::Exact(<span class="number">1</span>)),
+    make_list = (<span class="string">&quot;make-list&quot;</span>, make_list_fn, Arity::AtLeast(<span class="number">1</span>)), 
+    list_copy = (<span class="string">&quot;list-copy&quot;</span>, list_copy_fn, Arity::Exact(<span class="number">1</span>)),
 }
 
 <span class="kw">fn </span>cons_fn(<span class="kw-2">mut </span>args: Exprs, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>EnvRef) -&gt; ProcedureResult {
@@ -145,17 +158,32 @@
     <span class="macro">proc_result_value!</span>(res)
 }
 
-<span class="kw">fn </span>list_fn(args: Exprs, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>EnvRef) -&gt; ProcedureResult {
-    <span class="macro">proc_result_value!</span>(Expr::new_proper_list(args))
+<span class="kw">fn </span>make_list_fn(<span class="kw-2">mut </span>args: Exprs, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>EnvRef) -&gt; ProcedureResult {
+    <span class="kw">let </span>k = args.pop_front().unwrap().into_integer().map_err(|<span class="kw">_</span>| {
+        <span class="macro">runtime_error!</span>(<span class="string">&quot;make-list expected an integer as its first argument&quot;</span>)
+    })<span class="question-mark">?</span>;
+
+    <span class="kw">if </span>args.is_empty() {
+        <span class="kw">let </span>list = std::iter::repeat(Expr::Integer(<span class="number">0</span>)).take(k <span class="kw">as </span>usize).collect::&lt;Exprs&gt;();
+        <span class="macro">proc_result_value!</span>(Expr::List(List::new_proper(list)))
+    } <span class="kw">else </span>{
+        <span class="kw">let </span>fill = args.pop_front().unwrap();
+        <span class="kw">let </span>list = std::iter::repeat(fill.clone()).take(k <span class="kw">as </span>usize).collect::&lt;Exprs&gt;();
+        <span class="macro">proc_result_value!</span>(Expr::List(List::new_proper(list)))
+    }
 }
 
-<span class="kw">fn </span>null_fn(<span class="kw-2">mut </span>args: Exprs, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>EnvRef) -&gt; ProcedureResult {
-    <span class="kw">let </span>res = args
-        .pop_front()
-        .unwrap()
-        .into_list()
-        .map_or(<span class="bool-val">false</span>, |list| list.is_empty());
+<span class="kw">fn </span>list_copy_fn(<span class="kw-2">mut </span>args: Exprs, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>EnvRef) -&gt; ProcedureResult {
+    <span class="kw">let </span>obj = args.pop_front().unwrap();
 
-    <span class="macro">proc_result_value!</span>(Expr::Boolean(res))
+    <span class="kw">let </span>copy_list = <span class="kw">match </span>obj {
+        Expr::List(original_list) =&gt; {
+            <span class="kw">let </span>cloned_elements: Exprs = original_list.iter().cloned().collect();
+            Expr::List(List::new_proper(cloned_elements))
+        }
+        <span class="kw">_ </span>=&gt; obj,
+    };
+
+    <span class="macro">proc_result_value!</span>(copy_list)
 }
 </code></pre></div></section></main></body></html>
