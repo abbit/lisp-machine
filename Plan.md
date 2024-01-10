@@ -73,169 +73,168 @@
 Функции стандартной библиотеки, которые нельзя выразить через другие реализовываются на Rust.
 Остальные должны быть реализованы на Scheme.
 
-- [ ] equivalence predicates:
-  - [ ] `eqv?`
-  - [ ] `eq?`
-  - [ ] `equal?`
-- [ ] numbers:
-  - [ ] `number?`
-  - [x] `+`
-  - [x] `-`
-  - [x] `*`
-  - [x] `/`
-  - [x] `=`
-  - [x] `<`
-  - [x] `>`
-  - [x] `<=`
-  - [x] `>=`
-  - [ ] `integer?`
-  - [ ] `real?`
-  - [ ] `zero?`
-  - [ ] `positive?`
-  - [ ] `negative?`
-  - [ ] `odd?`
-  - [ ] `even?`
-  - [ ] `abs`
-  - [ ] `min`
-  - [ ] `max`
-  - [ ] `modulo`
-  - [ ] `quotient`
-  - [ ] `remainder`
-  - [ ] `floor`
-  - [ ] `ceiling`
-  - [ ] `truncate`
-  - [ ] `round`
-  - [ ] `square`
-  - [ ] `sqrt`
-  - [ ] `expt`
-  - [ ] `number->string`
-  - [ ] `string->number`
-- [ ] booleans:
-  - [ ] `boolean?`
-  - [x] `not`
-  - [x] `and`
-  - [x] `or`
-- [ ] pairs and lists:
-  - [ ] `pair?`
-  - [x] `cons`
-  - [x] `car`
-  - [x] `cdr`
-  - [x] `caar`
-  - [x] `cadr`
-  - [x] `cdar`
-  - [x] `cddr`
-  - [x] `caaar`, `caadr`, ..., `cddar`, `cdddr`
-  - [x] `null?`
-  - [ ] `list?`
-  - [ ] `make-list`
-  - [x] `list`
-  - [ ] `length`
-  - [ ] `append`
-  - [ ] `reverse`
-  - [ ] `list-tail`
-  - [ ] `list-ref`
-  - [ ] `memq`
-  - [ ] `memv`
-  - [ ] `member`
-  - [ ] `assq`
-  - [ ] `assv`
-  - [ ] `assoc`
-  - [ ] `list-copy`
-- [ ] symbols:
-  - [ ] `symbol?`
-  - [ ] `symbol->string`
-  - [ ] `string->symbol`
-- [ ] characters:
-  - [ ] `char?`
-  - [ ] `char=?`
-  - [ ] `char<?`
-  - [ ] `char>?`
-  - [ ] `char<=?`
-  - [ ] `char>=?`
-  - [ ] `char-alphabetic?`
-  - [ ] `char-numeric?`
-  - [ ] `char-whitespace?`
-  - [ ] `char-upper-case?`
-  - [ ] `char-lower-case?`
-  - [ ] `digit-value`
-  - [ ] `char->integer`
-  - [ ] `integer->char`
-  - [ ] `char-upcase`
-  - [ ] `char-downcase`
-  - [ ] `char-foldcase`
-- [ ] strings:
-  - [ ] `string?`
-  - [ ] `string=?`
-  - [ ] `string<?`
-  - [ ] `string>?`
-  - [ ] `string<=?`
-  - [ ] `string>=?`
-  - [ ] `make-string`
-  - [ ] `string`
-  - [ ] `string-length`
-  - [ ] `string-ref`
-  - [x] `string-set!`
-  - [ ] `string-upcase`
-  - [ ] `string-downcase`
-  - [ ] `string-foldcase`
-  - [ ] `substring`
-  - [ ] `string-append`
-  - [ ] `string->list`
-  - [ ] `list->string`
-  - [ ] `string-copy`
-  - [ ] `string-copy!`
-  - [ ] `string-fill!`
-- [ ] controls:
-  - [ ] `procedure?`
-  - [x] `apply`
-  - [x] `eval`
-  - [x] `map`
-  - [ ] `string-map`
-  - [ ] `for-each`
-  - [ ] `string-for-each`
+- [x] equivalence predicates:
+	- [x] `eqv?`
+	- [x] `eq?`
+	- [x] `equal?`
+- [x] numbers:
+	- [x] `number?`
+	- [x] `+`
+	- [x] `-`
+	- [x] `*`
+	- [x] `/`
+    - [x] `=`
+    - [x] `<`
+    - [x] `>`
+    - [x] `<=`
+    - [x] `>=`
+	- [x] `integer?`
+	- [x] `zero?`
+	- [x] `positive?`
+	- [x] `negative?`
+	- [x] `odd?`
+	- [x] `even?`
+	- [x] `abs`
+	- [x] `min`
+	- [x] `max`
+	- [x] `modulo`
+	- [x] `quotient`
+	- [x] `remainder`
+	- [x] `floor`
+	- [x] `ceiling`
+	- [x] `truncate`
+	- [x] `round`
+	- [x] `square`
+	- [x] `sqrt`
+	- [x] `expt`
+	- [x] `number->string`
+	- [x] `string->number`
+- [x] booleans:
+	- [x] `boolean?`
+	- [x] `not`
+    - [x] `and`
+    - [x] `or`
+- [x] pairs and lists:
+	- [x] `pair?`
+	- [x] `cons`
+	- [x] `car`
+	- [x] `cdr`
+	- [x] `caar`
+	- [x] `cadr`
+	- [x] `cdar`
+	- [x] `cddr`
+	- [x] `caaar`, `caadr`, ..., `cddar`, `cdddr`
+	- [x] `null?`
+	- [x] `list?`
+	- [x] `make-list`
+	- [x] `list`
+	- [x] `length`
+	- [x] `append`
+	- [x] `reverse`
+	- [x] `list-tail`
+	- [x] `list-ref`
+	- [x] `memq`
+	- [x] `memv`
+	- [x] `member`
+	- [x] `assq`
+	- [x] `assv`
+	- [x] `assoc`
+	- [x] `list-copy`
+- [x] symbols:
+	- [x] `symbol?`
+	- [x] `symbol->string`
+	- [x] `string->symbol`
+- [x] characters:
+	- [x] `char?`
+    - [x] `char=?`
+    - [x] `char<?`
+    - [x] `char>?`
+    - [x] `char<=?`
+    - [x] `char>=?`
+	- [x] `char-alphabetic?`
+	- [x] `char-numeric?`
+	- [x] `char-whitespace?`
+	- [x] `char-upper-case?`
+	- [x] `char-lower-case?`
+	- [x] `digit-value`
+	- [x] `char->integer`
+	- [x] `integer->char`
+	- [x] `char-upcase`
+	- [x] `char-downcase`
+	- [x] `char-foldcase`
+- [x] strings:
+	- [x] `string?`
+    - [x] `string=?`
+    - [x] `string<?`
+    - [x] `string>?`
+    - [x] `string<=?`
+    - [x] `string>=?`
+	- [x] `make-string`
+	- [x] `string`
+	- [x] `string-length`
+	- [x] `string-ref`
+	- [x] `string-set!`
+	- [x] `string-upcase`
+	- [x] `string-downcase`
+	- [x] `string-foldcase`
+	- [x] `substring`
+	- [x] `string-append`
+	- [x] `string->list`
+	- [x] `list->string`
+	- [x] `string-copy`
+    - [x] `string-copy!`
+    - [x] `string-fill!`
+- [x] controls:
+	- [x] `procedure?`
+	- [x] `apply`
+	- [x] `eval`
+	- [x] `map`
+	- [x] `string-map`
+	- [x] `for-each`
+	- [x] `string-for-each`
 - [ ] ports:
-  - [ ] `port?`
-  - [ ] `call-with-port`
-  - [ ] `call-with-input-file`
-  - [ ] `call-with-output-file`
-  - [ ] `input-port?`
-  - [ ] `output-port?`
-  - [ ] `input-port-open?`
-  - [ ] `output-port-open?`
-  - [ ] `current-input-port`
-  - [ ] `current-output-port`
-  - [ ] `current-error-port`
-  - [ ] `open-input-file`
-  - [ ] `open-output-file`
-  - [ ] `close-port`
-  - [ ] `close-input-port`
-  - [ ] `close-output-port`
-  - [ ] `open-input-string`
-  - [ ] `open-output-string`
-  - [ ] `get-output-string`
-  - [x] `read`
-  - [ ] `read-char`
-  - [ ] `peek-char`
-  - [ ] `read-line`
-  - [ ] `eof-object?`
-  - [ ] `eof-object`
-  - [ ] `char-ready?`
-  - [ ] `read-string`
-  - [ ] `write`
-  - [x] `display`
-  - [x] `newline`
-  - [ ] `write-char`
-  - [ ] `write-string`
-  - [ ] `flush-output-port`
+	- [ ] `port?`
+	- [ ] `call-with-port`
+	- [ ] `call-with-input-file`
+	- [ ] `call-with-output-file`
+	- [ ] `input-port?`
+	- [ ] `output-port?`
+	- [ ] `input-port-open?`
+	- [ ] `output-port-open?`
+	- [ ] `current-input-port`
+	- [ ] `current-output-port`
+	- [ ] `current-error-port`
+	- [ ] `open-input-file`
+	- [ ] `open-output-file`
+	- [ ] `close-port`
+	- [ ] `close-input-port`
+	- [ ] `close-output-port`
+	- [ ] `open-input-string`
+	- [ ] `open-output-string`
+	- [ ] `get-output-string`
+	- [x] `read`
+	- [ ] `read-char`
+	- [ ] `peek-char`
+	- [ ] `read-line`
+	- [ ] `eof-object?`
+	- [ ] `eof-object`
+	- [ ] `char-ready?`
+	- [ ] `read-string`
+	- [ ] `write`
+	- [x] `display`
+	- [x] `newline`
+	- [ ] `write-char`
+	- [ ] `write-string`
+	- [ ] `flush-output-port`
 - [ ] system interface:
-  - [x] `load`
-  - [ ] `file-exists?`
-  - [ ] `delete-file`
-  - [ ] `command-line`
-  - [x] `exit`
-  - [ ] `get-environment-variable`
-  - [ ] `get-environment-variables`
-  - [ ] `current-second`
+	- [x] `load`
+	- [ ] `file-exists?`
+	- [ ] `delete-file`
+	- [ ] `command-line`
+	- [x] `exit`
+	- [ ] `get-environment-variable`
+	- [ ] `get-environment-variables`
+	- [x] `current-second`
 
 ## Дополнительные требования:
 

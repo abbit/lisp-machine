@@ -1,4 +1,4 @@
-use super::primitives::{equal, eval, forms, lists, macros, modularity, nums, strings, system};
+use super::primitives::{eval, forms, lists, modularity, nums, system, convert, booleans, types, chars, equal, strings, macros};
 use crate::expr::{Expr, FromExpr, FromExprResult, Procedure};
 use core::fmt;
 use std::{cell::RefCell, collections::HashMap, path::PathBuf, rc::Rc};
@@ -124,12 +124,14 @@ impl EnvRef {
         self.0.borrow().has(name)
     }
 
+
     /// Checks if `self` contains a macro with `name`.
     pub fn has_macro(&self, name: &str) -> bool {
         self.0.borrow().has_macro(name)
     }
 
     /// Returns the expression bound to `name`.
+
     /// If the no expression is found, returns [`None`].
     pub fn get_expr(&self, name: &str) -> Option<Expr> {
         self.0.borrow().get(name)
@@ -215,26 +217,83 @@ pub fn new_root_env() -> EnvRef {
         nums::less,
         nums::equal,
         nums::more,
+        nums::abs,
+        nums::sqrt,
+        nums::square,
+        nums::expt,
+        nums::min,
+        nums::max,
+        nums::round,
+        nums::truncate,
+        nums::ceiling,
+        nums::floor,
+        nums::is_integer,
+        nums::quotient,
+        nums::remainder,
+        nums::modulo,
+        // boolean
+        booleans::and,
+        booleans::or,
+        // equal
+        equal::eqv,
+        equal::eq,
+        equal::equal,
         // list operations
         lists::cons,
         lists::car_,
         lists::cdr_,
-        lists::list_,
+        lists::make_list,
+        lists::list_copy,
+        // type convertion
+        convert::number_to_string,
+        convert::string_to_number,
+        convert::char_to_integer,
+        convert::integer_to_char,
+        convert::string_to_list,
+        convert::symbol_to_string,
+        convert::string_to_symbol,
         // type checking
-        lists::is_null,
-        // "pair?" => builtin::is_pair,
-        // "number?" => builtin::is_number,
-        // "symbol?" => builtin::is_symbol,
-        // "string?" => builtin::is_string,
-        // "boolean?" => builtin::is_boolean,
-        // "procedure?" => builtin::is_procedure,
+        types::is_pair,
+        types::is_number,
+        types::is_symbol,
+        types::is_string,
+        types::is_procedure,
+        types::is_char,
         // system interaction
         system::read,
         system::read_line,
         system::display,
         system::newline,
         system::exit,
+        system::current_second,
+        //strings
         strings::string_set,
+        strings::string_eq,
+        strings::string_lt,
+        strings::string_gt,
+        strings::string_le,
+        strings::string_ge,
+        strings::make_string,
+        strings::_string,
+        strings::string_length,
+        strings::substring,
+        strings::string_upcase,
+        strings::string_downcase,
+        strings::string_foldcase,
+        strings::string_ref,
+        strings::string_append,
+        strings::string_copy_,
+        strings::string_fill,
+        // chars
+        chars::char_upcase,
+        chars::char_downcase,
+        chars::char_foldcase,
+        chars::is_char_whitespace,
+        chars::is_char_upper_case,
+        chars::is_char_lower_case,
+        chars::is_char_alphabetic,
+        chars::is_char_numeric,
+        chars::digit_value,
     }
 
     env

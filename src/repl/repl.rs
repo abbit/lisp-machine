@@ -33,7 +33,6 @@ pub fn start(mut engine: Engine) {
                 if input.trim().is_empty() {
                     continue;
                 }
-
                 match engine.eval::<Expr>(&input) {
                     Ok(expr) => {
                         println!("{}", expr.unwrap());

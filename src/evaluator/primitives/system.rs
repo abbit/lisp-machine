@@ -4,6 +4,7 @@ use crate::{
     expr::{proc_result_value, Arity, Expr, Exprs, ProcedureResult},
     parser,
 };
+use std::time::{SystemTime, UNIX_EPOCH};
 
 define_procedures! {
     read = ("read", read_fn, Arity::Exact(0)),
@@ -11,6 +12,7 @@ define_procedures! {
     display = ("display", display_fn, Arity::Exact(1)),
     newline = ("newline", newline_fn, Arity::Exact(0)),
     exit = ("exit", exit_fn, Arity::Exact(0)),
+    current_second = ("current-second", current_second_fn, Arity::Exact(0)),
 }
 
 fn exit_fn(_: Exprs, _: &mut EnvRef) -> ProcedureResult {
@@ -58,4 +60,9 @@ fn display_fn(args: Exprs, _: &mut EnvRef) -> ProcedureResult {
 fn newline_fn(_: Exprs, _: &mut EnvRef) -> ProcedureResult {
     println!();
     proc_result_value!(Expr::Void)
+}
+
+fn current_second_fn(_: Exprs, _: &mut EnvRef) -> ProcedureResult {
+    let current_time = SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs_f64();
+    proc_result_value!(Expr::Float(current_time))
 }

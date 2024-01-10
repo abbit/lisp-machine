@@ -1,11 +1,21 @@
-(define eq? eqv?)
-
+; equals
 (define (not x) (if x #f #t))
 
-(define (zero? x) (= x 0))
+; math
+(define (zero? x) (= 0 x))
+(define (positive? x) (> x 0))
+(define (negative? x) (< x 0))
+(define (even? x)
+  (and (integer? x)
+       (zero? (modulo x 2))))
+(define (odd? x)
+  (and (integer? x)
+       (not (zero? (modulo x 2)))))
 
-(define (list . args) args)
+; bool
+(define (boolean? x) (if (eq? x #t) #t (eq? x #f)))
 
+; lists and pairs
 (define (caar x) (car (car x)))
 (define (cadr x) (car (cdr x)))
 (define (cdar x) (cdr (car x)))
@@ -35,6 +45,49 @@
 (define (cdddar x) (cdr (cdr (cdr (car x)))))
 (define (cddddr x) (cdr (cdr (cdr (cdr x)))))
 
+(define (null? x) (equal? x '()))
+
+(define (list? x)
+  (if (pair? x)
+      (list? (cdr x))
+      (null? x)))
+
+(define (length ls)
+  (define (length* ls acc)
+    (if (null? ls)
+        acc
+        (length* (cdr ls) (+ 1 acc))))
+  (length* ls 0))
+
+(define (acc-reverse l acc)
+  (if (null? l)
+      acc
+      (acc-reverse (cdr l) (cons (car l) acc))))
+(define (reverse l)
+  (acc-reverse l '()))
+
+(define (append2 l res)
+  (if (null? l)
+      res
+      (append2 (cdr l) (cons (car l) res))))
+(define (append-helper ls res)
+  (if (null? ls)
+      res
+      (append-helper (cdr ls) (append2 (reverse (car ls)) res))))
+(define (append . o)
+  (if (null? o)
+      '()
+      ((lambda (lol)
+         (append-helper (cdr lol) (car lol)))
+       (reverse o))))
+
+(define (list-tail l k)
+  (if (zero? k)
+      l
+      (list-tail (cdr l) (- k 1))))
+(define (list-ref l k)
+  (car (list-tail l k)))
+
 (define (mem predicate obj ls)
   (if (null? ls)
       #f
@@ -47,8 +100,6 @@
   (mem eqv? obj ls))
 (define (member obj ls)
   (mem equal? obj ls))
-
-
 
 (define-macro (and . args)
     (if (null? args)
@@ -78,8 +129,61 @@
   (if (null? (car lists))
     '()
     (cons (apply proc (map1 car lists))
-          (apply map proc (map1 cdr lists)))))
+          (apply map proc (map1 cdr lists))))) 
 
+(define (string-map proc str)
+  (if (string=? str "")
+      ""
+      (string-append (string (proc (string-ref str 0)))
+                     (string-map proc (substring str 1 (string-length str))))))
+
+(define (for-each fn . lists)
+  (apply map fn lists))
+
+(define (string-for-each proc . strings)
+  (define (process-chars chars)
+    (if (null? (car chars))
+        '()
+        (begin
+          (apply proc (map car chars))
+          (process-chars (map cdr chars)))))
+  (if (null? strings)
+      '()
+      (let ((char-lists (map string->list strings)))
+        (process-chars char-lists))))
+
+(define (ass predicate obj ls)
+  (if (null? ls)
+      #f
+      (if (predicate obj (caar ls))
+          (car ls)
+          (ass predicate obj (cdr ls)))))
+(define (assq obj ls)
+  (ass eq? obj ls))
+(define (assv obj ls)
+  (ass eqv? obj ls))
+(define (assoc obj ls)
+  (ass equal? obj ls))
+
+; chars
+(define (char=? . c)
+  (apply = (map char->integer c)))
+(define (char<? . c)
+  (apply < (map char->integer c)))
+(define (char>? . c)
+  (apply > (map char->integer c)))
+(define (char<=? . c)
+  (apply <= (map char->integer c)))
+(define (char>=? . c)
+  (apply >= (map char->integer c)))
+
+; strings
+(define (string-copy string)
+  (substring string 0 (string-length string)))
+(define (list->string lst)
+  (apply string lst))
+
+; special forms
 (define-macro (when test . body) `(if ,test (begin ,@body)))
 (define-macro (unless test . body) `(if (not ,test) (begin ,@body)))
 
