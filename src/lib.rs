@@ -1,3 +1,4 @@
+#![warn(missing_docs)]
 //! LispDM is a Scheme interpreter. Currently, it supports only a subset of Scheme.
 //! ```
 //! use lispdm::Engine;
