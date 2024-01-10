@@ -90,7 +90,8 @@ pub fn eval_exprs_with_tailcall(exprs: Exprs, env: &mut EnvRef) -> ProcedureResu
 }
 
 pub fn eval_expr(expr: Expr, env: &mut EnvRef) -> EvalResult {
-    let original_expr = expr.clone();
+    #[cfg(debug_assertions)]
+    let original_expr = expr.clone(); // for debug purposes
     debug!("eval_expr: {}", expr);
     let expr = expand_macros(expr, env)?;
     let evaluated = eval_expanded_expr(expr, env)?;

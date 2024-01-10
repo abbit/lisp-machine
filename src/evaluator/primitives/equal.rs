@@ -3,8 +3,8 @@ use std::rc::Rc;
 use super::utils::define_procedures;
 use crate::{
     evaluator::EnvRef,
-    expr::{Arity, Expr, Exprs, ProcedureResult, proc_result_value},
-    expr::list::List
+    expr::list::List,
+    expr::{proc_result_value, Arity, Expr, Exprs, ProcedureResult},
 };
 
 define_procedures! {

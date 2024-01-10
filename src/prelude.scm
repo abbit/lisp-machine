@@ -101,11 +101,30 @@
 (define (member obj ls)
   (mem equal? obj ls))
 
- (define (map1 proc lst)
+(define-macro (and . args)
+    (if (null? args)
+      #t
+      (if (null? (cdr args))
+        `(if ,(car args) ,(car args) #f)
+        (let ((tmp (gensym)))
+          `(let ((,tmp ,(car args)))
+             (if ,tmp (and ,@(cdr args)) ,tmp))))))
+
+(define-macro (or . args)
+    (if (null? args)
+      #f
+      (if (null? (cdr args))
+        `(if ,(car args) ,(car args) #f)
+        (let ((tmp (gensym)))
+          `(let ((,tmp ,(car args)))
+             (if ,tmp ,tmp (or ,@(cdr args))))))))
+
+(define (map1 proc lst)
   (if (null? lst)
     '()
     (cons (proc (car lst))
           (map1 proc (cdr lst)))))
+
 (define (map proc . lists)
   (if (null? (car lists))
     '()
@@ -179,5 +198,9 @@
   (let ((tmp (gensym)))
     `(let ((,tmp ,key))
        (cond ,@(map (lambda (clause)
-                      `((memv ,tmp ',(car clause)) ,(cadr clause)))
+                      (if (eq? (car clause) 'else)
+                        (if (eq? (cadr clause) '=>)
+                          `(,tmp => ,(caddr clause))
+                          `(,tmp ,@(cdr clause)))
+                        `((if (memv ,tmp ',(car clause)) ,tmp #f) ,@(cdr clause))))
                     clauses)))))

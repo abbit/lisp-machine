@@ -68,6 +68,21 @@ impl Engine {
             .unwrap();
     }
 
+    /// Creates a new instance of [`Engine`] without loading the prelude.
+    ///
+    /// In this case the root environment will not contain some of the special forms and standard procedures.
+    ///
+    /// # Examples
+    /// ```
+    /// use lispdm::Engine;
+    /// let mut engine = Engine::new_without_prelude();
+    /// assert!(!engine.env().has("and"));
+    /// ```
+    pub fn new_without_prelude() -> Self {
+        let root_env = evaluator::new_root_env();
+        Self { root_env }
+    }
+
     /// Evaluates the given source code and returns the result.
     /// The result can be converted to any type that implements [`FromExpr`].
     ///

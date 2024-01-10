@@ -1,5 +1,4 @@
 use std::{cell::RefCell, rc::Rc};
-
 use super::utils::define_procedures;
 use crate::{
     evaluator::{error::runtime_error, EnvRef},

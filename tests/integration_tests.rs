@@ -1,5 +1,35 @@
 use lispdm::{exprs, Engine, Expr};
 
+macro_rules! assert_absent_in_env {
+    ($env:expr, $name:expr) => {
+        assert!(!$env.has($name));
+        assert!(!$env.has_macro($name));
+    };
+}
+
+#[test]
+fn ensure_special_forms_defined_in_scheme_prelude() {
+    let engine = Engine::new_without_prelude();
+    let env = engine.env();
+    assert_absent_in_env!(env, "let*");
+    assert_absent_in_env!(env, "letrec*");
+    assert_absent_in_env!(env, "case");
+    assert_absent_in_env!(env, "when");
+    assert_absent_in_env!(env, "unless");
+    assert_absent_in_env!(env, "and");
+    assert_absent_in_env!(env, "or");
+
+    let engine = Engine::default();
+    let env = engine.env();
+    assert!(env.has_macro("let*"));
+    assert!(env.has_macro("letrec*"));
+    assert!(env.has_macro("case"));
+    assert!(env.has_macro("when"));
+    assert!(env.has_macro("unless"));
+    assert!(env.has_macro("and"));
+    assert!(env.has_macro("or"));
+}
+
 #[test]
 fn eval_number() {
     let source = "1";
@@ -251,6 +281,69 @@ fn eval_cond_with_arrow_incorrect_args() {
 // ========================================================================
 
 #[test]
+fn eval_case_simple() {
+    let source = "(case (* 2 3) ((2 3 5 7) 'prime)
+                             ((1 4 6 8 9) 'composite))";
+    let mut engine = Engine::default();
+    let result = engine.eval::<Expr>(source).unwrap().unwrap();
+    assert_eq!(result, Expr::new_symbol("composite"));
+}
+
+#[test]
+fn eval_case_no_else() {
+    let source = "(case (car '(c d))
+        ((a) 'a)
+        ((b) 'b))";
+    let mut engine = Engine::default();
+    let result = engine.eval::<Expr>(source).unwrap().unwrap();
+    assert_eq!(result, Expr::Void);
+}
+
+#[test]
+fn eval_case_with_arrow() {
+    let source = "(case (car '(2 1))
+        ((1 3 5 7 9) => (lambda (x) (+ x 1)))
+        ((2 4 6 8) => (lambda (x) (* x 2))))";
+    let mut engine = Engine::default();
+    let result = engine.eval::<i64>(source).unwrap().unwrap();
+    assert_eq!(result, 4);
+}
+
+#[test]
+fn eval_case_else() {
+    let source = "(case 10 ((2 3 5 7) 'prime)
+                            ((1 4 6 8 9) 'composite)
+                            (else 'other))";
+    let mut engine = Engine::default();
+    let result = engine.eval::<Expr>(source).unwrap().unwrap();
+    assert_eq!(result, Expr::new_symbol("other"));
+}
+
+#[test]
+fn eval_case_else_single() {
+    let source = "(case (car '(c d))
+        (else => (lambda (x) x)))";
+    let mut engine = Engine::default();
+    let result = engine.eval::<Expr>(source).unwrap().unwrap();
+    assert_eq!(result, Expr::new_symbol("c"));
+}
+
+#[test]
+fn eval_case_else_with_arrow() {
+    let source = "(case (car '(c d))
+        ((a e i o u) 'vowel)
+        ((w y) 'semivowel)
+        (else => (lambda (x) x)))";
+    let mut engine = Engine::default();
+    let result = engine.eval::<Expr>(source).unwrap().unwrap();
+    assert_eq!(result, Expr::new_symbol("c"));
+}
+
+// ========================================================================
+//                           `do` tests
+// ========================================================================
+
+#[test]
 fn eval_do_simple() {
     let source = "(do ((i 0 (+ i 1))
                              (sum 0 (+ sum i)))
@@ -487,6 +580,113 @@ fn eval_lambda_with_mixed_params() {
             Expr::new_proper_list(exprs![Expr::Integer(2), Expr::Integer(3)])
         ])
     )
+}
+
+#[test]
+fn eval_lambda_with_multiple_body_exprs() {
+    let source = "((lambda (x) (define y 1) (set! y 10) (+ x y)) 1)";
+    let mut engine = Engine::default();
+    let result = engine.eval::<i64>(source).unwrap().unwrap();
+    assert_eq!(result, 11)
+}
+
+// ========================================================================
+//                            `and` tests
+// ========================================================================
+
+#[test]
+fn eval_and_simple() {
+    let source = "(and #t #t #t)";
+    let mut engine = Engine::default();
+    let result = engine.eval::<bool>(source).unwrap().unwrap();
+    assert!(result);
+}
+
+#[test]
+fn eval_and_empty() {
+    let source = "(and)";
+    let mut engine = Engine::default();
+    let result = engine.eval::<bool>(source).unwrap().unwrap();
+    assert!(result);
+}
+
+#[test]
+fn eval_and_single() {
+    let source = "(and 1)";
+    let mut engine = Engine::default();
+    let result = engine.eval::<i64>(source).unwrap().unwrap();
+    assert_eq!(result, 1);
+}
+
+#[test]
+fn eval_and_evaluation() {
+    let source = "
+        (define x 1)
+        (and #t (set! x 10) 2)";
+    let mut engine = Engine::default();
+    let result = engine.eval::<i64>(source).unwrap().unwrap();
+    assert_eq!(result, 2);
+    assert_eq!(engine.env().get::<i64>("x").unwrap().unwrap(), 10);
+}
+
+#[test]
+fn eval_and_no_evaluation() {
+    let source = "
+        (define x 1)
+        (and #f (set! x 10) 2)";
+    let mut engine = Engine::default();
+    let result = engine.eval::<bool>(source).unwrap().unwrap();
+    assert!(!result);
+    assert_eq!(engine.env().get::<i64>("x").unwrap().unwrap(), 1);
+}
+
+// ========================================================================
+//                            `or` tests
+// ========================================================================
+
+#[test]
+fn eval_or_simple() {
+    let source = "(or #t #t #t)";
+    let mut engine = Engine::default();
+    let result = engine.eval::<bool>(source).unwrap().unwrap();
+    assert!(result);
+}
+
+#[test]
+fn eval_or_empty() {
+    let source = "(or)";
+    let mut engine = Engine::default();
+    let result = engine.eval::<bool>(source).unwrap().unwrap();
+    assert!(!result);
+}
+
+#[test]
+fn eval_or_single() {
+    let source = "(or 1)";
+    let mut engine = Engine::default();
+    let result = engine.eval::<i64>(source).unwrap().unwrap();
+    assert_eq!(result, 1);
+}
+
+#[test]
+fn eval_or_no_evaluation() {
+    let source = "
+        (define x 1)
+        (or 2 (set! x 10) 1)";
+    let mut engine = Engine::default();
+    let result = engine.eval::<i64>(source).unwrap().unwrap();
+    assert_eq!(result, 2);
+    assert_eq!(engine.env().get::<i64>("x").unwrap().unwrap(), 1);
+}
+
+#[test]
+fn eval_or_evaluation() {
+    let source = "
+        (define x 1)
+        (or #f (set! x 10) 3)";
+    let mut engine = Engine::default();
+    engine.eval::<()>(source).unwrap().unwrap();
+    assert_eq!(engine.env().get::<i64>("x").unwrap().unwrap(), 10);
 }
 
 // ========================================================================
