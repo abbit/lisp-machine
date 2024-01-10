@@ -250,8 +250,9 @@ pub fn new_root_env() -> EnvRef {
         system::display,
         system::newline,
         system::exit,
-        strings::string_set,
+        system::current_second,
         //strings
+        strings::string_set,
         strings::string_eq,
         strings::string_lt,
         strings::string_gt,

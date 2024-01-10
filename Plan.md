@@ -234,7 +234,7 @@
 	- [x] `exit`
 	- [ ] `get-environment-variable`
 	- [ ] `get-environment-variables`
-	- [ ] `current-second`
+	- [x] `current-second`
 
 ## Дополнительные требования:
 
