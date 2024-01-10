@@ -667,7 +667,7 @@
 <span class="kw">fn </span>min_fn(args: Exprs, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>EnvRef) -&gt; ProcedureResult {
     <span class="kw">let </span>min_value = args
         .into_iter()
-        .try_fold(std::f64::INFINITY, |acc, arg| <span class="kw">match </span>arg {
+        .try_fold(f64::INFINITY, |acc, arg| <span class="kw">match </span>arg {
             Expr::Integer(n) =&gt; <span class="prelude-val">Ok</span>(acc.min(n <span class="kw">as </span>f64)),
             Expr::Float(f) =&gt; <span class="prelude-val">Ok</span>(acc.min(f)),
             <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(<span class="macro">runtime_error!</span>(
@@ -682,7 +682,7 @@
 <span class="kw">fn </span>max_fn(args: Exprs, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>EnvRef) -&gt; ProcedureResult {
     <span class="kw">let </span>max_value = args
         .into_iter()
-        .try_fold(std::f64::NEG_INFINITY, |acc, arg| <span class="kw">match </span>arg {
+        .try_fold(f64::NEG_INFINITY, |acc, arg| <span class="kw">match </span>arg {
             Expr::Integer(n) =&gt; <span class="prelude-val">Ok</span>(acc.max(n <span class="kw">as </span>f64)),
             Expr::Float(f) =&gt; <span class="prelude-val">Ok</span>(acc.max(f)),
             <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(<span class="macro">runtime_error!</span>(
