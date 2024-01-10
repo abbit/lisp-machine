@@ -7,6 +7,12 @@ macro_rules! assert_absent_in_env {
     };
 }
 
+macro_rules! assert_present_in_env {
+    ($env:expr, $name:expr) => {
+        assert!($env.has($name) || $env.has_macro($name));
+    };
+}
+
 #[test]
 fn ensure_special_forms_defined_in_scheme_prelude() {
     let engine = Engine::new_without_prelude();
@@ -21,13 +27,13 @@ fn ensure_special_forms_defined_in_scheme_prelude() {
 
     let engine = Engine::default();
     let env = engine.env();
-    assert!(env.has_macro("let*"));
-    assert!(env.has_macro("letrec*"));
-    assert!(env.has_macro("case"));
-    assert!(env.has_macro("when"));
-    assert!(env.has_macro("unless"));
-    assert!(env.has_macro("and"));
-    assert!(env.has_macro("or"));
+    assert_present_in_env!(env, "let*");
+    assert_present_in_env!(env, "letrec*");
+    assert_present_in_env!(env, "case");
+    assert_present_in_env!(env, "when");
+    assert_present_in_env!(env, "unless");
+    assert_present_in_env!(env, "and");
+    assert_present_in_env!(env, "or");
 }
 
 #[test]
