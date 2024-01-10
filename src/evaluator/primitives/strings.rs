@@ -3,7 +3,6 @@ use crate::{
     evaluator::{error::runtime_error, EnvRef},
     expr::{proc_result_value, Arity, Expr, Exprs, ProcedureResult},
 };
-use std::{cell::RefCell, rc::Rc};
 
 define_procedures! {
     string_set = ("string-set!", string_set_fn, Arity::Exact(3)),
@@ -13,7 +12,7 @@ define_procedures! {
     string_le = ("string<=?", string_le_fn, Arity::Exact(2)),
     string_ge = ("string>=?", string_ge_fn, Arity::Exact(2)),
     make_string = ("make-string", make_string_fn, Arity::AtLeast(1)),
-    _string = ("string", string_fn, Arity::AtLeast(0)),
+    string_ = ("string", string_fn, Arity::AtLeast(0)),
     string_length = ("string-length", string_length_fn, Arity::Exact(1)),
     substring = ("substring", substring_fn, Arity::Exact(3)),
     string_upcase = ("string-upcase", string_upcase_fn, Arity::Exact(1)),
@@ -134,13 +133,13 @@ fn make_string_fn(mut args: Exprs, _: &mut EnvRef) -> ProcedureResult {
 
     if args.is_empty() {
         let result_string: String = "#".repeat(k as usize);
-        proc_result_value!(Expr::String(Rc::new(RefCell::new(result_string))))
+        proc_result_value!(Expr::new_string(result_string))
     } else {
         let char_arg = args.pop_front().unwrap().into_char().map_err(|_| {
             runtime_error!("make-string expected a character as its second argument")
         })?;
         let result_string: String = std::iter::repeat(char_arg).take(k as usize).collect();
-        proc_result_value!(Expr::String(Rc::new(RefCell::new(result_string))))
+        proc_result_value!(Expr::new_string(result_string))
     }
 }
 
@@ -154,7 +153,7 @@ fn string_fn(mut args: Exprs, _: &mut EnvRef) -> ProcedureResult {
         result_string.push(char_arg);
     }
 
-    proc_result_value!(Expr::String(Rc::new(RefCell::new(result_string))))
+    proc_result_value!(Expr::new_string(result_string))
 }
 
 fn string_length_fn(mut args: Exprs, _: &mut EnvRef) -> ProcedureResult {
@@ -200,7 +199,7 @@ fn substring_fn(mut args: Exprs, _: &mut EnvRef) -> ProcedureResult {
         .take(end - start)
         .collect();
 
-    proc_result_value!(Expr::String(Rc::new(RefCell::new(sub_string))))
+    proc_result_value!(Expr::new_string(sub_string))
 }
 
 fn string_upcase_fn(mut args: Exprs, _: &mut EnvRef) -> ProcedureResult {
@@ -210,7 +209,7 @@ fn string_upcase_fn(mut args: Exprs, _: &mut EnvRef) -> ProcedureResult {
         .into_string()
         .map_err(|_| runtime_error!("string-upcase expected a string as its argument"))?;
     let upcased_string: String = string.borrow().to_uppercase();
-    proc_result_value!(Expr::String(Rc::new(RefCell::new(upcased_string))))
+    proc_result_value!(Expr::new_string(upcased_string))
 }
 
 fn string_downcase_fn(mut args: Exprs, _: &mut EnvRef) -> ProcedureResult {
@@ -220,7 +219,7 @@ fn string_downcase_fn(mut args: Exprs, _: &mut EnvRef) -> ProcedureResult {
         .into_string()
         .map_err(|_| runtime_error!("string-downcase expected a string as its argument"))?;
     let downcased_string: String = string.borrow().to_lowercase();
-    proc_result_value!(Expr::String(Rc::new(RefCell::new(downcased_string))))
+    proc_result_value!(Expr::new_string(downcased_string))
 }
 
 fn string_foldcase_fn(mut args: Exprs, _: &mut EnvRef) -> ProcedureResult {
@@ -230,7 +229,7 @@ fn string_foldcase_fn(mut args: Exprs, _: &mut EnvRef) -> ProcedureResult {
         .into_string()
         .map_err(|_| runtime_error!("string-foldcase expected a string as its argument"))?;
     let folded_string: String = string.borrow().to_lowercase();
-    proc_result_value!(Expr::String(Rc::new(RefCell::new(folded_string))))
+    proc_result_value!(Expr::new_string(folded_string))
 }
 
 fn string_ref_fn(mut args: Exprs, _: &mut EnvRef) -> ProcedureResult {
@@ -266,7 +265,7 @@ fn string_append_fn(mut args: Exprs, _: &mut EnvRef) -> ProcedureResult {
         result_string.push_str(&string_arg.borrow());
     }
 
-    proc_result_value!(Expr::String(Rc::new(RefCell::new(result_string))))
+    proc_result_value!(Expr::new_string(result_string))
 }
 
 fn string_copy_fn(mut args: Exprs, _: &mut EnvRef) -> ProcedureResult {

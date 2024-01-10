@@ -1,5 +1,3 @@
-use std::{cell::RefCell, rc::Rc};
-
 use super::utils::define_procedures;
 use crate::{
     evaluator::{error::runtime_error, EnvRef},
@@ -34,14 +32,8 @@ fn number_to_string_fn(mut args: Exprs, _env: &mut EnvRef) -> ProcedureResult {
     };
 
     let result = match number {
-        Expr::Integer(n) => {
-            let string_representation = Rc::new(RefCell::new(n.to_string_radix(radix)));
-            Expr::String(string_representation)
-        }
-        Expr::Float(f) => {
-            let string_representation = Rc::new(RefCell::new(format!("{}", f)));
-            Expr::String(string_representation)
-        }
+        Expr::Integer(n) => n.to_string_radix(radix),
+        Expr::Float(f) => format!("{}", f),
         _ => {
             return Err(runtime_error!(
                 "number->string is only supported for integers and inexact numbers with radix 10"
@@ -49,7 +41,7 @@ fn number_to_string_fn(mut args: Exprs, _env: &mut EnvRef) -> ProcedureResult {
         }
     };
 
-    proc_result_value!(result)
+    proc_result_value!(Expr::new_string(result))
 }
 
 trait ToRadix {
@@ -217,17 +209,14 @@ fn symbol_to_string_fn(mut args: Exprs, _: &mut EnvRef) -> ProcedureResult {
         }
     };
 
-    proc_result_value!(Expr::String(Rc::new(RefCell::new(symbol_str))))
+    proc_result_value!(Expr::new_string(symbol_str))
 }
 
 fn string_to_symbol_fn(mut args: Exprs, _: &mut EnvRef) -> ProcedureResult {
     let expr = args.pop_front().unwrap();
 
     let symbol = match expr {
-        Expr::String(string_expr) => {
-            let string_value = string_expr.borrow().clone();
-            Expr::Symbol(string_value)
-        }
+        Expr::String(string_expr) => string_expr.borrow().clone(),
         _ => {
             return Err(runtime_error!(
                 "string->symbol expected a string as its argument"
@@ -235,5 +224,5 @@ fn string_to_symbol_fn(mut args: Exprs, _: &mut EnvRef) -> ProcedureResult {
         }
     };
 
-    proc_result_value!(symbol)
+    proc_result_value!(Expr::Symbol(symbol))
 }

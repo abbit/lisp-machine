@@ -346,13 +346,13 @@ impl From<f64> for Expr {
 
 impl From<String> for Expr {
     fn from(string: String) -> Self {
-        Expr::String(Rc::new(RefCell::new(string)))
+        Expr::new_string(string)
     }
 }
 
 impl From<&str> for Expr {
     fn from(string: &str) -> Self {
-        Expr::String(Rc::new(RefCell::new(string.to_string())))
+        Expr::new_string(string.to_string())
     }
 }
 

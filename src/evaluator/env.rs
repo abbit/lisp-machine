@@ -272,7 +272,7 @@ pub fn new_root_env() -> EnvRef {
         strings::string_le,
         strings::string_ge,
         strings::make_string,
-        strings::_string,
+        strings::string_,
         strings::string_length,
         strings::substring,
         strings::string_upcase,
