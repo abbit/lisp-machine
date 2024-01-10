@@ -63,6 +63,9 @@ fn newline_fn(_: Exprs, _: &mut EnvRef) -> ProcedureResult {
 }
 
 fn current_second_fn(_: Exprs, _: &mut EnvRef) -> ProcedureResult {
-    let current_time = SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs_f64();
+    let current_time = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .unwrap()
+        .as_secs_f64();
     proc_result_value!(Expr::Float(current_time))
 }

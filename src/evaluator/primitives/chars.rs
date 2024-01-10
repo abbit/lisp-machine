@@ -17,47 +17,83 @@ define_procedures! {
 }
 
 fn char_upcase_fn(mut args: Exprs, _: &mut EnvRef) -> ProcedureResult {
-    let char = args.pop_front().unwrap().into_char().map_err(|_| runtime_error!("Expected a character"))?;
+    let char = args
+        .pop_front()
+        .unwrap()
+        .into_char()
+        .map_err(|_| runtime_error!("Expected a character"))?;
     proc_result_value!(Expr::Char(char.to_ascii_uppercase()))
 }
 
 fn char_downcase_fn(mut args: Exprs, _: &mut EnvRef) -> ProcedureResult {
-    let char = args.pop_front().unwrap().into_char().map_err(|_| runtime_error!("Expected a character"))?;
+    let char = args
+        .pop_front()
+        .unwrap()
+        .into_char()
+        .map_err(|_| runtime_error!("Expected a character"))?;
     proc_result_value!(Expr::Char(char.to_ascii_lowercase()))
 }
 
 fn char_foldcase_fn(mut args: Exprs, _: &mut EnvRef) -> ProcedureResult {
-    let char = args.pop_front().unwrap().into_char().map_err(|_| runtime_error!("Expected a character"))?;
+    let char = args
+        .pop_front()
+        .unwrap()
+        .into_char()
+        .map_err(|_| runtime_error!("Expected a character"))?;
     proc_result_value!(Expr::Char(char.to_ascii_lowercase()))
 }
 
 fn is_char_whitespace_fn(mut args: Exprs, _: &mut EnvRef) -> ProcedureResult {
-    let char = args.pop_front().unwrap().into_char().map_err(|_| runtime_error!("Expected a character"))?;
+    let char = args
+        .pop_front()
+        .unwrap()
+        .into_char()
+        .map_err(|_| runtime_error!("Expected a character"))?;
     proc_result_value!(Expr::Boolean(char.is_whitespace()))
 }
 
 fn is_char_upper_case_fn(mut args: Exprs, _: &mut EnvRef) -> ProcedureResult {
-    let char = args.pop_front().unwrap().into_char().map_err(|_| runtime_error!("Expected a character"))?;
+    let char = args
+        .pop_front()
+        .unwrap()
+        .into_char()
+        .map_err(|_| runtime_error!("Expected a character"))?;
     proc_result_value!(Expr::Boolean(char.is_ascii_uppercase()))
 }
 
 fn is_char_lower_case_fn(mut args: Exprs, _: &mut EnvRef) -> ProcedureResult {
-    let char = args.pop_front().unwrap().into_char().map_err(|_| runtime_error!("Expected a character"))?;
+    let char = args
+        .pop_front()
+        .unwrap()
+        .into_char()
+        .map_err(|_| runtime_error!("Expected a character"))?;
     proc_result_value!(Expr::Boolean(char.is_ascii_lowercase()))
 }
 
 fn is_char_alphabetic_fn(mut args: Exprs, _: &mut EnvRef) -> ProcedureResult {
-    let char = args.pop_front().unwrap().into_char().map_err(|_| runtime_error!("Expected a character"))?;
+    let char = args
+        .pop_front()
+        .unwrap()
+        .into_char()
+        .map_err(|_| runtime_error!("Expected a character"))?;
     proc_result_value!(Expr::Boolean(char.is_alphabetic()))
 }
 
 fn is_char_numeric_fn(mut args: Exprs, _: &mut EnvRef) -> ProcedureResult {
-    let char = args.pop_front().unwrap().into_char().map_err(|_| runtime_error!("Expected a character"))?;
+    let char = args
+        .pop_front()
+        .unwrap()
+        .into_char()
+        .map_err(|_| runtime_error!("Expected a character"))?;
     proc_result_value!(Expr::Boolean(char.is_numeric()))
 }
 
 fn digit_value_fn(mut args: Exprs, _: &mut EnvRef) -> ProcedureResult {
-    let char_arg = args.pop_front().unwrap().into_char().map_err(|_| runtime_error!("Expected a character"))?;
+    let char_arg = args
+        .pop_front()
+        .unwrap()
+        .into_char()
+        .map_err(|_| runtime_error!("Expected a character"))?;
 
     let result = if char_arg.is_numeric() {
         let digit = char_arg.to_digit(10).unwrap();

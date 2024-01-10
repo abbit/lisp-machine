@@ -1,14 +1,15 @@
 use super::utils::define_procedures;
 use crate::{
     evaluator::{error::runtime_error, EnvRef},
-    expr::{proc_result_value, Arity, Expr, Exprs, ListKind, ProcedureResult, list::List}, exprs,
+    expr::{list::List, proc_result_value, Arity, Expr, Exprs, ListKind, ProcedureResult},
+    exprs,
 };
 
 define_procedures! {
     cons = ("cons", cons_fn, Arity::Exact(2)),
     car_ = ("car", car_fn, Arity::Exact(1)),
     cdr_ = ("cdr", cdr_fn, Arity::Exact(1)),
-    make_list = ("make-list", make_list_fn, Arity::AtLeast(1)), 
+    make_list = ("make-list", make_list_fn, Arity::AtLeast(1)),
     list_copy = ("list-copy", list_copy_fn, Arity::Exact(1)),
 }
 
@@ -65,16 +66,22 @@ fn cdr_fn(mut args: Exprs, _: &mut EnvRef) -> ProcedureResult {
 }
 
 fn make_list_fn(mut args: Exprs, _: &mut EnvRef) -> ProcedureResult {
-    let k = args.pop_front().unwrap().into_integer().map_err(|_| {
-        runtime_error!("make-list expected an integer as its first argument")
-    })?;
+    let k = args
+        .pop_front()
+        .unwrap()
+        .into_integer()
+        .map_err(|_| runtime_error!("make-list expected an integer as its first argument"))?;
 
     if args.is_empty() {
-        let list = std::iter::repeat(Expr::Integer(0)).take(k as usize).collect::<Exprs>();
+        let list = std::iter::repeat(Expr::Integer(0))
+            .take(k as usize)
+            .collect::<Exprs>();
         proc_result_value!(Expr::List(List::new_proper(list)))
     } else {
         let fill = args.pop_front().unwrap();
-        let list = std::iter::repeat(fill.clone()).take(k as usize).collect::<Exprs>();
+        let list = std::iter::repeat(fill.clone())
+            .take(k as usize)
+            .collect::<Exprs>();
         proc_result_value!(Expr::List(List::new_proper(list)))
     }
 }

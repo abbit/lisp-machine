@@ -1,9 +1,9 @@
-use std::{cell::RefCell, rc::Rc};
 use super::utils::define_procedures;
 use crate::{
     evaluator::{error::runtime_error, EnvRef},
     expr::{proc_result_value, Arity, Expr, Exprs, ProcedureResult},
 };
+use std::{cell::RefCell, rc::Rc};
 
 define_procedures! {
     string_set = ("string-set!", string_set_fn, Arity::Exact(3)),
@@ -56,44 +56,89 @@ fn string_set_fn(mut args: Exprs, _: &mut EnvRef) -> ProcedureResult {
 }
 
 fn string_eq_fn(mut args: Exprs, _: &mut EnvRef) -> ProcedureResult {
-    let str1 = args.pop_front().unwrap().into_string().map_err(|_| runtime_error!("Expected a string as the first argument"))?;
-    let str2 = args.pop_front().unwrap().into_string().map_err(|_| runtime_error!("Expected a string as the second argument"))?;
+    let str1 = args
+        .pop_front()
+        .unwrap()
+        .into_string()
+        .map_err(|_| runtime_error!("Expected a string as the first argument"))?;
+    let str2 = args
+        .pop_front()
+        .unwrap()
+        .into_string()
+        .map_err(|_| runtime_error!("Expected a string as the second argument"))?;
     proc_result_value!(Expr::Boolean(str1 == str2))
 }
 
-
 fn string_lt_fn(mut args: Exprs, _: &mut EnvRef) -> ProcedureResult {
-    let str1 = args.pop_front().unwrap().into_string().map_err(|_| runtime_error!("Expected a string as the first argument"))?;
-    let str2 = args.pop_front().unwrap().into_string().map_err(|_| runtime_error!("Expected a string as the second argument"))?;
+    let str1 = args
+        .pop_front()
+        .unwrap()
+        .into_string()
+        .map_err(|_| runtime_error!("Expected a string as the first argument"))?;
+    let str2 = args
+        .pop_front()
+        .unwrap()
+        .into_string()
+        .map_err(|_| runtime_error!("Expected a string as the second argument"))?;
     proc_result_value!(Expr::Boolean(str1 < str2))
 }
 
 fn string_gt_fn(mut args: Exprs, _: &mut EnvRef) -> ProcedureResult {
-    let str1 = args.pop_front().unwrap().into_string().map_err(|_| runtime_error!("Expected a string as the first argument"))?;
-    let str2 = args.pop_front().unwrap().into_string().map_err(|_| runtime_error!("Expected a string as the second argument"))?;
+    let str1 = args
+        .pop_front()
+        .unwrap()
+        .into_string()
+        .map_err(|_| runtime_error!("Expected a string as the first argument"))?;
+    let str2 = args
+        .pop_front()
+        .unwrap()
+        .into_string()
+        .map_err(|_| runtime_error!("Expected a string as the second argument"))?;
     proc_result_value!(Expr::Boolean(str1 > str2))
 }
 
 fn string_le_fn(mut args: Exprs, _: &mut EnvRef) -> ProcedureResult {
-    let str1 = args.pop_front().unwrap().into_string().map_err(|_| runtime_error!("Expected a string as the first argument"))?;
-    let str2 = args.pop_front().unwrap().into_string().map_err(|_| runtime_error!("Expected a string as the second argument"))?;
+    let str1 = args
+        .pop_front()
+        .unwrap()
+        .into_string()
+        .map_err(|_| runtime_error!("Expected a string as the first argument"))?;
+    let str2 = args
+        .pop_front()
+        .unwrap()
+        .into_string()
+        .map_err(|_| runtime_error!("Expected a string as the second argument"))?;
     proc_result_value!(Expr::Boolean(str1 <= str2))
 }
 
 fn string_ge_fn(mut args: Exprs, _: &mut EnvRef) -> ProcedureResult {
-    let str1 = args.pop_front().unwrap().into_string().map_err(|_| runtime_error!("Expected a string as the first argument"))?;
-    let str2 = args.pop_front().unwrap().into_string().map_err(|_| runtime_error!("Expected a string as the second argument"))?;
+    let str1 = args
+        .pop_front()
+        .unwrap()
+        .into_string()
+        .map_err(|_| runtime_error!("Expected a string as the first argument"))?;
+    let str2 = args
+        .pop_front()
+        .unwrap()
+        .into_string()
+        .map_err(|_| runtime_error!("Expected a string as the second argument"))?;
     proc_result_value!(Expr::Boolean(str1 >= str2))
 }
 
 fn make_string_fn(mut args: Exprs, _: &mut EnvRef) -> ProcedureResult {
-    let k = args.pop_front().unwrap().into_integer().map_err(|_| runtime_error!("make-string expected an integer as its first argument"))?;
-    
+    let k = args
+        .pop_front()
+        .unwrap()
+        .into_integer()
+        .map_err(|_| runtime_error!("make-string expected an integer as its first argument"))?;
+
     if args.is_empty() {
         let result_string: String = "#".repeat(k as usize);
         proc_result_value!(Expr::String(Rc::new(RefCell::new(result_string))))
     } else {
-        let char_arg = args.pop_front().unwrap().into_char().map_err(|_| runtime_error!("make-string expected a character as its second argument"))?;
+        let char_arg = args.pop_front().unwrap().into_char().map_err(|_| {
+            runtime_error!("make-string expected a character as its second argument")
+        })?;
         let result_string: String = std::iter::repeat(char_arg).take(k as usize).collect();
         proc_result_value!(Expr::String(Rc::new(RefCell::new(result_string))))
     }
@@ -103,7 +148,9 @@ fn string_fn(mut args: Exprs, _: &mut EnvRef) -> ProcedureResult {
     let mut result_string = String::new();
 
     while let Some(arg) = args.pop_front() {
-        let char_arg = arg.into_char().map_err(|_| runtime_error!("string expected characters as arguments"))?;
+        let char_arg = arg
+            .into_char()
+            .map_err(|_| runtime_error!("string expected characters as arguments"))?;
         result_string.push(char_arg);
     }
 
@@ -111,17 +158,33 @@ fn string_fn(mut args: Exprs, _: &mut EnvRef) -> ProcedureResult {
 }
 
 fn string_length_fn(mut args: Exprs, _: &mut EnvRef) -> ProcedureResult {
-    let string = args.pop_front().unwrap().into_string().map_err(|_| runtime_error!("string-length expected a string as its argument"))?;
-    
+    let string = args
+        .pop_front()
+        .unwrap()
+        .into_string()
+        .map_err(|_| runtime_error!("string-length expected a string as its argument"))?;
+
     let length = string.borrow().len() as i64;
-    
+
     proc_result_value!(Expr::Integer(length))
 }
 
 fn substring_fn(mut args: Exprs, _: &mut EnvRef) -> ProcedureResult {
-    let string = args.pop_front().unwrap().into_string().map_err(|_| runtime_error!("substring expected a string as its first argument"))?;
-    let start = args.pop_front().unwrap().into_integer().map_err(|_| runtime_error!("substring expected an integer as its second argument"))?;
-    let end = args.pop_front().unwrap().into_integer().map_err(|_| runtime_error!("substring expected an integer as its third argument"))?;
+    let string = args
+        .pop_front()
+        .unwrap()
+        .into_string()
+        .map_err(|_| runtime_error!("substring expected a string as its first argument"))?;
+    let start = args
+        .pop_front()
+        .unwrap()
+        .into_integer()
+        .map_err(|_| runtime_error!("substring expected an integer as its second argument"))?;
+    let end = args
+        .pop_front()
+        .unwrap()
+        .into_integer()
+        .map_err(|_| runtime_error!("substring expected an integer as its third argument"))?;
 
     let start = start as usize;
     let end = end as usize;
@@ -130,32 +193,57 @@ fn substring_fn(mut args: Exprs, _: &mut EnvRef) -> ProcedureResult {
         return Err(runtime_error!("substring indices are out of bounds"));
     }
 
-    let sub_string: String = string.borrow().chars().skip(start).take(end - start).collect();
+    let sub_string: String = string
+        .borrow()
+        .chars()
+        .skip(start)
+        .take(end - start)
+        .collect();
 
     proc_result_value!(Expr::String(Rc::new(RefCell::new(sub_string))))
 }
 
 fn string_upcase_fn(mut args: Exprs, _: &mut EnvRef) -> ProcedureResult {
-    let string = args.pop_front().unwrap().into_string().map_err(|_| runtime_error!("string-upcase expected a string as its argument"))?;
+    let string = args
+        .pop_front()
+        .unwrap()
+        .into_string()
+        .map_err(|_| runtime_error!("string-upcase expected a string as its argument"))?;
     let upcased_string: String = string.borrow().to_uppercase();
     proc_result_value!(Expr::String(Rc::new(RefCell::new(upcased_string))))
 }
 
 fn string_downcase_fn(mut args: Exprs, _: &mut EnvRef) -> ProcedureResult {
-    let string = args.pop_front().unwrap().into_string().map_err(|_| runtime_error!("string-downcase expected a string as its argument"))?;
+    let string = args
+        .pop_front()
+        .unwrap()
+        .into_string()
+        .map_err(|_| runtime_error!("string-downcase expected a string as its argument"))?;
     let downcased_string: String = string.borrow().to_lowercase();
     proc_result_value!(Expr::String(Rc::new(RefCell::new(downcased_string))))
 }
 
 fn string_foldcase_fn(mut args: Exprs, _: &mut EnvRef) -> ProcedureResult {
-    let string = args.pop_front().unwrap().into_string().map_err(|_| runtime_error!("string-foldcase expected a string as its argument"))?;
+    let string = args
+        .pop_front()
+        .unwrap()
+        .into_string()
+        .map_err(|_| runtime_error!("string-foldcase expected a string as its argument"))?;
     let folded_string: String = string.borrow().to_lowercase();
     proc_result_value!(Expr::String(Rc::new(RefCell::new(folded_string))))
 }
 
 fn string_ref_fn(mut args: Exprs, _: &mut EnvRef) -> ProcedureResult {
-    let string = args.pop_front().unwrap().into_string().map_err(|_| runtime_error!("string-ref expected a string as its first argument"))?;
-    let k = args.pop_front().unwrap().into_integer().map_err(|_| runtime_error!("string-ref expected an integer as its second argument"))?;
+    let string = args
+        .pop_front()
+        .unwrap()
+        .into_string()
+        .map_err(|_| runtime_error!("string-ref expected a string as its first argument"))?;
+    let k = args
+        .pop_front()
+        .unwrap()
+        .into_integer()
+        .map_err(|_| runtime_error!("string-ref expected an integer as its second argument"))?;
 
     let k = k as usize;
 
@@ -172,7 +260,9 @@ fn string_append_fn(mut args: Exprs, _: &mut EnvRef) -> ProcedureResult {
     let mut result_string = String::new();
 
     while let Some(arg) = args.pop_front() {
-        let string_arg = arg.into_string().map_err(|_| runtime_error!("string-append expected strings as arguments"))?;
+        let string_arg = arg
+            .into_string()
+            .map_err(|_| runtime_error!("string-append expected strings as arguments"))?;
         result_string.push_str(&string_arg.borrow());
     }
 
@@ -180,9 +270,20 @@ fn string_append_fn(mut args: Exprs, _: &mut EnvRef) -> ProcedureResult {
 }
 
 fn string_copy_fn(mut args: Exprs, _: &mut EnvRef) -> ProcedureResult {
-    let to = args.pop_front().unwrap().into_string().map_err(|_| runtime_error!("string-copy! expected a string as its first argument"))?;
-    let at = args.pop_front().unwrap().into_integer().map_err(|_| runtime_error!("string-copy! expected an integer as its second argument"))?;
-    let from = args.pop_front().unwrap().into_string().map_err(|_| runtime_error!("string-copy! expected a string as its third argument"))?;
+    let to = args
+        .pop_front()
+        .unwrap()
+        .into_string()
+        .map_err(|_| runtime_error!("string-copy! expected a string as its first argument"))?;
+    let at =
+        args.pop_front().unwrap().into_integer().map_err(|_| {
+            runtime_error!("string-copy! expected an integer as its second argument")
+        })?;
+    let from = args
+        .pop_front()
+        .unwrap()
+        .into_string()
+        .map_err(|_| runtime_error!("string-copy! expected a string as its third argument"))?;
 
     let mut to_string = to.borrow_mut();
 
@@ -201,22 +302,38 @@ fn string_copy_fn(mut args: Exprs, _: &mut EnvRef) -> ProcedureResult {
             return Err(runtime_error!("string-copy! source string is empty"));
         }
     } else {
-        let start = args.pop_front().unwrap().into_integer().map_err(|_| runtime_error!("string-copy! expected an integer as its fourth argument"))? as usize;
+        let start = args.pop_front().unwrap().into_integer().map_err(|_| {
+            runtime_error!("string-copy! expected an integer as its fourth argument")
+        })? as usize;
 
         if start >= from_chars.len() {
-            return Err(runtime_error!("string-copy! start index out of bounds: {}", start));
+            return Err(runtime_error!(
+                "string-copy! start index out of bounds: {}",
+                start
+            ));
         }
 
         if args.is_empty() {
-            to_string.replace_range(at..(at + from_chars.len() - start), &from_chars[start..].iter().collect::<String>());
+            to_string.replace_range(
+                at..(at + from_chars.len() - start),
+                &from_chars[start..].iter().collect::<String>(),
+            );
         } else {
-            let end = args.pop_front().unwrap().into_integer().map_err(|_| runtime_error!("string-copy! expected an integer as its fifth argument"))? as usize;
+            let end = args.pop_front().unwrap().into_integer().map_err(|_| {
+                runtime_error!("string-copy! expected an integer as its fifth argument")
+            })? as usize;
 
             if end > from_chars.len() || end < start {
-                return Err(runtime_error!("string-copy! end index out of bounds or less than start index: {}", end));
+                return Err(runtime_error!(
+                    "string-copy! end index out of bounds or less than start index: {}",
+                    end
+                ));
             }
 
-            to_string.replace_range(at..(at + end - start), &from_chars[start..end].iter().collect::<String>());
+            to_string.replace_range(
+                at..(at + end - start),
+                &from_chars[start..end].iter().collect::<String>(),
+            );
         }
     }
 
@@ -230,19 +347,19 @@ fn string_fill_fn(mut args: Exprs, _: &mut EnvRef) -> ProcedureResult {
         .into_string()
         .map_err(|_| runtime_error!("string-fill! expected a string as its first argument"))?;
 
-    let fill = args
-        .pop_front()
-        .unwrap()
-        .into_char()
-        .map_err(|_| runtime_error!("string-fill! expected a character as its second argument"))?;
+    let fill =
+        args.pop_front().unwrap().into_char().map_err(|_| {
+            runtime_error!("string-fill! expected a character as its second argument")
+        })?;
 
-    let start = if !args.is_empty() {
-        args.pop_front().unwrap().into_integer().map_err(|_| {
-            runtime_error!("string-fill! expected an integer as its third argument")
-        })? as usize
-    } else {
-        0
-    };
+    let start =
+        if !args.is_empty() {
+            args.pop_front().unwrap().into_integer().map_err(|_| {
+                runtime_error!("string-fill! expected an integer as its third argument")
+            })? as usize
+        } else {
+            0
+        };
 
     let end = if !args.is_empty() {
         args.pop_front().unwrap().into_integer().map_err(|_| {
@@ -253,7 +370,9 @@ fn string_fill_fn(mut args: Exprs, _: &mut EnvRef) -> ProcedureResult {
     };
 
     if fill.is_whitespace() {
-        return Err(runtime_error!("string-fill! cannot fill with whitespace characters"));
+        return Err(runtime_error!(
+            "string-fill! cannot fill with whitespace characters"
+        ));
     }
 
     let mut string_mut = string.borrow_mut();
