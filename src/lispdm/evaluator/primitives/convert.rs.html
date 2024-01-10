@@ -226,20 +226,7 @@
 <a href="#226" id="226">226</a>
 <a href="#227" id="227">227</a>
 <a href="#228" id="228">228</a>
-<a href="#229" id="229">229</a>
-<a href="#230" id="230">230</a>
-<a href="#231" id="231">231</a>
-<a href="#232" id="232">232</a>
-<a href="#233" id="233">233</a>
-<a href="#234" id="234">234</a>
-<a href="#235" id="235">235</a>
-<a href="#236" id="236">236</a>
-<a href="#237" id="237">237</a>
-<a href="#238" id="238">238</a>
-<a href="#239" id="239">239</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span>std::{cell::RefCell, rc::Rc};
-
-<span class="kw">use </span><span class="kw">super</span>::utils::define_procedures;
+</pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">super</span>::utils::define_procedures;
 <span class="kw">use crate</span>::{
     evaluator::{error::runtime_error, EnvRef},
     expr::{proc_result_value, Arity, Expr, Exprs, ProcedureResult},
@@ -273,14 +260,8 @@
     };
 
     <span class="kw">let </span>result = <span class="kw">match </span>number {
-        Expr::Integer(n) =&gt; {
-            <span class="kw">let </span>string_representation = Rc::new(RefCell::new(n.to_string_radix(radix)));
-            Expr::String(string_representation)
-        }
-        Expr::Float(f) =&gt; {
-            <span class="kw">let </span>string_representation = Rc::new(RefCell::new(<span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, f)));
-            Expr::String(string_representation)
-        }
+        Expr::Integer(n) =&gt; n.to_string_radix(radix),
+        Expr::Float(f) =&gt; <span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, f),
         <span class="kw">_ </span>=&gt; {
             <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">runtime_error!</span>(
                 <span class="string">&quot;number-&gt;string is only supported for integers and inexact numbers with radix 10&quot;
@@ -288,7 +269,7 @@
         }
     };
 
-    <span class="macro">proc_result_value!</span>(result)
+    <span class="macro">proc_result_value!</span>(Expr::new_string(result))
 }
 
 <span class="kw">trait </span>ToRadix {
@@ -456,17 +437,14 @@
         }
     };
 
-    <span class="macro">proc_result_value!</span>(Expr::String(Rc::new(RefCell::new(symbol_str))))
+    <span class="macro">proc_result_value!</span>(Expr::new_string(symbol_str))
 }
 
 <span class="kw">fn </span>string_to_symbol_fn(<span class="kw-2">mut </span>args: Exprs, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>EnvRef) -&gt; ProcedureResult {
     <span class="kw">let </span>expr = args.pop_front().unwrap();
 
     <span class="kw">let </span>symbol = <span class="kw">match </span>expr {
-        Expr::String(string_expr) =&gt; {
-            <span class="kw">let </span>string_value = string_expr.borrow().clone();
-            Expr::Symbol(string_value)
-        }
+        Expr::String(string_expr) =&gt; string_expr.borrow().clone(),
         <span class="kw">_ </span>=&gt; {
             <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">runtime_error!</span>(
                 <span class="string">&quot;string-&gt;symbol expected a string as its argument&quot;
@@ -474,6 +452,6 @@
         }
     };
 
-    <span class="macro">proc_result_value!</span>(symbol)
+    <span class="macro">proc_result_value!</span>(Expr::Symbol(symbol))
 }
 </code></pre></div></section></main></body></html>

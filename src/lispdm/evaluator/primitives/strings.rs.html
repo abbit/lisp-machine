@@ -386,13 +386,11 @@
 <a href="#386" id="386">386</a>
 <a href="#387" id="387">387</a>
 <a href="#388" id="388">388</a>
-<a href="#389" id="389">389</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">super</span>::utils::define_procedures;
 <span class="kw">use crate</span>::{
     evaluator::{error::runtime_error, EnvRef},
     expr::{proc_result_value, Arity, Expr, Exprs, ProcedureResult},
 };
-<span class="kw">use </span>std::{cell::RefCell, rc::Rc};
 
 <span class="macro">define_procedures! </span>{
     string_set = (<span class="string">&quot;string-set!&quot;</span>, string_set_fn, Arity::Exact(<span class="number">3</span>)),
@@ -402,7 +400,7 @@
     string_le = (<span class="string">&quot;string&lt;=?&quot;</span>, string_le_fn, Arity::Exact(<span class="number">2</span>)),
     string_ge = (<span class="string">&quot;string&gt;=?&quot;</span>, string_ge_fn, Arity::Exact(<span class="number">2</span>)),
     make_string = (<span class="string">&quot;make-string&quot;</span>, make_string_fn, Arity::AtLeast(<span class="number">1</span>)),
-    _string = (<span class="string">&quot;string&quot;</span>, string_fn, Arity::AtLeast(<span class="number">0</span>)),
+    string_ = (<span class="string">&quot;string&quot;</span>, string_fn, Arity::AtLeast(<span class="number">0</span>)),
     string_length = (<span class="string">&quot;string-length&quot;</span>, string_length_fn, Arity::Exact(<span class="number">1</span>)),
     substring = (<span class="string">&quot;substring&quot;</span>, substring_fn, Arity::Exact(<span class="number">3</span>)),
     string_upcase = (<span class="string">&quot;string-upcase&quot;</span>, string_upcase_fn, Arity::Exact(<span class="number">1</span>)),
@@ -523,13 +521,13 @@
 
     <span class="kw">if </span>args.is_empty() {
         <span class="kw">let </span>result_string: String = <span class="string">&quot;#&quot;</span>.repeat(k <span class="kw">as </span>usize);
-        <span class="macro">proc_result_value!</span>(Expr::String(Rc::new(RefCell::new(result_string))))
+        <span class="macro">proc_result_value!</span>(Expr::new_string(result_string))
     } <span class="kw">else </span>{
         <span class="kw">let </span>char_arg = args.pop_front().unwrap().into_char().map_err(|<span class="kw">_</span>| {
             <span class="macro">runtime_error!</span>(<span class="string">&quot;make-string expected a character as its second argument&quot;</span>)
         })<span class="question-mark">?</span>;
         <span class="kw">let </span>result_string: String = std::iter::repeat(char_arg).take(k <span class="kw">as </span>usize).collect();
-        <span class="macro">proc_result_value!</span>(Expr::String(Rc::new(RefCell::new(result_string))))
+        <span class="macro">proc_result_value!</span>(Expr::new_string(result_string))
     }
 }
 
@@ -543,7 +541,7 @@
         result_string.push(char_arg);
     }
 
-    <span class="macro">proc_result_value!</span>(Expr::String(Rc::new(RefCell::new(result_string))))
+    <span class="macro">proc_result_value!</span>(Expr::new_string(result_string))
 }
 
 <span class="kw">fn </span>string_length_fn(<span class="kw-2">mut </span>args: Exprs, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>EnvRef) -&gt; ProcedureResult {
@@ -589,7 +587,7 @@
         .take(end - start)
         .collect();
 
-    <span class="macro">proc_result_value!</span>(Expr::String(Rc::new(RefCell::new(sub_string))))
+    <span class="macro">proc_result_value!</span>(Expr::new_string(sub_string))
 }
 
 <span class="kw">fn </span>string_upcase_fn(<span class="kw-2">mut </span>args: Exprs, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>EnvRef) -&gt; ProcedureResult {
@@ -599,7 +597,7 @@
         .into_string()
         .map_err(|<span class="kw">_</span>| <span class="macro">runtime_error!</span>(<span class="string">&quot;string-upcase expected a string as its argument&quot;</span>))<span class="question-mark">?</span>;
     <span class="kw">let </span>upcased_string: String = string.borrow().to_uppercase();
-    <span class="macro">proc_result_value!</span>(Expr::String(Rc::new(RefCell::new(upcased_string))))
+    <span class="macro">proc_result_value!</span>(Expr::new_string(upcased_string))
 }
 
 <span class="kw">fn </span>string_downcase_fn(<span class="kw-2">mut </span>args: Exprs, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>EnvRef) -&gt; ProcedureResult {
@@ -609,7 +607,7 @@
         .into_string()
         .map_err(|<span class="kw">_</span>| <span class="macro">runtime_error!</span>(<span class="string">&quot;string-downcase expected a string as its argument&quot;</span>))<span class="question-mark">?</span>;
     <span class="kw">let </span>downcased_string: String = string.borrow().to_lowercase();
-    <span class="macro">proc_result_value!</span>(Expr::String(Rc::new(RefCell::new(downcased_string))))
+    <span class="macro">proc_result_value!</span>(Expr::new_string(downcased_string))
 }
 
 <span class="kw">fn </span>string_foldcase_fn(<span class="kw-2">mut </span>args: Exprs, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>EnvRef) -&gt; ProcedureResult {
@@ -619,7 +617,7 @@
         .into_string()
         .map_err(|<span class="kw">_</span>| <span class="macro">runtime_error!</span>(<span class="string">&quot;string-foldcase expected a string as its argument&quot;</span>))<span class="question-mark">?</span>;
     <span class="kw">let </span>folded_string: String = string.borrow().to_lowercase();
-    <span class="macro">proc_result_value!</span>(Expr::String(Rc::new(RefCell::new(folded_string))))
+    <span class="macro">proc_result_value!</span>(Expr::new_string(folded_string))
 }
 
 <span class="kw">fn </span>string_ref_fn(<span class="kw-2">mut </span>args: Exprs, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>EnvRef) -&gt; ProcedureResult {
@@ -655,7 +653,7 @@
         result_string.push_str(<span class="kw-2">&amp;</span>string_arg.borrow());
     }
 
-    <span class="macro">proc_result_value!</span>(Expr::String(Rc::new(RefCell::new(result_string))))
+    <span class="macro">proc_result_value!</span>(Expr::new_string(result_string))
 }
 
 <span class="kw">fn </span>string_copy_fn(<span class="kw-2">mut </span>args: Exprs, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>EnvRef) -&gt; ProcedureResult {
