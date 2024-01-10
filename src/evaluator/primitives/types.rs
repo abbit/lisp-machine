@@ -1,7 +1,7 @@
 use super::utils::define_procedures;
 use crate::{
     evaluator::EnvRef,
-    expr::{Arity, Expr, Exprs, ProcedureResult, ProcedureReturn, proc_result_value},
+    expr::{proc_result_value, Arity, Expr, Exprs, ProcedureResult},
 };
 
 define_procedures! {
@@ -14,67 +14,46 @@ define_procedures! {
 }
 
 fn is_char_fn(mut args: Exprs, _env: &mut EnvRef) -> ProcedureResult {
-    let value = args.pop_front().unwrap();
-    let char = match value {
-        Expr::Char(_) => true,
-        _ => false,
-    };
+    let expr = args.pop_front().unwrap();
+    let is_type = expr.is_char();
 
-    Ok(Expr::Boolean(char)).map(ProcedureReturn::Value)
+    proc_result_value!(Expr::Boolean(is_type))
 }
 
 fn is_number_fn(mut args: Exprs, _env: &mut EnvRef) -> ProcedureResult {
-    let value = args.pop_front().unwrap();
-    let number = match value {
-        Expr::Integer(_) | Expr::Float(_) => true,
-        _ => false,
-    };
+    let expr = args.pop_front().unwrap();
+    let is_type = expr.is_integer() || expr.is_float();
 
-    Ok(Expr::Boolean(number)).map(ProcedureReturn::Value)
+    proc_result_value!(Expr::Boolean(is_type))
 }
 
-fn is_string_fn(args: Exprs, _: &mut EnvRef) -> ProcedureResult {
-    let expr = args.into_iter().next().unwrap();
+fn is_string_fn(mut args: Exprs, _: &mut EnvRef) -> ProcedureResult {
+    let expr = args.pop_front().unwrap();
+    let is_type = expr.is_string();
 
-    let string = match expr {
-        Expr::String(_) => true,
-        _ => false,
-    };
-
-    Ok(Expr::Boolean(string)).map(ProcedureReturn::Value)
+    proc_result_value!(Expr::Boolean(is_type))
 }
 
 fn is_pair_fn(mut args: Exprs, _: &mut EnvRef) -> ProcedureResult {
-    let arg = args.pop_front().unwrap();
-    let result = match arg {
-        Expr::List(list) => {
-            if (list.is_proper() || list.is_dotted()) && !list.is_empty()  {
-                Expr::Boolean(true)
-            } else {
-                Expr::Boolean(false)
-            }
-        }
-        _ => Expr::Boolean(false),
+    let expr = args.pop_front().unwrap();
+    let is_type = match expr {
+        Expr::List(list) => !list.is_empty(),
+        _ => false,
     };
-    proc_result_value!(result)
+
+    proc_result_value!(Expr::Boolean(is_type))
 }
 
 fn is_procedure_fn(mut args: Exprs, _: &mut EnvRef) -> ProcedureResult {
-    let arg = args.pop_front().unwrap();
-    let procedure = match arg {
-        Expr::Procedure(_) => true,
-        _ => false,
-    };
-    Ok(Expr::Boolean(procedure)).map(ProcedureReturn::Value)
+    let expr = args.pop_front().unwrap();
+    let is_type = expr.is_procedure();
+
+    proc_result_value!(Expr::Boolean(is_type))
 }
 
 fn is_symbol_fn(mut args: Exprs, _: &mut EnvRef) -> ProcedureResult {
     let expr = args.pop_front().unwrap();
+    let is_type = expr.is_symbol();
 
-    let symbol = match expr {
-        Expr::Symbol(_) => true,
-        _ => false,
-    };
-
-    proc_result_value!(Expr::Boolean(symbol))
+    proc_result_value!(Expr::Boolean(is_type))
 }

@@ -3,7 +3,7 @@ use std::{cell::RefCell, rc::Rc};
 use super::utils::define_procedures;
 use crate::{
     evaluator::{error::runtime_error, EnvRef},
-    expr::{Arity, Expr, Exprs, ProcedureResult, ProcedureReturn, list::List, proc_result_value},
+    expr::{proc_result_value, Arity, Expr, Exprs, ProcedureResult},
 };
 
 define_procedures! {
@@ -49,7 +49,7 @@ fn number_to_string_fn(mut args: Exprs, _env: &mut EnvRef) -> ProcedureResult {
         }
     };
 
-    Ok(result).map(ProcedureReturn::Value)
+    proc_result_value!(result)
 }
 
 trait ToRadix {
@@ -58,7 +58,7 @@ trait ToRadix {
 
 impl ToRadix for i64 {
     fn to_string_radix(&self, radix: u32) -> String {
-        if radix < 2 || radix > 36 {
+        if !(2..=36).contains(&radix) {
             panic!("Radix out of range: {}", radix);
         }
 
@@ -122,7 +122,7 @@ fn string_to_number_fn(mut args: Exprs, _env: &mut EnvRef) -> ProcedureResult {
         }
     };
 
-    Ok(result).map(ProcedureReturn::Value)
+    proc_result_value!(result)
 }
 
 fn char_to_integer_fn(mut args: Exprs, _env: &mut EnvRef) -> ProcedureResult {
@@ -137,7 +137,7 @@ fn char_to_integer_fn(mut args: Exprs, _env: &mut EnvRef) -> ProcedureResult {
         }
     };
 
-    Ok(Expr::Integer(unicode_code_point)).map(ProcedureReturn::Value)
+    proc_result_value!(Expr::Integer(unicode_code_point))
 }
 
 fn integer_to_char_fn(mut args: Exprs, _env: &mut EnvRef) -> ProcedureResult {
@@ -160,7 +160,7 @@ fn integer_to_char_fn(mut args: Exprs, _env: &mut EnvRef) -> ProcedureResult {
         }
     };
 
-    Ok(Expr::Char(character)).map(ProcedureReturn::Value)
+    proc_result_value!(Expr::Char(character))
 }
 
 fn string_to_list_fn(mut args: Exprs, _: &mut EnvRef) -> ProcedureResult {
@@ -200,13 +200,9 @@ fn string_to_list_fn(mut args: Exprs, _: &mut EnvRef) -> ProcedureResult {
         return Err(runtime_error!("string->list: indices are out of bounds"));
     }
 
-    let result_list: Exprs = string[start..end]
-        .chars()
-        .map(|c| Expr::Char(c))
-        .collect();
+    let result_list: Exprs = string[start..end].chars().map(Expr::Char).collect();
 
-    Ok(Expr::List(List::new_proper(result_list)))
-        .map(ProcedureReturn::Value)
+    proc_result_value!(Expr::new_proper_list(result_list))
 }
 
 fn symbol_to_string_fn(mut args: Exprs, _: &mut EnvRef) -> ProcedureResult {
@@ -214,7 +210,11 @@ fn symbol_to_string_fn(mut args: Exprs, _: &mut EnvRef) -> ProcedureResult {
 
     let symbol_str = match expr {
         Expr::Symbol(sym) => sym.to_string(),
-        _ => return Err(runtime_error!("symbol->string expected a symbol as its argument")),
+        _ => {
+            return Err(runtime_error!(
+                "symbol->string expected a symbol as its argument"
+            ))
+        }
     };
 
     proc_result_value!(Expr::String(Rc::new(RefCell::new(symbol_str))))
@@ -228,7 +228,11 @@ fn string_to_symbol_fn(mut args: Exprs, _: &mut EnvRef) -> ProcedureResult {
             let string_value = string_expr.borrow().clone();
             Expr::Symbol(string_value)
         }
-        _ => return Err(runtime_error!("string->symbol expected a string as its argument")),
+        _ => {
+            return Err(runtime_error!(
+                "string->symbol expected a string as its argument"
+            ))
+        }
     };
 
     proc_result_value!(symbol)

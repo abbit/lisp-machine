@@ -235,7 +235,7 @@ fn min_fn(args: Exprs, _: &mut EnvRef) -> ProcedureResult {
             )),
         })?;
 
-    Ok(Expr::Float(min_value)).map(ProcedureReturn::Value)
+    proc_result_value!(Expr::Float(min_value))
 }
 
 fn max_fn(args: Exprs, _: &mut EnvRef) -> ProcedureResult {
@@ -250,7 +250,7 @@ fn max_fn(args: Exprs, _: &mut EnvRef) -> ProcedureResult {
             )),
         })?;
 
-    Ok(Expr::Float(max_value)).map(ProcedureReturn::Value)
+    proc_result_value!(Expr::Float(max_value))
 }
 
 fn floor_fn(args: Exprs, _: &mut EnvRef) -> ProcedureResult {

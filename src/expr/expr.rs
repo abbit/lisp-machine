@@ -198,6 +198,41 @@ impl Expr {
         matches!(self, Expr::List(list) if list.is_dotted())
     }
 
+    /// Checks if `self` is a [`Expr::String`]
+    pub fn is_string(&self) -> bool {
+        matches!(self, Expr::String(_))
+    }
+
+    /// Checks if `self` is a [`Expr::Char`]
+    pub fn is_char(&self) -> bool {
+        matches!(self, Expr::Char(_))
+    }
+
+    /// Checks if `self` is a [`Expr::Integer`]
+    pub fn is_integer(&self) -> bool {
+        matches!(self, Expr::Integer(_))
+    }
+
+    /// Checks if `self` is a [`Expr::Float`]
+    pub fn is_float(&self) -> bool {
+        matches!(self, Expr::Float(_))
+    }
+
+    /// Checks if `self` is a [`Expr::Boolean`]
+    pub fn is_boolean(&self) -> bool {
+        matches!(self, Expr::Boolean(_))
+    }
+
+    /// Checks if `self` is a [`Expr::Void`]
+    pub fn is_void(&self) -> bool {
+        matches!(self, Expr::Void)
+    }
+
+    /// Checks if `self` is a [`Expr::Procedure`]
+    pub fn is_procedure(&self) -> bool {
+        matches!(self, Expr::Procedure(_))
+    }
+
     // exctraction methods
 
     /// Tries to convert `self` into `T`, which is a type that implements [`FromExpr`]

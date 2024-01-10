@@ -90,7 +90,7 @@ fn make_string_fn(mut args: Exprs, _: &mut EnvRef) -> ProcedureResult {
     let k = args.pop_front().unwrap().into_integer().map_err(|_| runtime_error!("make-string expected an integer as its first argument"))?;
     
     if args.is_empty() {
-        let result_string: String = std::iter::repeat('#').take(k as usize).collect();
+        let result_string: String = "#".repeat(k as usize);
         proc_result_value!(Expr::String(Rc::new(RefCell::new(result_string))))
     } else {
         let char_arg = args.pop_front().unwrap().into_char().map_err(|_| runtime_error!("make-string expected a character as its second argument"))?;
@@ -195,7 +195,7 @@ fn string_copy_fn(mut args: Exprs, _: &mut EnvRef) -> ProcedureResult {
     let from_chars = from.borrow().chars().collect::<Vec<_>>();
 
     if args.is_empty() {
-        if let Some(char_from) = from_chars.get(0) {
+        if let Some(char_from) = from_chars.first() {
             to_string.replace_range(at..(at + 1), &char_from.to_string());
         } else {
             return Err(runtime_error!("string-copy! source string is empty"));
