@@ -184,14 +184,14 @@
 	- [x] `string-copy`
     - [x] `string-copy!`
     - [x] `string-fill!`
-- [ ] controls:
+- [x] controls:
 	- [x] `procedure?`
 	- [x] `apply`
 	- [x] `eval`
 	- [x] `map`
 	- [x] `string-map`
 	- [x] `for-each`
-	- [ ] `string-for-each`
+	- [x] `string-for-each`
 - [ ] ports:
 	- [ ] `port?`
 	- [ ] `call-with-port`

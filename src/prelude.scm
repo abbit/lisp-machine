@@ -121,6 +121,18 @@
 (define (for-each fn . lists)
   (apply map fn lists))
 
+(define (string-for-each proc . strings)
+  (define (process-chars chars)
+    (if (null? (car chars))
+        '()
+        (begin
+          (apply proc (map car chars))
+          (process-chars (map cdr chars)))))
+  (if (null? strings)
+      '()
+      (let ((char-lists (map string->list strings)))
+        (process-chars char-lists))))
+
 (define (ass predicate obj ls)
   (if (null? ls)
       #f
