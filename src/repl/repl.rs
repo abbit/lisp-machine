@@ -1,11 +1,8 @@
-use lispdm::Engine;
+use lispdm::{Engine, Expr};
 use rustyline::history::MemHistory;
 use rustyline::{error::ReadlineError, validate::MatchingBracketValidator};
 use rustyline::{highlight::MatchingBracketHighlighter, Editor};
 use rustyline::{Completer, CompletionType, Helper, Highlighter, Hinter, Validator};
-
-// TODO: add colors
-// TODO: add better error messages
 
 #[derive(Default, Validator, Helper, Completer, Hinter, Highlighter)]
 struct InputValidator {
@@ -30,14 +27,19 @@ pub fn start(mut engine: Engine) {
     rl.set_helper(Some(InputValidator::default()));
 
     loop {
-        let readline = rl.readline("che> ");
+        let readline = rl.readline("> ");
         match readline {
-            Ok(input) => match engine.eval(&input) {
-                Ok(expr) => {
-                    println!("{}", expr);
+            Ok(input) => {
+                if input.trim().is_empty() {
+                    continue;
                 }
-                Err(err) => println!("Error: {}", err),
-            },
+                match engine.eval::<Expr>(&input) {
+                    Ok(expr) => {
+                        println!("{}", expr.unwrap());
+                    }
+                    Err(err) => println!("Error: {}", err),
+                }
+            }
             Err(ReadlineError::Interrupted) => {
                 println!("CTRL-C");
                 continue;

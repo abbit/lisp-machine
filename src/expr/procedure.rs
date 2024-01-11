@@ -1,6 +1,7 @@
-use super::expr::{exprs, Expr, Exprs};
+use super::expr::{Expr, Exprs};
 use crate::{
-    evaluator::{EnvRef, EvalResult},
+    evaluator::{EnvRef, EvalError},
+    exprs,
     utils::debug,
 };
 
@@ -18,7 +19,38 @@ pub enum Procedure {
     Compound(CompoundProcedure),
 }
 
-pub type ProcedureFn = fn(Exprs, &mut EnvRef) -> EvalResult;
+/// The return value of a procedure.
+/// Used to determine whether a tail call should be performed.
+pub enum ProcedureReturn {
+    /// Return [`Expr`].
+    Value(Expr),
+    /// Perform a tail call of [`Expr`] in [`EnvRef`].
+    TailCall(Expr, EnvRef),
+}
+
+/// The result of a procedure call.
+pub type ProcedureResult = Result<ProcedureReturn, EvalError>;
+
+macro_rules! proc_result_value {
+    ($expr:expr) => {
+        Ok($crate::expr::ProcedureReturn::Value($expr))
+    };
+}
+pub(crate) use proc_result_value;
+
+macro_rules! proc_result_tailcall {
+    ($expr:expr, $env:expr) => {
+        Ok($crate::expr::ProcedureReturn::TailCall($expr, $env.clone()))
+    };
+}
+pub(crate) use proc_result_tailcall;
+
+/// The type of a procedure function.
+///
+/// `args` is a list of arguments passed to the procedure.
+/// `env` is a reference to the environment in which the procedure is called.
+/// The result is either a value or a tail call.
+pub type ProcedureFn = fn(args: Exprs, env: &mut EnvRef) -> ProcedureResult;
 
 impl Procedure {
     pub fn new_atomic(name: String, kind: ProcedureKind, proc: ProcedureFn, arity: Arity) -> Self {
@@ -29,7 +61,7 @@ impl Procedure {
         name: Option<String>,
         params: ProcedureParams,
         body: Body,
-        env: &mut EnvRef,
+        env: EnvRef,
     ) -> Self {
         debug!(
             "creating procedure with name {:?}, params: {:?} and body: {:?}",
@@ -42,6 +74,17 @@ impl Procedure {
         match self {
             Procedure::Atomic(proc) => proc.is_special_form(),
             Procedure::Compound(_) => false,
+        }
+    }
+
+    pub fn arity(&self) -> Arity {
+        match self {
+            Procedure::Atomic(proc) => proc.arity(),
+            Procedure::Compound(proc) => match &proc.params {
+                ProcedureParams::Fixed(params) => Arity::Exact(params.len()),
+                ProcedureParams::Variadic(_) => Arity::Any,
+                ProcedureParams::Mixed(params, _) => Arity::AtLeast(params.len()),
+            },
         }
     }
 }
@@ -72,15 +115,28 @@ impl std::fmt::Display for Procedure {
 }
 
 #[derive(Clone, Copy, Debug, PartialEq)]
+/// Represents the kind of a procedure.
 pub enum ProcedureKind {
+    /// A special form.
+    /// Arguments *are not* evaluated before the special form is called.
     SpecialForm,
+    /// A normal procedure.
+    /// Arguments *are* evaluated before the procedure is called.
     Procedure,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq)]
+/// Represents the arity of a procedure.
+///
+/// It is used to check the number of arguments, when the procedure is called.
 pub enum Arity {
+    /// Exact number of arguments.
     Exact(usize),
+    /// At least this many arguments.
     AtLeast(usize),
+    /// From min to max arguments.
+    Range(usize, usize),
+    /// Any number of arguments.
     Any,
 }
 
@@ -89,6 +145,7 @@ impl std::fmt::Display for Arity {
         match self {
             Arity::Exact(count) => write!(f, "{}", count),
             Arity::AtLeast(count) => write!(f, "at least {}", count),
+            Arity::Range(min, max) => write!(f, "{} to {}", min, max),
             Arity::Any => write!(f, "any"),
         }
     }
@@ -178,17 +235,12 @@ pub struct CompoundProcedure {
 }
 
 impl CompoundProcedure {
-    pub fn new(
-        name: Option<String>,
-        params: ProcedureParams,
-        body: Body,
-        env: &mut EnvRef,
-    ) -> Self {
+    pub fn new(name: Option<String>, params: ProcedureParams, body: Body, env: EnvRef) -> Self {
         CompoundProcedure {
             name,
             params,
+            env,
             body: Box::new(body),
-            env: env.clone(),
         }
     }
 }

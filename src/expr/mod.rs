@@ -1,8 +1,7 @@
 mod expr;
-mod list;
+pub(crate) mod list;
 mod procedure;
 
-pub(crate) use expr::exprs;
-pub use expr::{Expr, Exprs};
+pub use expr::{AsExprs, Expr, Exprs, FromExpr, FromExprResult};
 pub use list::ListKind;
 pub use procedure::*;

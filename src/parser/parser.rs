@@ -1,5 +1,8 @@
 use super::lexer::{LexResult, Lexer, LexicalError, Token};
-use crate::expr::{exprs, Expr, Exprs, ListKind};
+use crate::{
+    expr::{Expr, Exprs, ListKind},
+    exprs,
+};
 use std::iter::Peekable;
 
 #[derive(Debug, PartialEq)]
@@ -49,7 +52,7 @@ macro_rules! to_quatation_call {
             .parse_expr()
             .ok_or_unexpected_eof()
             // wrap expr in quotation call
-            .map(|expr| Expr::new_proper_list(exprs![Expr::Symbol($symbol.to_string()), expr]));
+            .map(|expr| Expr::new_proper_list(exprs![Expr::new_symbol($symbol), expr]));
         Some(quoted)
     }};
 }
@@ -70,8 +73,8 @@ impl<I: Iterator<Item = LexResult>> Parser<I> {
             Some(Ok(tok)) => match tok {
                 Token::Comment(_) => Some(Ok(Expr::Void)),
                 Token::Boolean(boolean) => Some(Ok(Expr::Boolean(boolean))),
-                Token::String(string) => Some(Ok(Expr::String(string))),
-                Token::Symbol(symbol) => Some(Ok(Expr::Symbol(symbol))),
+                Token::String(string) => Some(Ok(Expr::new_string(string))),
+                Token::Symbol(symbol) => Some(Ok(Expr::new_symbol(symbol))),
                 Token::Integer(int) => Some(Ok(Expr::Integer(int))),
                 Token::Float(float) => Some(Ok(Expr::Float(float))),
                 Token::Char(char) => Some(Ok(Expr::Char(char))),
@@ -203,6 +206,7 @@ mod tests {
                 Expr::Symbol("cos".to_string()),
                 Expr::new_proper_list(exprs![
                     Expr::Symbol("*".to_string()),
+                    #[allow(clippy::approx_constant)]
                     Expr::Float(3.14159),
                     Expr::Integer(1),
                 ]),
@@ -287,7 +291,7 @@ mod tests {
             parsed,
             vec![Expr::new_proper_list(exprs![
                 Expr::Symbol("display".to_string()),
-                Expr::String("Hello, world!".to_string()),
+                Expr::new_string("Hello, world!"),
             ])]
         );
     }

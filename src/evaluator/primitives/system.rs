@@ -1,9 +1,10 @@
 use super::utils::define_procedures;
 use crate::{
-    evaluator::{error::runtime_error, EnvRef, EvalResult},
-    expr::{Arity, Expr, Exprs},
+    evaluator::{error::runtime_error, EnvRef},
+    expr::{proc_result_value, Arity, Expr, Exprs, ProcedureResult},
     parser,
 };
+use std::time::{SystemTime, UNIX_EPOCH};
 
 define_procedures! {
     read = ("read", read_fn, Arity::Exact(0)),
@@ -11,9 +12,10 @@ define_procedures! {
     display = ("display", display_fn, Arity::Exact(1)),
     newline = ("newline", newline_fn, Arity::Exact(0)),
     exit = ("exit", exit_fn, Arity::Exact(0)),
+    current_second = ("current-second", current_second_fn, Arity::Exact(0)),
 }
 
-fn exit_fn(_: Exprs, _: &mut EnvRef) -> EvalResult {
+fn exit_fn(_: Exprs, _: &mut EnvRef) -> ProcedureResult {
     std::process::exit(0);
 }
 
@@ -24,17 +26,17 @@ fn read_input() -> std::io::Result<String> {
     res.map(|_| input)
 }
 
-fn read_line_fn(_: Exprs, _: &mut EnvRef) -> EvalResult {
+fn read_line_fn(_: Exprs, _: &mut EnvRef) -> ProcedureResult {
     let input = read_input().map_err(|e| runtime_error!("Could not read input: {}", e))?;
     let input = match input.strip_suffix('\n') {
         Some(input) => input.to_string(),
         None => input,
     };
 
-    Ok(Expr::String(input))
+    proc_result_value!(Expr::new_string(input))
 }
 
-fn read_fn(_: Exprs, _: &mut EnvRef) -> EvalResult {
+fn read_fn(_: Exprs, _: &mut EnvRef) -> ProcedureResult {
     let input = read_input().map_err(|e| runtime_error!("Could not read input: {}", e))?;
 
     let expr = parser::parse_str(&input)
@@ -42,20 +44,28 @@ fn read_fn(_: Exprs, _: &mut EnvRef) -> EvalResult {
         .pop_front()
         .ok_or_else(|| runtime_error!("Could not parse input: empty input"))?;
 
-    Ok(expr)
+    proc_result_value!(expr)
 }
 
-fn display_fn(args: Exprs, _: &mut EnvRef) -> EvalResult {
+fn display_fn(args: Exprs, _: &mut EnvRef) -> ProcedureResult {
     for expr in args.iter() {
         match expr {
             Expr::Char(char) => print!("{}", char),
             expr => print!("{}", expr),
         }
     }
-    Ok(Expr::Void)
+    proc_result_value!(Expr::Void)
 }
 
-fn newline_fn(_: Exprs, _: &mut EnvRef) -> EvalResult {
+fn newline_fn(_: Exprs, _: &mut EnvRef) -> ProcedureResult {
     println!();
-    Ok(Expr::Void)
+    proc_result_value!(Expr::Void)
+}
+
+fn current_second_fn(_: Exprs, _: &mut EnvRef) -> ProcedureResult {
+    let current_time = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .unwrap()
+        .as_secs_f64();
+    proc_result_value!(Expr::Float(current_time))
 }
