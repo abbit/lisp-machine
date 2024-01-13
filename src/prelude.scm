@@ -228,3 +228,39 @@
                           `(,tmp ,@(cdr clause)))
                         `((if (memv ,tmp ',(car clause)) ,tmp #f) ,@(cdr clause))))
                     clauses)))))
+
+; lazy evaluation
+(define make-promise
+  (lambda (proc)
+    (let ((result-ready? #f)
+          (result #f))
+      (lambda ()
+        (if result-ready?
+            result
+            (let ((x (proc)))
+              (if result-ready?
+                  result
+                  (begin (set! result-ready? #t)
+                          (set! result x)
+                          result))))))))
+
+(define-macro (delay expression) `(make-promise (lambda () ,expression)))
+
+(define force
+  (lambda (object)
+    (object)))
+
+(define lazy-car car)
+    
+(define (lazy-cdr ls)
+(force (cdr ls)))
+
+(define (lazy-ref ls n)
+  (if (= n 0)
+    (lazy-car ls)
+    (lazy-ref (lazy-cdr ls) (- n 1))))
+
+(define (head ls n)
+  (if (= n 0)
+    '()
+    (cons (lazy-car ls) (head (lazy-cdr ls) (- n 1)))))
