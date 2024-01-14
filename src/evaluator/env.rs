@@ -231,7 +231,6 @@ pub fn new_root_env() -> EnvRef {
         nums::quotient,
         nums::remainder,
         nums::modulo,
-        // boolean
         // equal
         equal::eqv,
         equal::eq,

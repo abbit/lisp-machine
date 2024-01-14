@@ -8,14 +8,6 @@
 
 (define (negative? x) (< x 0))
 
-(define (even? x)
-  (and (integer? x)
-       (zero? (modulo x 2))))
-
-(define (odd? x)
-  (and (integer? x)
-       (not (zero? (modulo x 2)))))
-
 ; bool
 (define (boolean? x) (if (eq? x #t) #t (eq? x #f)))
 
@@ -276,3 +268,64 @@
                           (else `(error "no match clause was selected")))))
                     match-clauses)))))
 
+; lazy evaluation
+(define make-promise
+  (lambda (proc)
+    (let ((result-ready? #f)
+          (result #f))
+      (lambda ()
+        (if result-ready?
+            result
+            (let ((x (proc)))
+              (if result-ready?
+                  result
+                  (begin (set! result-ready? #t)
+                          (set! result x)
+                          result))))))))
+
+(define-macro (delay expression) `(make-promise (lambda () ,expression)))
+
+(define force
+  (lambda (object)
+    (object)))
+
+(define lazy-car car)
+    
+(define (lazy-cdr ls)
+  (force (cdr ls)))
+
+(define-macro (lazy-cons a b)
+  `(cons ,a (delay ,b)))
+
+(define (lazy-map fn . lss)
+  (if (memq '() lss)
+   '()
+    (lazy-cons (apply fn (map lazy-car lss))
+      (apply lazy-map fn (map lazy-cdr lss)))))
+    
+(define (lazy-filter pred ls)
+  (if (null? ls)
+    '()
+    (let ((obj (lazy-car ls)))
+      (if (pred obj)
+        (lazy-cons obj (lazy-filter pred (lazy-cdr ls)))
+        (lazy-filter pred (lazy-cdr ls))))))
+
+(define (lazy-ref ls n)
+  (if (= n 0)
+    (lazy-car ls)
+    (lazy-ref (lazy-cdr ls) (- n 1))))
+
+(define (head ls n)
+  (if (= n 0)
+    '()
+    (cons (lazy-car ls) (head (lazy-cdr ls) (- n 1)))))
+
+; math        
+(define (even? x)
+  (and (integer? x)
+       (zero? (modulo x 2))))
+
+(define (odd? x)
+  (and (integer? x)
+       (not (zero? (modulo x 2)))))
