@@ -69,6 +69,14 @@
 <a href="#69" id="69">69</a>
 <a href="#70" id="70">70</a>
 <a href="#71" id="71">71</a>
+<a href="#72" id="72">72</a>
+<a href="#73" id="73">73</a>
+<a href="#74" id="74">74</a>
+<a href="#75" id="75">75</a>
+<a href="#76" id="76">76</a>
+<a href="#77" id="77">77</a>
+<a href="#78" id="78">78</a>
+<a href="#79" id="79">79</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">super</span>::utils::define_procedures;
 <span class="kw">use crate</span>::{
     evaluator::{error::runtime_error, EnvRef},
@@ -81,6 +89,7 @@
     read = (<span class="string">&quot;read&quot;</span>, read_fn, Arity::Exact(<span class="number">0</span>)),
     read_line = (<span class="string">&quot;read-line&quot;</span>, read_line_fn, Arity::Exact(<span class="number">0</span>)),
     display = (<span class="string">&quot;display&quot;</span>, display_fn, Arity::Exact(<span class="number">1</span>)),
+    error = (<span class="string">&quot;error&quot;</span>, error_fn, Arity::Exact(<span class="number">1</span>)),
     newline = (<span class="string">&quot;newline&quot;</span>, newline_fn, Arity::Exact(<span class="number">0</span>)),
     exit = (<span class="string">&quot;exit&quot;</span>, exit_fn, Arity::Exact(<span class="number">0</span>)),
     current_second = (<span class="string">&quot;current-second&quot;</span>, current_second_fn, Arity::Exact(<span class="number">0</span>)),
@@ -126,6 +135,13 @@
         }
     }
     <span class="macro">proc_result_value!</span>(Expr::Void)
+}
+
+<span class="kw">fn </span>error_fn(<span class="kw-2">mut </span>args: Exprs, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>EnvRef) -&gt; ProcedureResult {
+    <span class="kw">let </span>msg = args.pop_front().unwrap().into_string().map_err(|expr| {
+        <span class="macro">runtime_error!</span>(<span class="string">&quot;expected string as argument of error, got {}&quot;</span>, expr.kind())
+    })<span class="question-mark">?</span>;
+    <span class="prelude-val">Err</span>(<span class="macro">runtime_error!</span>(<span class="string">&quot;{}&quot;</span>, (<span class="kw-2">*</span>msg).borrow().clone()))
 }
 
 <span class="kw">fn </span>newline_fn(<span class="kw">_</span>: Exprs, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>EnvRef) -&gt; ProcedureResult {

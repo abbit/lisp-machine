@@ -787,7 +787,7 @@
     <span class="kw">for </span>(clause, idx) <span class="kw">in </span>args.into_iter().zip(<span class="number">1</span>..) {
         <span class="kw">let </span><span class="kw-2">mut </span>clause = clause
             .into_list()
-            .map_err(|expr| <span class="macro">runtime_error!</span>(<span class="string">&quot;expected list as clause in cond, got {}&quot;</span>, expr))<span class="question-mark">?</span>;
+            .map_err(|expr| <span class="macro">runtime_error!</span>(<span class="string">&quot;expected list as clause, got {}&quot;</span>, expr))<span class="question-mark">?</span>;
 
         <span class="kw">if </span>clause.is_empty() {
             <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">runtime_error!</span>(<span class="string">&quot;expected at least 1 element in clause&quot;</span>,));
@@ -798,7 +798,7 @@
         </span><span class="kw">let </span>test_result = <span class="kw">if </span>test.is_specific_symbol(<span class="string">&quot;else&quot;</span>) {
             <span class="comment">// `else` clause should be last in cond
             </span><span class="kw">if </span>idx != args_len {
-                <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">runtime_error!</span>(<span class="string">&quot;else clause must be last in cond&quot;</span>));
+                <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">runtime_error!</span>(<span class="string">&quot;else clause must be last&quot;</span>));
             }
             TestResult::Else
         } <span class="kw">else </span>{
@@ -811,16 +811,16 @@
                 TestResult::Normal(result_expr) =&gt; {
                     <span class="kw">if </span>clause.car().is_some_and(|e| e.is_specific_symbol(<span class="string">&quot;=&gt;&quot;</span>)) {
                         clause.pop_front(); <span class="comment">// pop &quot;=&gt;&quot; symbol
-                        </span><span class="kw">let </span>proc_expr = clause.pop_front().ok_or(<span class="macro">runtime_error!</span>(
-                            <span class="string">&quot;expected expression after `=&gt;` in cond clause&quot;
-                        </span>))<span class="question-mark">?</span>;
+                        </span><span class="kw">let </span>proc_expr = clause
+                            .pop_front()
+                            .ok_or(<span class="macro">runtime_error!</span>(<span class="string">&quot;expected expression after `=&gt;` in clause&quot;</span>))<span class="question-mark">?</span>;
                         <span class="comment">// if clause uses `=&gt;` then next expr should evaluate to a procedure
                         </span><span class="kw">let </span>proc =
                             eval::eval_expr(proc_expr, env)<span class="question-mark">?
                                 </span>.into_procedure()
                                 .map_err(|expr| {
                                     <span class="macro">runtime_error!</span>(
-                                        <span class="string">&quot;expected procedure after `=&gt;` in cond clause, got {}&quot;</span>,
+                                        <span class="string">&quot;expected procedure after `=&gt;` in clause, got {}&quot;</span>,
                                         expr.kind()
                                     )
                                 })<span class="question-mark">?</span>;
@@ -828,7 +828,7 @@
                         <span class="comment">// procedure should accept 1 argument
                         </span><span class="kw">if </span>!<span class="macro">matches!</span>(proc.arity(), Arity::Exact(<span class="number">1</span>)) {
                             <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">runtime_error!</span>(
-                                <span class="string">&quot;expected procedure with 1 argument after `=&gt;` in cond clause&quot;
+                                <span class="string">&quot;expected procedure with 1 argument after `=&gt;` in clause&quot;
                             </span>));
                         }
 

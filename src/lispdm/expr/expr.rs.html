@@ -895,7 +895,7 @@
             Expr::Float(float) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{}&quot;</span>, float),
             Expr::Symbol(symbol) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{}&quot;</span>, symbol),
             Expr::String(string) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;\&quot;{}\&quot;&quot;</span>, string.borrow()),
-            Expr::Char(char) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{}&quot;</span>, char),
+            Expr::Char(char) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;&#39;{}&#39;&quot;</span>, char),
             Expr::Procedure(proc) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{}&quot;</span>, proc),
             Expr::Boolean(bool) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{}&quot;</span>, <span class="kw">if </span><span class="kw-2">*</span>bool { <span class="string">&quot;#t&quot; </span>} <span class="kw">else </span>{ <span class="string">&quot;#f&quot; </span>}),
             Expr::List(list) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{}&quot;</span>, list),
