@@ -272,8 +272,6 @@
                            `((equal? ,tmp ,pat) ,@(cdr match-clause)))
                           ((symbol? pat)
                            `((equal? ,tmp ',pat) ,@(cdr match-clause)))
-                          ;; (<pattern_1> ... <pattern_n>) - match list
-                          ;; ((list? pat) ...)
                           ;; no match - error
                           (else `(error "no match clause was selected")))))
                     match-clauses)))))
