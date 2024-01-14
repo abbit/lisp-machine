@@ -1,6 +1,6 @@
 use super::{
     list::{List, ListKind},
-    procedure::Procedure,
+    procedure::Procedure, port::Port,
 };
 use core::fmt;
 use std::{cell::RefCell, collections::VecDeque, rc::Rc};
@@ -48,6 +48,8 @@ pub enum Expr {
     /// Because of this, internal <code>Procedure</code> struct does not exported, so you can't construct procedure directly.
     /// </div>
     Procedure(Procedure),
+    /// Port
+    Port(Box<Port>),
 }
 
 /// A list of [`Expr`]s. Also can be created with [`exprs!`] macro.
@@ -154,6 +156,7 @@ impl Expr {
             },
             Expr::Void => "void",
             Expr::Procedure(_) => "procedure",
+            Expr::Port(_) => "port"
         }
     }
 
@@ -316,6 +319,7 @@ impl fmt::Display for Expr {
             Expr::Procedure(proc) => write!(f, "{}", proc),
             Expr::Boolean(bool) => write!(f, "{}", if *bool { "#t" } else { "#f" }),
             Expr::List(list) => write!(f, "{}", list),
+            Expr::Port(_port) => write!(f, "#<port>")
         }
     }
 }

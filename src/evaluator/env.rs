@@ -208,6 +208,8 @@ pub fn new_root_env() -> EnvRef {
         // modularity
         modularity::include,
         modularity::load,
+        modularity::open_input_file,
+        modularity::is_port,
          // arithmetic
         nums::add,
         nums::sub,

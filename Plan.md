@@ -193,7 +193,7 @@
 	- [x] `for-each`
 	- [x] `string-for-each`
 - [ ] ports:
-	- [ ] `port?`
+	- [x] `port?`
 	- [ ] `call-with-port`
 	- [ ] `call-with-input-file`
 	- [ ] `call-with-output-file`
@@ -204,7 +204,7 @@
 	- [ ] `current-input-port`
 	- [ ] `current-output-port`
 	- [ ] `current-error-port`
-	- [ ] `open-input-file`
+	- [x] `open-input-file`
 	- [ ] `open-output-file`
 	- [ ] `close-port`
 	- [ ] `close-input-port`
