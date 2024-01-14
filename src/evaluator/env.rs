@@ -263,6 +263,7 @@ pub fn new_root_env() -> EnvRef {
         system::newline,
         system::exit,
         system::current_second,
+        system::error,
         //strings
         strings::string_set,
         strings::string_eq,

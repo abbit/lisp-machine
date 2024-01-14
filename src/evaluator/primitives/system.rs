@@ -10,6 +10,7 @@ define_procedures! {
     read = ("read", read_fn, Arity::Exact(0)),
     read_line = ("read-line", read_line_fn, Arity::Exact(0)),
     display = ("display", display_fn, Arity::Exact(1)),
+    error = ("error", error_fn, Arity::Exact(1)),
     newline = ("newline", newline_fn, Arity::Exact(0)),
     exit = ("exit", exit_fn, Arity::Exact(0)),
     current_second = ("current-second", current_second_fn, Arity::Exact(0)),
@@ -55,6 +56,13 @@ fn display_fn(args: Exprs, _: &mut EnvRef) -> ProcedureResult {
         }
     }
     proc_result_value!(Expr::Void)
+}
+
+fn error_fn(mut args: Exprs, _: &mut EnvRef) -> ProcedureResult {
+    let msg = args.pop_front().unwrap().into_string().map_err(|expr| {
+        runtime_error!("expected string as argument of error, got {}", expr.kind())
+    })?;
+    Err(runtime_error!("{}", (*msg).borrow().clone()))
 }
 
 fn newline_fn(_: Exprs, _: &mut EnvRef) -> ProcedureResult {
