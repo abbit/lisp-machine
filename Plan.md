@@ -216,8 +216,8 @@
 	- [ ] `read-char`
 	- [ ] `peek-char`
 	- [ ] `read-line`
-	- [ ] `eof-object?`
-	- [ ] `eof-object`
+	- [x] `eof-object?`
+	- [x] `eof-object`
 	- [ ] `char-ready?`
 	- [ ] `read-string`
 	- [ ] `write`

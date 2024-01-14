@@ -16,9 +16,9 @@ define_special_forms! {
 
 define_procedures! {
     load = ("load", load_fn, Arity::Exact(1)),
-    open_input_file = ("open-input-file", open_input_file_fn, Arity::Exact(1)),
     is_port = ("port?", is_port_fn, Arity::Exact(1)),
-   // open_output_file = ("open-output-file", open_output_file_fn, Arity::Exact(1)),
+    open_input_file = ("open-input-file", open_input_file_fn, Arity::Exact(1)),
+    //open_output_file = ("open-output-file", open_output_file_fn, Arity::Exact(1)),
     //close_input_port = ("close-input-port", close_input_port_fn, Arity::Exact(1)),
     //close_output_port = ("close-output-port", close_output_port_fn, Arity::Exact(1)),
     //current_input_port = ("current-input-port", current_input_port_fn, Arity::Exact(0)),
