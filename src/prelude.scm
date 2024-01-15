@@ -261,6 +261,7 @@
                              (char? pat)
                              (number? pat)
                              (string? pat))
+                             (list? pat))
                            `((equal? ,tmp ,pat) ,@(cdr match-clause)))
                           ((symbol? pat)
                            `((equal? ,tmp ',pat) ,@(cdr match-clause)))
