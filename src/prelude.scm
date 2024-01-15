@@ -260,10 +260,11 @@
                              (boolean? pat)
                              (char? pat)
                              (number? pat)
-                             (string? pat)
-                             (list? pat))
+                             (string? pat))
                            `((equal? ,tmp ,pat) ,@(cdr match-clause)))
-                          ((symbol? pat)
+                          ((or
+                             (symbol? pat)
+                             (list? pat))
                            `((equal? ,tmp ',pat) ,@(cdr match-clause)))
                           ;; no match - error
                           (else `(error "no match clause was selected")))))
