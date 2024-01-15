@@ -92,7 +92,7 @@ impl TextInputPort for FileTextInputPort {
     }
 
     fn read_string(&mut self, n: usize) -> std::io::Result<String> {
-        let mut result = String::with_capacity(n); // We will need at least n, maybe more.
+        let mut result = String::with_capacity(n);
         let mut n = n;
         if let Some(c) = self.peek_buffer {
             self.peek_buffer = None;
@@ -127,7 +127,7 @@ impl TextInputPort for FileTextInputPort {
 }
 
 pub struct StringOutputPort {
-    underlying: String,
+    pub(crate) underlying: String,
 }
 
 impl std::io::Write for StringOutputPort {

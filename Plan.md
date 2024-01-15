@@ -36,7 +36,7 @@
 - [x] `pair` (`improper list`)
 - [x] `char`
 - [x] `procedure`
-- [ ] `port`
+- [x] `port`
 
 ## Специальные формы
 
@@ -197,15 +197,15 @@
 	- [ ] `call-with-port`
 	- [ ] `call-with-input-file`
 	- [ ] `call-with-output-file`
-	- [ ] `input-port?`
-	- [ ] `output-port?`
+	- [x] `input-port?`
+	- [x] `output-port?`
 	- [ ] `input-port-open?`
 	- [ ] `output-port-open?`
 	- [ ] `current-input-port`
 	- [ ] `current-output-port`
 	- [ ] `current-error-port`
 	- [x] `open-input-file`
-	- [ ] `open-output-file`
+	- [x] `open-output-file`
 	- [ ] `close-port`
 	- [ ] `close-input-port`
 	- [ ] `close-output-port`
