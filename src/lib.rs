@@ -16,12 +16,16 @@ pub use evaluator::EnvRef;
 use evaluator::EvalError;
 use expr::Procedure;
 pub use expr::{
-    Arity, Expr, Exprs, FromExpr, FromExprResult, ProcedureFn, ProcedureKind, ProcedureResult,
-    ProcedureReturn,
+    Arity, Expr, Exprs, FromExpr, FromExprResult, InputPort, List, OutputPort, Port, ProcedureFn,
+    ProcedureKind, ProcedureResult, ProcedureReturn,
 };
 use parser::ParseError;
 
-const PRELUDE: &str = include_str!("./prelude.scm");
+/// Prelude of LispDM.
+///
+/// Contains implementation of some special forms and standard procedures.
+/// Loaded by default when creating a new instance of [`Engine`].
+pub const PRELUDE: &str = include_str!("./prelude.scm");
 
 #[derive(Debug)]
 /// Error type that represents all possible errors in LispDM.

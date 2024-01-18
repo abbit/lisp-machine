@@ -2,6 +2,7 @@ use super::expr::{Expr, Exprs};
 use core::fmt;
 
 #[derive(Debug, PartialEq, Clone)]
+/// List of expressions.
 pub struct List {
     but_last: Exprs,
     last: Option<Box<Expr>>,
@@ -14,6 +15,7 @@ pub enum ListKind {
 }
 
 impl List {
+    /// Creates a new list.
     pub fn new(but_last: Exprs, last: Option<Expr>) -> Self {
         List {
             but_last,
@@ -22,19 +24,22 @@ impl List {
         .flatten()
     }
 
+    /// Creates a new empty list.
     pub fn new_empty() -> Self {
         List::new(Exprs::new(), None)
     }
 
+    /// Creates a new proper list.
     pub fn new_proper(list: Exprs) -> Self {
         List::new(list, None)
     }
 
+    /// Creates a new dotted list.
     pub fn new_dotted(but_last: Exprs, last: Expr) -> Self {
         List::new(but_last, Some(last))
     }
 
-    pub fn flatten(self) -> Self {
+    fn flatten(self) -> Self {
         let mut last = match self.last {
             None => return self,
             expr => expr.map(|e| *e),
@@ -54,6 +59,7 @@ impl List {
         }
     }
 
+    /// Returns the length of the list.
     pub fn len(&self) -> usize {
         self.but_last.len()
             + self
@@ -62,10 +68,7 @@ impl List {
                 .map_or(0, |expr| expr.as_list().map_or(1, |list| list.len()))
     }
 
-    pub fn is_empty(&self) -> bool {
-        self.len() == 0
-    }
-
+    /// Returns the kind of the list.
     pub fn kind(&self) -> ListKind {
         match self.last {
             Some(ref expr) => expr.as_list().map_or(ListKind::Dotted, |list| list.kind()),
@@ -73,19 +76,27 @@ impl List {
         }
     }
 
+    /// Checks if list is empty.
+    pub fn is_empty(&self) -> bool {
+        self.len() == 0
+    }
+
+    /// Checks if list is proper.
     pub fn is_proper(&self) -> bool {
         matches!(self.kind(), ListKind::Proper)
     }
 
+    /// Checks if list is dotted.
     pub fn is_dotted(&self) -> bool {
         matches!(self.kind(), ListKind::Dotted)
     }
 
+    /// Returns the first element of the list or `None` if list is empty.
     pub fn car(&self) -> Option<&Expr> {
         self.but_last.front()
     }
 
-    /// Returns the first element of the list.
+    /// Removes the first element of the list and returns it.
     /// Returns `None` if list is empty.
     pub fn pop_front(&mut self) -> Option<Expr> {
         self.but_last
@@ -114,14 +125,17 @@ impl List {
         self.but_last.iter()
     }
 
+    /// Returns the last element of the list or `None` if list is empty.
     pub fn last(&self) -> Option<&Expr> {
         self.last.as_deref()
     }
 
+    /// Returns iterator over all elements of the list.
     pub fn iter(&self) -> impl Iterator<Item = &Expr> {
         self.into_iter()
     }
 
+    /// Converts list into [`Exprs`].
     pub fn into_exprs(self) -> Exprs {
         self.into_iter().collect()
     }

@@ -104,11 +104,12 @@ fn eval_expanded_expr(mut expr: Expr, env: &mut EnvRef) -> EvalResult {
     let mut env = env.clone();
     loop {
         match expr {
-            expr @ Expr::Boolean(_) => return Ok(expr),
-            expr @ Expr::Integer(_) => return Ok(expr),
-            expr @ Expr::Float(_) => return Ok(expr),
-            expr @ Expr::Char(_) => return Ok(expr),
-            expr @ Expr::String(_) => return Ok(expr),
+            Expr::Boolean(_) => return Ok(expr),
+            Expr::Integer(_) => return Ok(expr),
+            Expr::Float(_) => return Ok(expr),
+            Expr::Char(_) => return Ok(expr),
+            Expr::String(_) => return Ok(expr),
+            Expr::Port(_) => return Ok(expr),
             Expr::Symbol(symbol) => return eval_symbol(symbol, &mut env),
             Expr::List(list) => match list.kind() {
                 ListKind::Proper => match eval_list(list.into(), &mut env)? {
@@ -125,7 +126,6 @@ fn eval_expanded_expr(mut expr: Expr, env: &mut EnvRef) -> EvalResult {
             Expr::Procedure(_) => {
                 return Err(runtime_error!("procedure object cannot be evaluated"))
             }
-            Expr::Port(_) => return Ok(expr),
         }
     }
 }

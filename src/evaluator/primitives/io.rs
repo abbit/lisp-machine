@@ -1,7 +1,7 @@
 use super::utils::define_procedures;
 use crate::{
     evaluator::{error::runtime_error, EnvRef},
-    expr::{port::InputPortTrait, proc_result_value, Arity, Expr, Exprs, ProcedureResult},
+    expr::{proc_result_value, Arity, Expr, Exprs, ProcedureResult},
     parser,
 };
 use std::io::Write;

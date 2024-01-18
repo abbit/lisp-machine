@@ -73,17 +73,17 @@ fn current_second_fn(_: Exprs, _: &mut EnvRef) -> ProcedureResult {
     proc_result_value!(Expr::Float(current_time))
 }
 
-fn file_exists_fn(args: Exprs, _: &mut EnvRef) -> ProcedureResult {
-    let path_expr = args
-        .get(0)
-        .ok_or_else(|| runtime_error!("expected one argument for file-exists?, but got none"))?;
-
-    let path_str = path_expr.clone().into_string().map_err(|expr| {
-        runtime_error!(
-            "expected string as argument for file-exists?, got {}",
-            expr.kind()
-        )
-    })?;
+fn file_exists_fn(mut args: Exprs, _: &mut EnvRef) -> ProcedureResult {
+    let path_str = args
+        .pop_front()
+        .ok_or_else(|| runtime_error!("expected one argument for file-exists?, but got none"))?
+        .into_string()
+        .map_err(|expr| {
+            runtime_error!(
+                "expected string as argument for file-exists?, got {}",
+                expr.kind()
+            )
+        })?;
 
     let binding = path_str.borrow();
     let path = Path::new(&*binding);
@@ -93,17 +93,17 @@ fn file_exists_fn(args: Exprs, _: &mut EnvRef) -> ProcedureResult {
     proc_result_value!(Expr::Boolean(exists))
 }
 
-fn delete_file_fn(args: Exprs, _: &mut EnvRef) -> ProcedureResult {
-    let path_expr = args
-        .get(0)
-        .ok_or_else(|| runtime_error!("expected one argument for delete-file, but got none"))?;
-
-    let path_str = path_expr.clone().into_string().map_err(|expr| {
-        runtime_error!(
-            "expected string as argument for delete-file, got {}",
-            expr.kind()
-        )
-    })?;
+fn delete_file_fn(mut args: Exprs, _: &mut EnvRef) -> ProcedureResult {
+    let path_str = args
+        .pop_front()
+        .ok_or_else(|| runtime_error!("expected one argument for delete-file, but got none"))?
+        .into_string()
+        .map_err(|expr| {
+            runtime_error!(
+                "expected string as argument for delete-file, got {}",
+                expr.kind()
+            )
+        })?;
 
     let path = path_str.borrow().clone();
 
@@ -145,17 +145,19 @@ fn get_environment_variables_fn(_: Exprs, _: &mut EnvRef) -> ProcedureResult {
     proc_result_value!(Expr::new_dotted_list(result_list))
 }
 
-fn get_environment_variable_fn(args: Exprs, _: &mut EnvRef) -> ProcedureResult {
-    let key_expr = args.get(0).ok_or_else(|| {
-        runtime_error!("Expected one argument for get-environment-variable, but got none")
-    })?;
-
-    let key = key_expr.clone().into_string().map_err(|expr| {
-        runtime_error!(
-            "Expected string as argument for get-environment-variable, got {}",
-            expr.kind()
-        )
-    })?;
+fn get_environment_variable_fn(mut args: Exprs, _: &mut EnvRef) -> ProcedureResult {
+    let key = args
+        .pop_front()
+        .ok_or_else(|| {
+            runtime_error!("Expected one argument for get-environment-variable, but got none")
+        })?
+        .into_string()
+        .map_err(|expr| {
+            runtime_error!(
+                "Expected string as argument for get-environment-variable, got {}",
+                expr.kind()
+            )
+        })?;
 
     let value = match std::env::var(&*key.borrow()) {
         Ok(val) => Expr::String(Rc::new(RefCell::new(val))),

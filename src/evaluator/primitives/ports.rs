@@ -3,10 +3,7 @@ use std::{cell::RefCell, rc::Rc};
 use super::utils::{define_procedures, resolve_path};
 use crate::{
     evaluator::{error::runtime_error, procedure::ApplyProcedure, EnvRef},
-    expr::{
-        port::{InputPortTrait, OutputPortTrait, Port},
-        proc_result_value, Arity, Expr, Exprs, ProcedureResult,
-    },
+    expr::{port::Port, proc_result_value, Arity, Expr, Exprs, ProcedureResult},
 };
 
 define_procedures! {
