@@ -341,9 +341,10 @@ pub fn new_root_env() -> EnvRef {
         io::read,
         io::read_string,
         io::write,
+        io::write_char,
+        io::write_string,
         io::display,
         io::newline,
-        io::write_string,
     }
 
     env

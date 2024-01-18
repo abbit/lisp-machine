@@ -214,7 +214,7 @@
 	- [ ] `read-char`
 	- [x] `read-string`
 	- [x] `write`
-	- [ ] `write-char`
+	- [x] `write-char`
 	- [x] `write-string`
 	- [x] `display`
 	- [x] `newline`

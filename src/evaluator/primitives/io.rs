@@ -10,9 +10,10 @@ define_procedures! {
     read = ("read", read_fn, Arity::Range(0, 1)),
     read_string = ("read-string", read_string_fn, Arity::Range(0, 1)),
     write = ("write", write_fn, Arity::Range(1, 2)),
+    write_char = ("write-char", write_char_fn, Arity::Range(1, 2)),
+    write_string = ("write-string", write_string_fn, Arity::Range(1, 4)),
     display = ("display", write_fn, Arity::Range(1, 2)),
     newline = ("newline", newline_fn, Arity::Range(0 ,1)),
-    write_string = ("write-string", write_string_fn, Arity::Range(1, 4)),
 }
 
 fn read_fn(mut args: Exprs, env: &mut EnvRef) -> ProcedureResult {
@@ -91,6 +92,35 @@ fn newline_fn(mut args: Exprs, env: &mut EnvRef) -> ProcedureResult {
 
     proc_result_value!(Expr::Void)
 }
+
+fn write_char_fn(mut args: Exprs, env: &mut EnvRef) -> ProcedureResult {
+    let char_arg = args.pop_front().unwrap().into_char().map_err(|expr| {
+        runtime_error!(
+            "expected char as write-char argument, got {}",
+            expr.kind()
+        )
+    })?;
+
+    let port = match args.pop_front() {
+        Some(expr) => expr.into_port().map_err(|expr| {
+            runtime_error!(
+                "expected port as second write-char argument, got {}",
+                expr.kind()
+            )
+        })?,
+        None => env.current_output_port(),
+    };
+
+    let mut port = port.borrow_mut();
+    let output_port = port
+        .as_output()
+        .ok_or(runtime_error!("expected output port"))?;
+
+    write!(output_port, "{}", char_arg).map_err(|e| e.to_string())?;
+
+    proc_result_value!(Expr::Void)
+}
+
 
 fn write_string_fn(mut args: Exprs, env: &mut EnvRef) -> ProcedureResult {
     let string_arg = args.pop_front().unwrap().into_string().map_err(|expr| {
