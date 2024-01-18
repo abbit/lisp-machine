@@ -213,8 +213,27 @@ enum InputPortInner {
 pub struct InputPort(InputPortInner);
 
 impl PartialEq for InputPort {
-    fn eq(&self, _other: &Self) -> bool {
-        panic!("trying to compare input port");
+    fn eq(&self, other: &Self) -> bool {
+        match (&self.0, &other.0) {
+            (InputPortInner::Stdin(_), InputPortInner::Stdin(_)) => true,
+            (InputPortInner::File(file1), InputPortInner::File(file2)) => {
+                match (file1.get_inderlying(), file2.get_inderlying()) {
+                    (Some(file1), Some(file2)) => {
+                        #[cfg(unix)]
+                        let fd1 = file1.as_raw_fd();
+                        #[cfg(windows)]
+                        let fd1 = file1.as_raw_handle();
+                        #[cfg(unix)]
+                        let fd2 = file2.as_raw_fd();
+                        #[cfg(windows)]
+                        let fd2 = file2.as_raw_handle();
+                        fd1 == fd2
+                    }
+                    _ => false,
+                }
+            }
+            _ => false,
+        }
     }
 }
 
@@ -315,8 +334,27 @@ impl OutputPort {
 }
 
 impl PartialEq for OutputPort {
-    fn eq(&self, _other: &Self) -> bool {
-        panic!("trying to compare output port");
+    fn eq(&self, other: &Self) -> bool {
+        match (&self.0, &other.0) {
+            (OutputPortInner::Stdout(_), OutputPortInner::Stdout(_)) => true,
+            (OutputPortInner::File(file1), OutputPortInner::File(file2)) => {
+                match (file1.get_inderlying(), file2.get_inderlying()) {
+                    (Some(file1), Some(file2)) => {
+                        #[cfg(unix)]
+                        let fd1 = file1.as_raw_fd();
+                        #[cfg(windows)]
+                        let fd1 = file1.as_raw_handle();
+                        #[cfg(unix)]
+                        let fd2 = file2.as_raw_fd();
+                        #[cfg(windows)]
+                        let fd2 = file2.as_raw_handle();
+                        fd1 == fd2
+                    }
+                    _ => false,
+                }
+            }
+            _ => false,
+        }
     }
 }
 
