@@ -125,6 +125,7 @@ fn eval_expanded_expr(mut expr: Expr, env: &mut EnvRef) -> EvalResult {
             Expr::Procedure(_) => {
                 return Err(runtime_error!("procedure object cannot be evaluated"))
             }
+            Expr::Port(_) => return Ok(expr),
         }
     }
 }

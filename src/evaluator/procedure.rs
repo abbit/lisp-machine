@@ -31,8 +31,11 @@ impl ApplyProcedure for AtomicProcedure {
 }
 
 impl ApplyProcedure for CompoundProcedure {
-    fn apply(&self, mut args: Exprs, _: &mut EnvRef) -> ProcedureResult {
-        let mut eval_env = self.env.clone().extend();
+    fn apply(&self, mut args: Exprs, env: &mut EnvRef) -> ProcedureResult {
+        let mut eval_env = self.env.extend();
+        eval_env.set_cwd(env.cwd());
+        eval_env.set_current_input_port(env.current_input_port());
+        eval_env.set_current_output_port(env.current_output_port());
 
         match self.params.clone() {
             ProcedureParams::Fixed(params) => {

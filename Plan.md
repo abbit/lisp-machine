@@ -17,7 +17,7 @@
 - [x] Ветвление, логические связки с отложенным порядком исполнения
 - [x] Присваивание для ранее определенных символов
 - [x] Макросы (как defmacro из Clojure)
-- [ ] Ввод-вывод (консольный и файловый)
+- [x] Ввод-вывод (консольный и файловый)
 - [x] Возможность добавления встроенных функций на Rust
 
 Поведение языка должно соответствовать стандарту R7RS.
@@ -36,7 +36,7 @@
 - [x] `pair` (`improper list`)
 - [x] `char`
 - [x] `procedure`
-- [ ] `port`
+- [x] `port`
 
 ## Специальные формы
 
@@ -192,48 +192,39 @@
 	- [x] `string-map`
 	- [x] `for-each`
 	- [x] `string-for-each`
-- [ ] ports:
-	- [ ] `port?`
-	- [ ] `call-with-port`
-	- [ ] `call-with-input-file`
-	- [ ] `call-with-output-file`
-	- [ ] `input-port?`
-	- [ ] `output-port?`
-	- [ ] `input-port-open?`
-	- [ ] `output-port-open?`
-	- [ ] `current-input-port`
-	- [ ] `current-output-port`
-	- [ ] `current-error-port`
-	- [ ] `open-input-file`
-	- [ ] `open-output-file`
-	- [ ] `close-port`
-	- [ ] `close-input-port`
-	- [ ] `close-output-port`
-	- [ ] `open-input-string`
-	- [ ] `open-output-string`
-	- [ ] `get-output-string`
+- [x] ports:
+	- [x] `port?`
+	- [x] `call-with-input-file`
+	- [x] `call-with-output-file`
+    - [x] `with-input-from-file`
+    - [x] `with-output-to-file`
+	- [x] `input-port?`
+	- [x] `output-port?`
+	- [x] `current-input-port`
+	- [x] `current-output-port`
+	- [x] `open-input-file`
+	- [x] `open-output-file`
+	- [x] `close-input-port`
+	- [x] `close-output-port`
+	- [x] `eof-object?`
+	- [x] `eof-object`
+- [x] input/output:
 	- [x] `read`
-	- [ ] `read-char`
-	- [ ] `peek-char`
-	- [ ] `read-line`
-	- [ ] `eof-object?`
-	- [ ] `eof-object`
-	- [ ] `char-ready?`
-	- [ ] `read-string`
-	- [ ] `write`
+	- [x] `read-char`
+	- [x] `read-string`
+	- [x] `write`
+	- [x] `write-char`
+	- [x] `write-string`
 	- [x] `display`
 	- [x] `newline`
-	- [ ] `write-char`
-	- [ ] `write-string`
-	- [ ] `flush-output-port`
-- [ ] system interface:
+- [x] system interface:
 	- [x] `load`
-	- [ ] `file-exists?`
-	- [ ] `delete-file`
-	- [ ] `command-line`
+	- [x] `file-exists?`
+	- [x] `delete-file`
+	- [x] `command-line`
 	- [x] `exit`
-	- [ ] `get-environment-variable`
-	- [ ] `get-environment-variables`
+	- [x] `get-environment-variable`
+	- [x] `get-environment-variables`
 	- [x] `current-second`
 
 ## Дополнительные требования:

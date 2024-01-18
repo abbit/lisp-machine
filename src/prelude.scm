@@ -331,3 +331,9 @@
 (define (odd? x)
   (and (integer? x)
        (not (zero? (modulo x 2)))))
+
+; ports
+(define (eof-object) '#!eof)
+
+(define (eof-object? obj)
+  (equal? obj (eof-object)))

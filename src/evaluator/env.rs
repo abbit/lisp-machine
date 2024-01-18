@@ -1,24 +1,43 @@
 use super::primitives::{
-    chars, convert, equal, eval, forms, lists, macros, modularity, nums, strings, system, types,
+    chars, convert, equal, eval, forms, io, lists, macros, nums, ports, strings, system, types,
 };
-use crate::expr::{Expr, FromExpr, FromExprResult, Procedure};
+use crate::expr::{port::Port, Expr, FromExpr, FromExprResult, Procedure};
 use core::fmt;
 use std::{cell::RefCell, collections::HashMap, path::PathBuf, rc::Rc};
 
-#[derive(Debug, PartialEq, Clone, Default)]
+#[derive(Debug, PartialEq, Clone)]
 struct Env {
     bindings: HashMap<String, Expr>,
     macros: HashMap<String, Procedure>,
     parent: Option<EnvRef>,
     cwd: PathBuf,
+    cur_input_port: Rc<RefCell<Port>>,
+    cur_output_port: Rc<RefCell<Port>>,
+}
+
+impl Default for Env {
+    fn default() -> Self {
+        Self {
+            bindings: HashMap::new(),
+            macros: HashMap::new(),
+            parent: None,
+            cwd: PathBuf::new(),
+            cur_input_port: Rc::new(RefCell::new(Port::new_stdin())),
+            cur_output_port: Rc::new(RefCell::new(Port::new_stdout())),
+        }
+    }
 }
 
 impl Env {
     fn extend(parent: EnvRef) -> Env {
         let cwd = parent.0.borrow().cwd.clone();
+        let cur_input_port = parent.0.borrow().cur_input_port.clone();
+        let cur_output_port = parent.0.borrow().cur_output_port.clone();
 
         Env {
             cwd,
+            cur_input_port,
+            cur_output_port,
             bindings: HashMap::new(),
             macros: HashMap::new(),
             parent: Some(parent),
@@ -176,6 +195,26 @@ impl EnvRef {
     pub fn set_cwd(&mut self, cwd: PathBuf) {
         self.0.borrow_mut().cwd = cwd;
     }
+
+    /// Returns the current input port of the environment.
+    pub fn current_input_port(&self) -> Rc<RefCell<Port>> {
+        self.0.borrow().cur_input_port.clone()
+    }
+
+    /// Returns the current output port of the environment.
+    pub fn current_output_port(&self) -> Rc<RefCell<Port>> {
+        self.0.borrow().cur_output_port.clone()
+    }
+
+    /// Sets the current input port of the environment.
+    pub fn set_current_input_port(&mut self, port: Rc<RefCell<Port>>) {
+        self.0.borrow_mut().cur_input_port = port;
+    }
+
+    /// Sets the current output port of the environment.
+    pub fn set_current_output_port(&mut self, port: Rc<RefCell<Port>>) {
+        self.0.borrow_mut().cur_output_port = port;
+    }
 }
 
 pub fn new_root_env() -> EnvRef {
@@ -205,10 +244,7 @@ pub fn new_root_env() -> EnvRef {
         equal::eqv,
         equal::equal,
         // boolean
-        // modularity
-        modularity::include,
-        modularity::load,
-         // arithmetic
+        // arithmetic
         nums::add,
         nums::sub,
         nums::mult,
@@ -256,13 +292,17 @@ pub fn new_root_env() -> EnvRef {
         types::is_string,
         types::is_procedure,
         types::is_char,
+        types::is_port,
         // system interaction
-        system::read,
-        system::read_line,
-        system::display,
-        system::newline,
+        system::include,
+        system::load,
+        system::file_exists,
+        system::delete_file,
+        system::command_line,
         system::exit,
         system::current_second,
+        system::get_environment_variables,
+        system::get_environment_variable,
         system::error,
         //strings
         strings::string_set,
@@ -292,6 +332,28 @@ pub fn new_root_env() -> EnvRef {
         chars::is_char_alphabetic,
         chars::is_char_numeric,
         chars::digit_value,
+        // ports
+        ports::open_input_file,
+        ports::open_output_file,
+        ports::is_input_port,
+        ports::is_output_port,
+        ports::current_input_port,
+        ports::current_output_port,
+        ports::close_input_port,
+        ports::close_output_port,
+        ports::with_input_from_file,
+        ports::with_output_to_file,
+        ports::call_with_input_file,
+        ports::call_with_output_file,
+        // io
+        io::read,
+        io::read_char,
+        io::read_string,
+        io::write,
+        io::write_char,
+        io::write_string,
+        io::display,
+        io::newline,
     }
 
     env
