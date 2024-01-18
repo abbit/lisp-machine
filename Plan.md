@@ -208,10 +208,9 @@
 	- [x] `close-output-port`
 	- [x] `eof-object?`
 	- [x] `eof-object`
-- [ ] input/output:
+- [x] input/output:
 	- [x] `read`
-	- [ ] `peek-char`
-	- [ ] `read-char`
+	- [x] `read-char`
 	- [x] `read-string`
 	- [x] `write`
 	- [x] `write-char`

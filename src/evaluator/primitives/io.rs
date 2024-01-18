@@ -8,6 +8,7 @@ use std::io::Write;
 
 define_procedures! {
     read = ("read", read_fn, Arity::Range(0, 1)),
+    read_char = ("read-char", read_char_fn, Arity::Range(0, 1)),
     read_string = ("read-string", read_string_fn, Arity::Range(0, 1)),
     write = ("write", write_fn, Arity::Range(1, 2)),
     write_char = ("write-char", write_char_fn, Arity::Range(1, 2)),
@@ -36,6 +37,23 @@ fn read_fn(mut args: Exprs, env: &mut EnvRef) -> ProcedureResult {
         .ok_or(runtime_error!("Could not parse input: empty input"))?;
 
     proc_result_value!(expr)
+}
+
+fn read_char_fn(mut args: Exprs, env: &mut EnvRef) -> ProcedureResult {
+    let port = match args.pop_front() {
+        Some(e) => e.into_port().map_err(|expr| {
+            runtime_error!("expected port as read-char argument, got {}", expr.kind())
+        })?,
+        None => env.current_input_port(),
+    };
+    let char_result = port
+        .borrow_mut()
+        .as_input()
+        .ok_or(runtime_error!("expected input port"))?
+        .read_char()
+        .map_err(|e| runtime_error!("Could not read character: {}", e))?;
+
+    proc_result_value!(Expr::Char(char_result))
 }
 
 fn read_string_fn(mut args: Exprs, env: &mut EnvRef) -> ProcedureResult {

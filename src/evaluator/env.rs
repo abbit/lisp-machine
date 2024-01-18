@@ -339,6 +339,7 @@ pub fn new_root_env() -> EnvRef {
         ports::with_output_to_file,
         // io
         io::read,
+        io::read_char,
         io::read_string,
         io::write,
         io::write_char,
