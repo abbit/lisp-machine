@@ -11,6 +11,7 @@ define_procedures! {
     is_pair = ("pair?", is_pair_fn, Arity::Exact(1)),
     is_procedure = ("procedure?", is_procedure_fn, Arity::Exact(1)),
     is_symbol = ("symbol?", is_symbol_fn, Arity::Exact(1)),
+    is_port = ("port?", is_port_fn, Arity::Exact(1)),
 }
 
 fn is_char_fn(mut args: Exprs, _env: &mut EnvRef) -> ProcedureResult {
@@ -54,6 +55,13 @@ fn is_procedure_fn(mut args: Exprs, _: &mut EnvRef) -> ProcedureResult {
 fn is_symbol_fn(mut args: Exprs, _: &mut EnvRef) -> ProcedureResult {
     let expr = args.pop_front().unwrap();
     let is_type = expr.is_symbol();
+
+    proc_result_value!(Expr::Boolean(is_type))
+}
+
+fn is_port_fn(mut args: Exprs, _: &mut EnvRef) -> ProcedureResult {
+    let expr = args.pop_front().unwrap();
+    let is_type = expr.is_port();
 
     proc_result_value!(Expr::Boolean(is_type))
 }

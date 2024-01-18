@@ -1,6 +1,12 @@
+use std::{
+    fs,
+    path::{Path, PathBuf},
+};
+
 use crate::{
     evaluator::{error::runtime_error, EnvRef, EvalError, EvalResult},
     expr::{Body, Expr, Exprs, ListKind, Procedure, ProcedureParams},
+    parser,
 };
 
 pub fn fold_binary_op(
@@ -74,4 +80,25 @@ pub fn create_procedure(
     };
 
     Ok(Procedure::new_compound(name, params, body, env.clone()))
+}
+
+pub fn resolve_path<P: AsRef<Path>>(path: P, env: &EnvRef) -> Result<PathBuf, EvalError> {
+    let path = path.as_ref();
+    if path.is_absolute() {
+        return Ok(path.into());
+    }
+
+    let cwd = env.cwd();
+    let src_path = cwd.join(path);
+
+    Ok(src_path)
+}
+
+pub fn read_exprs_from_path<P: AsRef<Path>>(src_path: P) -> Result<Exprs, EvalError> {
+    let src_path = src_path.as_ref();
+    let src = fs::read_to_string(src_path)
+        .map_err(|err| runtime_error!("failed to read file {}: {}", src_path.display(), err))?;
+
+    parser::parse_str(&src)
+        .map_err(|err| runtime_error!("failed to parse file {}: {}", src_path.display(), err))
 }

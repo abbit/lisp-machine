@@ -1,65 +1,55 @@
-use super::utils::define_procedures;
+use super::utils::{define_procedures, define_special_forms, read_exprs_from_path, resolve_path};
 use crate::{
-    evaluator::{error::runtime_error, EnvRef},
-    expr::{proc_result_value, Arity, Expr, Exprs, ProcedureResult},
-    parser,
+    evaluator::{error::runtime_error, eval, EnvRef},
+    expr::{proc_result_tailcall, proc_result_value, Arity, Expr, Exprs, ProcedureResult},
 };
 use std::time::{SystemTime, UNIX_EPOCH};
 
+define_special_forms! {
+    include = ("include", include_fn, Arity::AtLeast(1)),
+}
+
 define_procedures! {
-    read = ("read", read_fn, Arity::Exact(0)),
-    read_line = ("read-line", read_line_fn, Arity::Exact(0)),
-    display = ("display", display_fn, Arity::Exact(1)),
-    newline = ("newline", newline_fn, Arity::Exact(0)),
+    load = ("load", load_fn, Arity::Exact(1)),
     exit = ("exit", exit_fn, Arity::Exact(0)),
     current_second = ("current-second", current_second_fn, Arity::Exact(0)),
 }
 
+fn include_fn(args: Exprs, env: &mut EnvRef) -> ProcedureResult {
+    let mut exprs = Exprs::new();
+    for (arg, idx) in args.into_iter().zip(1..) {
+        let src_path = arg.into_string().map_err(|expr| {
+            runtime_error!(
+                "expected strings as arguments for include, got {} at position {}",
+                expr.kind(),
+                idx
+            )
+        })?;
+        let src_path = resolve_path(&*src_path.borrow(), env)?;
+
+        exprs.extend(read_exprs_from_path(&src_path)?);
+    }
+
+    exprs.push_front(Expr::new_symbol("begin"));
+    proc_result_tailcall!(Expr::new_proper_list(exprs), env)
+}
+
+fn load_fn(mut args: Exprs, env: &mut EnvRef) -> ProcedureResult {
+    let src_path =
+        args.pop_front().unwrap().into_string().map_err(|expr| {
+            runtime_error!("expected string as load argument, got {}", expr.kind())
+        })?;
+    let src_path = resolve_path(&*src_path.borrow(), env)?;
+    let exprs = read_exprs_from_path(&src_path)?;
+    let mut eval_env = env.extend();
+    eval_env.set_cwd(src_path.parent().unwrap().to_path_buf());
+    let res = eval::eval_exprs(exprs, &mut eval_env)?;
+
+    proc_result_value!(res)
+}
+
 fn exit_fn(_: Exprs, _: &mut EnvRef) -> ProcedureResult {
     std::process::exit(0);
-}
-
-fn read_input() -> std::io::Result<String> {
-    let mut input = String::new();
-    let res = std::io::stdin().read_line(&mut input);
-
-    res.map(|_| input)
-}
-
-fn read_line_fn(_: Exprs, _: &mut EnvRef) -> ProcedureResult {
-    let input = read_input().map_err(|e| runtime_error!("Could not read input: {}", e))?;
-    let input = match input.strip_suffix('\n') {
-        Some(input) => input.to_string(),
-        None => input,
-    };
-
-    proc_result_value!(Expr::new_string(input))
-}
-
-fn read_fn(_: Exprs, _: &mut EnvRef) -> ProcedureResult {
-    let input = read_input().map_err(|e| runtime_error!("Could not read input: {}", e))?;
-
-    let expr = parser::parse_str(&input)
-        .map_err(|e| runtime_error!("Could not parse input: {}", e))?
-        .pop_front()
-        .ok_or_else(|| runtime_error!("Could not parse input: empty input"))?;
-
-    proc_result_value!(expr)
-}
-
-fn display_fn(args: Exprs, _: &mut EnvRef) -> ProcedureResult {
-    for expr in args.iter() {
-        match expr {
-            Expr::Char(char) => print!("{}", char),
-            expr => print!("{}", expr),
-        }
-    }
-    proc_result_value!(Expr::Void)
-}
-
-fn newline_fn(_: Exprs, _: &mut EnvRef) -> ProcedureResult {
-    println!();
-    proc_result_value!(Expr::Void)
 }
 
 fn current_second_fn(_: Exprs, _: &mut EnvRef) -> ProcedureResult {

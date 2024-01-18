@@ -1,6 +1,7 @@
 use super::{
     list::{List, ListKind},
-    procedure::Procedure, port::Port,
+    port::Port,
+    procedure::Procedure,
 };
 use core::fmt;
 use std::{cell::RefCell, collections::VecDeque, rc::Rc};
@@ -49,7 +50,7 @@ pub enum Expr {
     /// </div>
     Procedure(Procedure),
     /// Port
-    Port(Box<Port>),
+    Port(Rc<RefCell<Port>>),
 }
 
 /// A list of [`Expr`]s. Also can be created with [`exprs!`] macro.
@@ -140,6 +141,10 @@ impl Expr {
         Expr::Symbol(string.into())
     }
 
+    pub(crate) fn new_port(port: Port) -> Self {
+        Self::Port(Rc::new(RefCell::new(port)))
+    }
+
     /// Returns string representation of the type of `self`
     // Note: This method is named `kind` instead of `type` because `type` is a reserved keyword
     pub fn kind(&self) -> &'static str {
@@ -156,7 +161,7 @@ impl Expr {
             },
             Expr::Void => "void",
             Expr::Procedure(_) => "procedure",
-            Expr::Port(_) => "port"
+            Expr::Port(_) => "port",
         }
     }
 
@@ -236,6 +241,11 @@ impl Expr {
         matches!(self, Expr::Procedure(_))
     }
 
+    /// Checks if `self` is a [`Expr::Port`]
+    pub fn is_port(&self) -> bool {
+        matches!(self, Expr::Port(_))
+    }
+
     // exctraction methods
 
     /// Tries to convert `self` into `T`, which is a type that implements [`FromExpr`]
@@ -299,6 +309,13 @@ impl Expr {
         }
     }
 
+    pub(crate) fn into_port(self) -> FromExprResult<Rc<RefCell<Port>>> {
+        match self {
+            Expr::Port(port) => Ok(port),
+            _ => Err(self),
+        }
+    }
+
     pub(crate) fn as_list(&self) -> Option<&List> {
         match self {
             Expr::List(list) => Some(list),
@@ -315,11 +332,11 @@ impl fmt::Display for Expr {
             Expr::Float(float) => write!(f, "{}", float),
             Expr::Symbol(symbol) => write!(f, "{}", symbol),
             Expr::String(string) => write!(f, "\"{}\"", string.borrow()),
-            Expr::Char(char) => write!(f, "{}", char),
+            Expr::Char(ch) => write!(f, "'{}'", ch),
             Expr::Procedure(proc) => write!(f, "{}", proc),
             Expr::Boolean(bool) => write!(f, "{}", if *bool { "#t" } else { "#f" }),
             Expr::List(list) => write!(f, "{}", list),
-            Expr::Port(_port) => write!(f, "#<port>")
+            Expr::Port(port) => write!(f, "{}", port.borrow()),
         }
     }
 }

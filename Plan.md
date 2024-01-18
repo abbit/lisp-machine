@@ -194,38 +194,30 @@
 	- [x] `string-for-each`
 - [ ] ports:
 	- [x] `port?`
-	- [ ] `call-with-port`
 	- [ ] `call-with-input-file`
 	- [ ] `call-with-output-file`
+    - [x] `with-input-from-file`
+    - [x] `with-output-to-file`
 	- [x] `input-port?`
 	- [x] `output-port?`
-	- [ ] `input-port-open?`
-	- [ ] `output-port-open?`
-	- [ ] `current-input-port`
-	- [ ] `current-output-port`
-	- [ ] `current-error-port`
+	- [x] `current-input-port`
+	- [x] `current-output-port`
 	- [x] `open-input-file`
 	- [x] `open-output-file`
-	- [ ] `close-port`
-	- [ ] `close-input-port`
-	- [ ] `close-output-port`
-	- [ ] `open-input-string`
-	- [ ] `open-output-string`
-	- [ ] `get-output-string`
-	- [x] `read`
-	- [ ] `read-char`
-	- [ ] `peek-char`
-	- [ ] `read-line`
+	- [x] `close-input-port`
+	- [x] `close-output-port`
 	- [x] `eof-object?`
 	- [x] `eof-object`
-	- [ ] `char-ready?`
-	- [ ] `read-string`
-	- [ ] `write`
+- [ ] input/output:
+	- [x] `read`
+	- [ ] `peek-char`
+	- [ ] `read-char`
+	- [x] `read-string`
+	- [x] `write`
+	- [ ] `write-char`
+	- [x] `write-string`
 	- [x] `display`
 	- [x] `newline`
-	- [ ] `write-char`
-	- [ ] `write-string`
-	- [ ] `flush-output-port`
 - [ ] system interface:
 	- [x] `load`
 	- [ ] `file-exists?`
