@@ -220,7 +220,7 @@
 - [ ] system interface:
 	- [x] `load`
 	- [x] `file-exists?`
-	- [ ] `delete-file`
+	- [x] `delete-file`
 	- [ ] `command-line`
 	- [x] `exit`
 	- [ ] `get-environment-variable`
