@@ -298,6 +298,7 @@ pub fn new_root_env() -> EnvRef {
         system::load,
         system::file_exists,
         system::delete_file,
+        system::command_line,
         system::exit,
         system::current_second,
         //strings

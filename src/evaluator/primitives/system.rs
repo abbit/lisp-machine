@@ -3,7 +3,7 @@ use crate::{
     evaluator::{error::runtime_error, eval, EnvRef},
     expr::{proc_result_tailcall, proc_result_value, Arity, Expr, Exprs, ProcedureResult},
 };
-use std::{time::{SystemTime, UNIX_EPOCH}, path::Path, fs};
+use std::{time::{SystemTime, UNIX_EPOCH}, path::Path, fs, cell::RefCell, rc::Rc};
 
 define_special_forms! {
     include = ("include", include_fn, Arity::AtLeast(1)),
@@ -15,6 +15,7 @@ define_procedures! {
     delete_file = ("delete-file", delete_file_fn, Arity::Exact(1)),
     exit = ("exit", exit_fn, Arity::Exact(0)),
     current_second = ("current-second", current_second_fn, Arity::Exact(0)),
+    command_line = ("command-line", command_line_fn, Arity::Exact(0)),
 }
 
 fn include_fn(args: Exprs, env: &mut EnvRef) -> ProcedureResult {
@@ -97,4 +98,12 @@ fn delete_file_fn(args: Exprs, _: &mut EnvRef) -> ProcedureResult {
             proc_result_value!(Expr::Void)
         },
     }
+}
+
+use std::env;
+
+fn command_line_fn(_: Exprs, _: &mut EnvRef) -> ProcedureResult {
+    let command_line_: Vec<String> = env::args().collect();
+    let command_line_exprs: Exprs = command_line_.into_iter().map(|s| Expr::String(Rc::new(RefCell::new(s)))).collect();
+    proc_result_value!(Expr::new_proper_list(command_line_exprs))
 }

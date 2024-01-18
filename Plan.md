@@ -221,7 +221,7 @@
 	- [x] `load`
 	- [x] `file-exists?`
 	- [x] `delete-file`
-	- [ ] `command-line`
+	- [x] `command-line`
 	- [x] `exit`
 	- [ ] `get-environment-variable`
 	- [ ] `get-environment-variables`
