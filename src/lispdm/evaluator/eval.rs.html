@@ -365,6 +365,7 @@
 <a href="#365" id="365">365</a>
 <a href="#366" id="366">366</a>
 <a href="#367" id="367">367</a>
+<a href="#368" id="368">368</a>
 </pre></div><pre class="rust"><code><span class="kw">use super</span>::{
     env::EnvRef,
     error::{runtime_error, EvalError},
@@ -492,6 +493,7 @@
             Expr::Procedure(<span class="kw">_</span>) =&gt; {
                 <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">runtime_error!</span>(<span class="string">&quot;procedure object cannot be evaluated&quot;</span>))
             }
+            Expr::Port(<span class="kw">_</span>) =&gt; <span class="kw">return </span><span class="prelude-val">Ok</span>(expr),
         }
     }
 }

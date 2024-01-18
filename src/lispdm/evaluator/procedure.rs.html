@@ -72,6 +72,9 @@
 <a href="#72" id="72">72</a>
 <a href="#73" id="73">73</a>
 <a href="#74" id="74">74</a>
+<a href="#75" id="75">75</a>
+<a href="#76" id="76">76</a>
+<a href="#77" id="77">77</a>
 </pre></div><pre class="rust"><code><span class="kw">use super</span>::{env::EnvRef, eval};
 <span class="kw">use crate</span>::{
     evaluator::utils::CheckArity,
@@ -105,8 +108,11 @@
 }
 
 <span class="kw">impl </span>ApplyProcedure <span class="kw">for </span>CompoundProcedure {
-    <span class="kw">fn </span>apply(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw-2">mut </span>args: Exprs, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>EnvRef) -&gt; ProcedureResult {
-        <span class="kw">let </span><span class="kw-2">mut </span>eval_env = <span class="self">self</span>.env.clone().extend();
+    <span class="kw">fn </span>apply(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw-2">mut </span>args: Exprs, env: <span class="kw-2">&amp;mut </span>EnvRef) -&gt; ProcedureResult {
+        <span class="kw">let </span><span class="kw-2">mut </span>eval_env = <span class="self">self</span>.env.extend();
+        eval_env.set_cwd(env.cwd());
+        eval_env.set_current_input_port(env.current_input_port());
+        eval_env.set_current_output_port(env.current_output_port());
 
         <span class="kw">match </span><span class="self">self</span>.params.clone() {
             ProcedureParams::Fixed(params) =&gt; {

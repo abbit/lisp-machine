@@ -581,8 +581,30 @@
 <a href="#581" id="581">581</a>
 <a href="#582" id="582">582</a>
 <a href="#583" id="583">583</a>
+<a href="#584" id="584">584</a>
+<a href="#585" id="585">585</a>
+<a href="#586" id="586">586</a>
+<a href="#587" id="587">587</a>
+<a href="#588" id="588">588</a>
+<a href="#589" id="589">589</a>
+<a href="#590" id="590">590</a>
+<a href="#591" id="591">591</a>
+<a href="#592" id="592">592</a>
+<a href="#593" id="593">593</a>
+<a href="#594" id="594">594</a>
+<a href="#595" id="595">595</a>
+<a href="#596" id="596">596</a>
+<a href="#597" id="597">597</a>
+<a href="#598" id="598">598</a>
+<a href="#599" id="599">599</a>
+<a href="#600" id="600">600</a>
+<a href="#601" id="601">601</a>
+<a href="#602" id="602">602</a>
+<a href="#603" id="603">603</a>
+<a href="#604" id="604">604</a>
 </pre></div><pre class="rust"><code><span class="kw">use super</span>::{
     list::{List, ListKind},
+    port::Port,
     procedure::Procedure,
 };
 <span class="kw">use </span>core::fmt;
@@ -631,6 +653,8 @@
     /// Because of this, internal &lt;code&gt;Procedure&lt;/code&gt; struct does not exported, so you can&#39;t construct procedure directly.
     /// &lt;/div&gt;
     </span>Procedure(Procedure),
+    <span class="doccomment">/// Port
+    </span>Port(Rc&lt;RefCell&lt;Port&gt;&gt;),
 }
 
 <span class="doccomment">/// A list of [`Expr`]s. Also can be created with [`exprs!`] macro.
@@ -721,6 +745,10 @@
         Expr::Symbol(string.into())
     }
 
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>new_port(port: Port) -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>::Port(Rc::new(RefCell::new(port)))
+    }
+
     <span class="doccomment">/// Returns string representation of the type of `self`
     </span><span class="comment">// Note: This method is named `kind` instead of `type` because `type` is a reserved keyword
     </span><span class="kw">pub fn </span>kind(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str {
@@ -737,6 +765,7 @@
             },
             Expr::Void =&gt; <span class="string">&quot;void&quot;</span>,
             Expr::Procedure(<span class="kw">_</span>) =&gt; <span class="string">&quot;procedure&quot;</span>,
+            Expr::Port(<span class="kw">_</span>) =&gt; <span class="string">&quot;port&quot;</span>,
         }
     }
 
@@ -816,6 +845,11 @@
         <span class="macro">matches!</span>(<span class="self">self</span>, Expr::Procedure(<span class="kw">_</span>))
     }
 
+    <span class="doccomment">/// Checks if `self` is a [`Expr::Port`]
+    </span><span class="kw">pub fn </span>is_port(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="macro">matches!</span>(<span class="self">self</span>, Expr::Port(<span class="kw">_</span>))
+    }
+
     <span class="comment">// exctraction methods
 
     </span><span class="doccomment">/// Tries to convert `self` into `T`, which is a type that implements [`FromExpr`]
@@ -879,6 +913,13 @@
         }
     }
 
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>into_port(<span class="self">self</span>) -&gt; FromExprResult&lt;Rc&lt;RefCell&lt;Port&gt;&gt;&gt; {
+        <span class="kw">match </span><span class="self">self </span>{
+            Expr::Port(port) =&gt; <span class="prelude-val">Ok</span>(port),
+            <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(<span class="self">self</span>),
+        }
+    }
+
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>as_list(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>List&gt; {
         <span class="kw">match </span><span class="self">self </span>{
             Expr::List(list) =&gt; <span class="prelude-val">Some</span>(list),
@@ -895,10 +936,11 @@
             Expr::Float(float) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{}&quot;</span>, float),
             Expr::Symbol(symbol) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{}&quot;</span>, symbol),
             Expr::String(string) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;\&quot;{}\&quot;&quot;</span>, string.borrow()),
-            Expr::Char(char) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;&#39;{}&#39;&quot;</span>, char),
+            Expr::Char(ch) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;&#39;{}&#39;&quot;</span>, ch),
             Expr::Procedure(proc) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{}&quot;</span>, proc),
             Expr::Boolean(bool) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{}&quot;</span>, <span class="kw">if </span><span class="kw-2">*</span>bool { <span class="string">&quot;#t&quot; </span>} <span class="kw">else </span>{ <span class="string">&quot;#f&quot; </span>}),
             Expr::List(list) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{}&quot;</span>, list),
+            Expr::Port(port) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{}&quot;</span>, port.borrow()),
         }
     }
 }

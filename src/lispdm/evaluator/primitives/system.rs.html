@@ -77,76 +77,133 @@
 <a href="#77" id="77">77</a>
 <a href="#78" id="78">78</a>
 <a href="#79" id="79">79</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">super</span>::utils::define_procedures;
+<a href="#80" id="80">80</a>
+<a href="#81" id="81">81</a>
+<a href="#82" id="82">82</a>
+<a href="#83" id="83">83</a>
+<a href="#84" id="84">84</a>
+<a href="#85" id="85">85</a>
+<a href="#86" id="86">86</a>
+<a href="#87" id="87">87</a>
+<a href="#88" id="88">88</a>
+<a href="#89" id="89">89</a>
+<a href="#90" id="90">90</a>
+<a href="#91" id="91">91</a>
+<a href="#92" id="92">92</a>
+<a href="#93" id="93">93</a>
+<a href="#94" id="94">94</a>
+<a href="#95" id="95">95</a>
+<a href="#96" id="96">96</a>
+<a href="#97" id="97">97</a>
+<a href="#98" id="98">98</a>
+<a href="#99" id="99">99</a>
+<a href="#100" id="100">100</a>
+<a href="#101" id="101">101</a>
+<a href="#102" id="102">102</a>
+<a href="#103" id="103">103</a>
+<a href="#104" id="104">104</a>
+<a href="#105" id="105">105</a>
+<a href="#106" id="106">106</a>
+<a href="#107" id="107">107</a>
+<a href="#108" id="108">108</a>
+<a href="#109" id="109">109</a>
+<a href="#110" id="110">110</a>
+<a href="#111" id="111">111</a>
+<a href="#112" id="112">112</a>
+<a href="#113" id="113">113</a>
+<a href="#114" id="114">114</a>
+<a href="#115" id="115">115</a>
+<a href="#116" id="116">116</a>
+<a href="#117" id="117">117</a>
+<a href="#118" id="118">118</a>
+<a href="#119" id="119">119</a>
+<a href="#120" id="120">120</a>
+<a href="#121" id="121">121</a>
+<a href="#122" id="122">122</a>
+<a href="#123" id="123">123</a>
+<a href="#124" id="124">124</a>
+<a href="#125" id="125">125</a>
+<a href="#126" id="126">126</a>
+<a href="#127" id="127">127</a>
+<a href="#128" id="128">128</a>
+<a href="#129" id="129">129</a>
+<a href="#130" id="130">130</a>
+<a href="#131" id="131">131</a>
+<a href="#132" id="132">132</a>
+<a href="#133" id="133">133</a>
+<a href="#134" id="134">134</a>
+<a href="#135" id="135">135</a>
+<a href="#136" id="136">136</a>
+<a href="#137" id="137">137</a>
+<a href="#138" id="138">138</a>
+<a href="#139" id="139">139</a>
+<a href="#140" id="140">140</a>
+<a href="#141" id="141">141</a>
+<a href="#142" id="142">142</a>
+<a href="#143" id="143">143</a>
+<a href="#144" id="144">144</a>
+<a href="#145" id="145">145</a>
+<a href="#146" id="146">146</a>
+<a href="#147" id="147">147</a>
+<a href="#148" id="148">148</a>
+</pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">super</span>::utils::{define_procedures, define_special_forms, read_exprs_from_path, resolve_path};
 <span class="kw">use crate</span>::{
-    evaluator::{error::runtime_error, EnvRef},
-    expr::{proc_result_value, Arity, Expr, Exprs, ProcedureResult},
-    parser,
+    evaluator::{error::runtime_error, eval, EnvRef},
+    expr::{proc_result_tailcall, proc_result_value, Arity, Expr, Exprs, ProcedureResult},
 };
-<span class="kw">use </span>std::time::{SystemTime, UNIX_EPOCH};
+<span class="kw">use </span>std::{time::{SystemTime, UNIX_EPOCH}, path::Path, fs, cell::RefCell, rc::Rc, env, collections::HashMap};
+
+<span class="macro">define_special_forms! </span>{
+    include = (<span class="string">&quot;include&quot;</span>, include_fn, Arity::AtLeast(<span class="number">1</span>)),
+}
 
 <span class="macro">define_procedures! </span>{
-    read = (<span class="string">&quot;read&quot;</span>, read_fn, Arity::Exact(<span class="number">0</span>)),
-    read_line = (<span class="string">&quot;read-line&quot;</span>, read_line_fn, Arity::Exact(<span class="number">0</span>)),
-    display = (<span class="string">&quot;display&quot;</span>, display_fn, Arity::Exact(<span class="number">1</span>)),
+    load = (<span class="string">&quot;load&quot;</span>, load_fn, Arity::Exact(<span class="number">1</span>)),
+    file_exists = (<span class="string">&quot;file-exists?&quot;</span>, file_exists_fn, Arity::Exact(<span class="number">1</span>)),
+    delete_file = (<span class="string">&quot;delete-file&quot;</span>, delete_file_fn, Arity::Exact(<span class="number">1</span>)),
     error = (<span class="string">&quot;error&quot;</span>, error_fn, Arity::Exact(<span class="number">1</span>)),
-    newline = (<span class="string">&quot;newline&quot;</span>, newline_fn, Arity::Exact(<span class="number">0</span>)),
     exit = (<span class="string">&quot;exit&quot;</span>, exit_fn, Arity::Exact(<span class="number">0</span>)),
     current_second = (<span class="string">&quot;current-second&quot;</span>, current_second_fn, Arity::Exact(<span class="number">0</span>)),
+    command_line = (<span class="string">&quot;command-line&quot;</span>, command_line_fn, Arity::Exact(<span class="number">0</span>)),
+    get_environment_variables = (<span class="string">&quot;get-environment-variables&quot;</span>, get_environment_variables_fn, Arity::Exact(<span class="number">0</span>)),
+    get_environment_variable = (<span class="string">&quot;get-environment-variable&quot;</span>, get_environment_variable_fn, Arity::Exact(<span class="number">1</span>)),
+}
+
+<span class="kw">fn </span>include_fn(args: Exprs, env: <span class="kw-2">&amp;mut </span>EnvRef) -&gt; ProcedureResult {
+    <span class="kw">let </span><span class="kw-2">mut </span>exprs = Exprs::new();
+    <span class="kw">for </span>(arg, idx) <span class="kw">in </span>args.into_iter().zip(<span class="number">1</span>..) {
+        <span class="kw">let </span>src_path = arg.into_string().map_err(|expr| {
+            <span class="macro">runtime_error!</span>(
+                <span class="string">&quot;expected strings as arguments for include, got {} at position {}&quot;</span>,
+                expr.kind(),
+                idx
+            )
+        })<span class="question-mark">?</span>;
+        <span class="kw">let </span>src_path = resolve_path(<span class="kw-2">&amp;*</span>src_path.borrow(), env)<span class="question-mark">?</span>;
+
+        exprs.extend(read_exprs_from_path(<span class="kw-2">&amp;</span>src_path)<span class="question-mark">?</span>);
+    }
+
+    exprs.push_front(Expr::new_symbol(<span class="string">&quot;begin&quot;</span>));
+    <span class="macro">proc_result_tailcall!</span>(Expr::new_proper_list(exprs), env)
+}
+
+<span class="kw">fn </span>load_fn(<span class="kw-2">mut </span>args: Exprs, env: <span class="kw-2">&amp;mut </span>EnvRef) -&gt; ProcedureResult {
+    <span class="kw">let </span>src_path =
+        args.pop_front().unwrap().into_string().map_err(|expr| {
+            <span class="macro">runtime_error!</span>(<span class="string">&quot;expected string as load argument, got {}&quot;</span>, expr.kind())
+        })<span class="question-mark">?</span>;
+    <span class="kw">let </span>src_path = resolve_path(<span class="kw-2">&amp;*</span>src_path.borrow(), env)<span class="question-mark">?</span>;
+    <span class="kw">let </span>exprs = read_exprs_from_path(<span class="kw-2">&amp;</span>src_path)<span class="question-mark">?</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>eval_env = env.extend();
+    eval_env.set_cwd(src_path.parent().unwrap().to_path_buf());
+    <span class="kw">let </span>res = eval::eval_exprs(exprs, <span class="kw-2">&amp;mut </span>eval_env)<span class="question-mark">?</span>;
+
+    <span class="macro">proc_result_value!</span>(res)
 }
 
 <span class="kw">fn </span>exit_fn(<span class="kw">_</span>: Exprs, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>EnvRef) -&gt; ProcedureResult {
     std::process::exit(<span class="number">0</span>);
-}
-
-<span class="kw">fn </span>read_input() -&gt; std::io::Result&lt;String&gt; {
-    <span class="kw">let </span><span class="kw-2">mut </span>input = String::new();
-    <span class="kw">let </span>res = std::io::stdin().read_line(<span class="kw-2">&amp;mut </span>input);
-
-    res.map(|<span class="kw">_</span>| input)
-}
-
-<span class="kw">fn </span>read_line_fn(<span class="kw">_</span>: Exprs, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>EnvRef) -&gt; ProcedureResult {
-    <span class="kw">let </span>input = read_input().map_err(|e| <span class="macro">runtime_error!</span>(<span class="string">&quot;Could not read input: {}&quot;</span>, e))<span class="question-mark">?</span>;
-    <span class="kw">let </span>input = <span class="kw">match </span>input.strip_suffix(<span class="string">&#39;\n&#39;</span>) {
-        <span class="prelude-val">Some</span>(input) =&gt; input.to_string(),
-        <span class="prelude-val">None </span>=&gt; input,
-    };
-
-    <span class="macro">proc_result_value!</span>(Expr::new_string(input))
-}
-
-<span class="kw">fn </span>read_fn(<span class="kw">_</span>: Exprs, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>EnvRef) -&gt; ProcedureResult {
-    <span class="kw">let </span>input = read_input().map_err(|e| <span class="macro">runtime_error!</span>(<span class="string">&quot;Could not read input: {}&quot;</span>, e))<span class="question-mark">?</span>;
-
-    <span class="kw">let </span>expr = parser::parse_str(<span class="kw-2">&amp;</span>input)
-        .map_err(|e| <span class="macro">runtime_error!</span>(<span class="string">&quot;Could not parse input: {}&quot;</span>, e))<span class="question-mark">?
-        </span>.pop_front()
-        .ok_or_else(|| <span class="macro">runtime_error!</span>(<span class="string">&quot;Could not parse input: empty input&quot;</span>))<span class="question-mark">?</span>;
-
-    <span class="macro">proc_result_value!</span>(expr)
-}
-
-<span class="kw">fn </span>display_fn(args: Exprs, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>EnvRef) -&gt; ProcedureResult {
-    <span class="kw">for </span>expr <span class="kw">in </span>args.iter() {
-        <span class="kw">match </span>expr {
-            Expr::Char(char) =&gt; <span class="macro">print!</span>(<span class="string">&quot;{}&quot;</span>, char),
-            expr =&gt; <span class="macro">print!</span>(<span class="string">&quot;{}&quot;</span>, expr),
-        }
-    }
-    <span class="macro">proc_result_value!</span>(Expr::Void)
-}
-
-<span class="kw">fn </span>error_fn(<span class="kw-2">mut </span>args: Exprs, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>EnvRef) -&gt; ProcedureResult {
-    <span class="kw">let </span>msg = args.pop_front().unwrap().into_string().map_err(|expr| {
-        <span class="macro">runtime_error!</span>(<span class="string">&quot;expected string as argument of error, got {}&quot;</span>, expr.kind())
-    })<span class="question-mark">?</span>;
-    <span class="prelude-val">Err</span>(<span class="macro">runtime_error!</span>(<span class="string">&quot;{}&quot;</span>, (<span class="kw-2">*</span>msg).borrow().clone()))
-}
-
-<span class="kw">fn </span>newline_fn(<span class="kw">_</span>: Exprs, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>EnvRef) -&gt; ProcedureResult {
-    <span class="macro">println!</span>();
-    <span class="macro">proc_result_value!</span>(Expr::Void)
 }
 
 <span class="kw">fn </span>current_second_fn(<span class="kw">_</span>: Exprs, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>EnvRef) -&gt; ProcedureResult {
@@ -156,4 +213,85 @@
         .as_secs_f64();
     <span class="macro">proc_result_value!</span>(Expr::Float(current_time))
 }
+
+<span class="kw">fn </span>file_exists_fn(args: Exprs, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>EnvRef) -&gt; ProcedureResult {
+    <span class="kw">let </span>path_expr = args.get(<span class="number">0</span>).ok_or_else(|| {
+        <span class="macro">runtime_error!</span>(<span class="string">&quot;expected one argument for file-exists?, but got none&quot;</span>)
+    })<span class="question-mark">?</span>;
+
+    <span class="kw">let </span>path_str = path_expr.clone()
+        .into_string()
+        .map_err(|expr| <span class="macro">runtime_error!</span>(<span class="string">&quot;expected string as argument for file-exists?, got {}&quot;</span>, expr.kind()))<span class="question-mark">?</span>;
+
+    <span class="kw">let </span>binding = path_str.borrow();
+    <span class="kw">let </span>path = Path::new(<span class="kw-2">&amp;*</span>binding);
+
+    <span class="kw">let </span>exists = path.exists();
+
+    <span class="macro">proc_result_value!</span>(Expr::Boolean(exists))
+}
+
+<span class="kw">fn </span>delete_file_fn(args: Exprs, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>EnvRef) -&gt; ProcedureResult {
+    <span class="kw">let </span>path_expr = args.get(<span class="number">0</span>).ok_or_else(|| {
+        <span class="macro">runtime_error!</span>(<span class="string">&quot;expected one argument for delete-file, but got none&quot;</span>)
+    })<span class="question-mark">?</span>;
+
+    <span class="kw">let </span>path_str = path_expr.clone()
+        .into_string()
+        .map_err(|expr| <span class="macro">runtime_error!</span>(<span class="string">&quot;expected string as argument for delete-file, got {}&quot;</span>, expr.kind()))<span class="question-mark">?</span>;
+
+    <span class="kw">let </span>path = path_str.borrow().clone();
+
+    <span class="kw">match </span>fs::remove_file(<span class="kw-2">&amp;</span>path) {
+        <span class="prelude-val">Ok</span>(<span class="kw">_</span>) =&gt; <span class="macro">proc_result_value!</span>(Expr::Void),
+        <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; {
+            <span class="macro">runtime_error!</span>(<span class="string">&quot;No such file or directory: {}&quot;</span>, path);
+            <span class="macro">proc_result_value!</span>(Expr::Void)
+        },
+    }
+}
+
+<span class="kw">fn </span>command_line_fn(<span class="kw">_</span>: Exprs, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>EnvRef) -&gt; ProcedureResult {
+    <span class="kw">let </span>command_line_: Vec&lt;String&gt; = env::args().collect();
+    <span class="kw">let </span>command_line_exprs: Exprs = command_line_.into_iter().map(|s| Expr::String(Rc::new(RefCell::new(s)))).collect();
+    <span class="macro">proc_result_value!</span>(Expr::new_proper_list(command_line_exprs))
+}
+
+<span class="kw">fn </span>error_fn(<span class="kw-2">mut </span>args: Exprs, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>EnvRef) -&gt; ProcedureResult {
+    <span class="kw">let </span>msg = args.pop_front().unwrap().into_string().map_err(|expr| {
+        <span class="macro">runtime_error!</span>(<span class="string">&quot;expected string as argument of error, got {}&quot;</span>, expr.kind())
+    })<span class="question-mark">?</span>;
+    <span class="prelude-val">Err</span>(<span class="macro">runtime_error!</span>(<span class="string">&quot;{}&quot;</span>, (<span class="kw-2">*</span>msg).borrow().clone()))
+}
+
+<span class="kw">fn </span>get_environment_variables_fn(<span class="kw">_</span>: Exprs, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>EnvRef) -&gt; ProcedureResult {
+    <span class="kw">let </span>env_vars: HashMap&lt;String, String&gt; = std::env::vars().collect();
+    <span class="kw">let </span><span class="kw-2">mut </span>result_list = Exprs::new();
+
+    <span class="kw">for </span>(key, value) <span class="kw">in </span>env_vars {
+        <span class="kw">let </span>key_expr = Expr::String(Rc::new(RefCell::new(key)));
+        <span class="kw">let </span>value_expr = Expr::String(Rc::new(RefCell::new(value)));
+        result_list.push_back(Expr::new_dotted_list(<span class="macro">vec!</span>[key_expr, value_expr].into()));
+    }
+
+    <span class="macro">proc_result_value!</span>(Expr::new_dotted_list(result_list))
+}
+
+<span class="kw">fn </span>get_environment_variable_fn(args: Exprs, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>EnvRef) -&gt; ProcedureResult {
+    <span class="kw">let </span>key_expr = args
+        .get(<span class="number">0</span>)
+        .ok_or_else(|| <span class="macro">runtime_error!</span>(<span class="string">&quot;Expected one argument for get-environment-variable, but got none&quot;</span>))<span class="question-mark">?</span>;
+
+    <span class="kw">let </span>key = key_expr.clone()
+        .into_string()
+        .map_err(|expr| <span class="macro">runtime_error!</span>(<span class="string">&quot;Expected string as argument for get-environment-variable, got {}&quot;</span>, expr.kind()))<span class="question-mark">?</span>;
+
+    <span class="kw">let </span>value = <span class="kw">match </span>std::env::var(<span class="kw-2">&amp;*</span>key.borrow()) {
+        <span class="prelude-val">Ok</span>(val) =&gt; Expr::String(Rc::new(RefCell::new(val))),
+        <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; Expr::Void,
+    };
+
+    <span class="macro">proc_result_value!</span>(value)
+}
+
 </code></pre></div></section></main></body></html>

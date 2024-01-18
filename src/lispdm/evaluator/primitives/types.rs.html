@@ -57,6 +57,14 @@
 <a href="#57" id="57">57</a>
 <a href="#58" id="58">58</a>
 <a href="#59" id="59">59</a>
+<a href="#60" id="60">60</a>
+<a href="#61" id="61">61</a>
+<a href="#62" id="62">62</a>
+<a href="#63" id="63">63</a>
+<a href="#64" id="64">64</a>
+<a href="#65" id="65">65</a>
+<a href="#66" id="66">66</a>
+<a href="#67" id="67">67</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">super</span>::utils::define_procedures;
 <span class="kw">use crate</span>::{
     evaluator::EnvRef,
@@ -70,6 +78,7 @@
     is_pair = (<span class="string">&quot;pair?&quot;</span>, is_pair_fn, Arity::Exact(<span class="number">1</span>)),
     is_procedure = (<span class="string">&quot;procedure?&quot;</span>, is_procedure_fn, Arity::Exact(<span class="number">1</span>)),
     is_symbol = (<span class="string">&quot;symbol?&quot;</span>, is_symbol_fn, Arity::Exact(<span class="number">1</span>)),
+    is_port = (<span class="string">&quot;port?&quot;</span>, is_port_fn, Arity::Exact(<span class="number">1</span>)),
 }
 
 <span class="kw">fn </span>is_char_fn(<span class="kw-2">mut </span>args: Exprs, _env: <span class="kw-2">&amp;mut </span>EnvRef) -&gt; ProcedureResult {
@@ -113,6 +122,13 @@
 <span class="kw">fn </span>is_symbol_fn(<span class="kw-2">mut </span>args: Exprs, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>EnvRef) -&gt; ProcedureResult {
     <span class="kw">let </span>expr = args.pop_front().unwrap();
     <span class="kw">let </span>is_type = expr.is_symbol();
+
+    <span class="macro">proc_result_value!</span>(Expr::Boolean(is_type))
+}
+
+<span class="kw">fn </span>is_port_fn(<span class="kw-2">mut </span>args: Exprs, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>EnvRef) -&gt; ProcedureResult {
+    <span class="kw">let </span>expr = args.pop_front().unwrap();
+    <span class="kw">let </span>is_type = expr.is_port();
 
     <span class="macro">proc_result_value!</span>(Expr::Boolean(is_type))
 }
