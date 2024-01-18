@@ -107,6 +107,7 @@ fn command_line_fn(_: Exprs, _: &mut EnvRef) -> ProcedureResult {
     let command_line_: Vec<String> = env::args().collect();
     let command_line_exprs: Exprs = command_line_.into_iter().map(|s| Expr::String(Rc::new(RefCell::new(s)))).collect();
     proc_result_value!(Expr::new_proper_list(command_line_exprs))
+}
 
 fn error_fn(mut args: Exprs, _: &mut EnvRef) -> ProcedureResult {
     let msg = args.pop_front().unwrap().into_string().map_err(|expr| {
