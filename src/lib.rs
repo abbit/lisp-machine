@@ -24,6 +24,7 @@ use parser::ParseError;
 /// Prelude of LispDM.
 ///
 /// Contains implementation of some special forms and standard procedures.
+///
 /// Loaded by default when creating a new instance of [`Engine`].
 pub const PRELUDE: &str = include_str!("./prelude.scm");
 

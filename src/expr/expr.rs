@@ -389,6 +389,18 @@ impl From<Procedure> for Expr {
     }
 }
 
+impl From<Port> for Expr {
+    fn from(port: Port) -> Self {
+        Expr::new_port(port)
+    }
+}
+
+impl From<Rc<RefCell<Port>>> for Expr {
+    fn from(port: Rc<RefCell<Port>>) -> Self {
+        Expr::Port(port)
+    }
+}
+
 impl<T: Into<Expr>> From<Vec<T>> for Expr {
     fn from(vec: Vec<T>) -> Self {
         Expr::List(List::new_proper(
@@ -426,6 +438,8 @@ impl<A: Into<Expr>, B: Into<Expr>> From<(A, B)> for Expr {
 /// | [`Expr::Float`] | [`f64`]
 /// | [`Expr::Symbol`] | [`String`]
 /// | [`Expr::String`] | [`Rc<RefCell<String>>`]
+/// | [`Expr::Port`] | [`Rc<RefCell<Port>>`]
+/// | [`Expr::List`] | [`List`]
 /// | proper [`Expr::List`] | [`Vec<T>`] or [`VecDeque<T>`], where `T` is a type that implements [`FromExpr`]
 /// | dotted [`Expr::List`] with 2 elements | `(A, B)`, where `A` and `B` are types that implements [`FromExpr`]
 pub trait FromExpr: Sized {
@@ -481,6 +495,18 @@ impl FromExpr for String {
 impl FromExpr for Rc<RefCell<String>> {
     fn from_expr(expr: Expr) -> FromExprResult<Self> {
         expr.into_string()
+    }
+}
+
+impl FromExpr for List {
+    fn from_expr(expr: Expr) -> FromExprResult<Self> {
+        expr.into_list()
+    }
+}
+
+impl FromExpr for Rc<RefCell<Port>> {
+    fn from_expr(expr: Expr) -> FromExprResult<Self> {
+        expr.into_port()
     }
 }
 
