@@ -3,7 +3,7 @@ use crate::{
     evaluator::{error::runtime_error, eval, EnvRef},
     expr::{proc_result_tailcall, proc_result_value, Arity, Expr, Exprs, ProcedureResult},
 };
-use std::{time::{SystemTime, UNIX_EPOCH}, path::Path, fs, cell::RefCell, rc::Rc};
+use std::{time::{SystemTime, UNIX_EPOCH}, path::Path, fs, cell::RefCell, rc::Rc, env, collections::HashMap};
 
 define_special_forms! {
     include = ("include", include_fn, Arity::AtLeast(1)),
@@ -16,6 +16,8 @@ define_procedures! {
     exit = ("exit", exit_fn, Arity::Exact(0)),
     current_second = ("current-second", current_second_fn, Arity::Exact(0)),
     command_line = ("command-line", command_line_fn, Arity::Exact(0)),
+    get_environment_variables = ("get-environment-variables", get_environment_variables_fn, Arity::Exact(0)),
+    get_environment_variable = ("get-environment-variable", get_environment_variable_fn, Arity::Exact(1)),
 }
 
 fn include_fn(args: Exprs, env: &mut EnvRef) -> ProcedureResult {
@@ -100,10 +102,39 @@ fn delete_file_fn(args: Exprs, _: &mut EnvRef) -> ProcedureResult {
     }
 }
 
-use std::env;
-
 fn command_line_fn(_: Exprs, _: &mut EnvRef) -> ProcedureResult {
     let command_line_: Vec<String> = env::args().collect();
     let command_line_exprs: Exprs = command_line_.into_iter().map(|s| Expr::String(Rc::new(RefCell::new(s)))).collect();
     proc_result_value!(Expr::new_proper_list(command_line_exprs))
 }
+
+fn get_environment_variables_fn(_: Exprs, _: &mut EnvRef) -> ProcedureResult {
+    let env_vars: HashMap<String, String> = std::env::vars().collect();
+    let mut result_list = Exprs::new();
+
+    for (key, value) in env_vars {
+        let key_expr = Expr::String(Rc::new(RefCell::new(key)));
+        let value_expr = Expr::String(Rc::new(RefCell::new(value)));
+        result_list.push_back(Expr::new_dotted_list(vec![key_expr, value_expr].into()));
+    }
+
+    proc_result_value!(Expr::new_dotted_list(result_list))
+}
+
+fn get_environment_variable_fn(args: Exprs, _: &mut EnvRef) -> ProcedureResult {
+    let key_expr = args
+        .get(0)
+        .ok_or_else(|| runtime_error!("Expected one argument for get-environment-variable, but got none"))?;
+
+    let key = key_expr.clone()
+        .into_string()
+        .map_err(|expr| runtime_error!("Expected string as argument for get-environment-variable, got {}", expr.kind()))?;
+
+    let value = match std::env::var(&*key.borrow()) {
+        Ok(val) => Expr::String(Rc::new(RefCell::new(val))),
+        Err(_) => Expr::Void,
+    };
+
+    proc_result_value!(value)
+}
+

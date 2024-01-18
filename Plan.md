@@ -217,19 +217,19 @@
 	- [x] `write-string`
 	- [x] `display`
 	- [x] `newline`
-- [ ] system interface:
+- [x] system interface:
 	- [x] `load`
 	- [x] `file-exists?`
 	- [x] `delete-file`
 	- [x] `command-line`
 	- [x] `exit`
-	- [ ] `get-environment-variable`
-	- [ ] `get-environment-variables`
+	- [x] `get-environment-variable`
+	- [x] `get-environment-variables`
 	- [x] `current-second`
 
 ## Дополнительные требования:
 
-- [ ] Реализация pattern matching
+- [x] Реализация pattern matching
 - [x] Реализация ленивых вычислений, отложенного порядка вычислений для вызовов функций
 	- [x] `delay`
 	- [x] `force`

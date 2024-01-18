@@ -301,6 +301,8 @@ pub fn new_root_env() -> EnvRef {
         system::command_line,
         system::exit,
         system::current_second,
+        system::get_environment_variables,
+        system::get_environment_variable,
         //strings
         strings::string_set,
         strings::string_eq,
