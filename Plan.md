@@ -17,7 +17,7 @@
 - [x] Ветвление, логические связки с отложенным порядком исполнения
 - [x] Присваивание для ранее определенных символов
 - [x] Макросы (как defmacro из Clojure)
-- [ ] Ввод-вывод (консольный и файловый)
+- [x] Ввод-вывод (консольный и файловый)
 - [x] Возможность добавления встроенных функций на Rust
 
 Поведение языка должно соответствовать стандарту R7RS.
@@ -192,10 +192,10 @@
 	- [x] `string-map`
 	- [x] `for-each`
 	- [x] `string-for-each`
-- [ ] ports:
+- [x] ports:
 	- [x] `port?`
-	- [ ] `call-with-input-file`
-	- [ ] `call-with-output-file`
+	- [x] `call-with-input-file`
+	- [x] `call-with-output-file`
     - [x] `with-input-from-file`
     - [x] `with-output-to-file`
 	- [x] `input-port?`

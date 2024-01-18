@@ -20,6 +20,8 @@ define_procedures! {
     close_output_port = ("close-output-port", close_output_port_fn, Arity::Exact(1)),
     with_input_from_file = ("with-input-from-file", with_input_from_file_fn, Arity::Exact(2)),
     with_output_to_file = ("with-output-to-file", with_output_to_file_fn, Arity::Exact(2)),
+    call_with_input_file = ("call-with-input-file", call_with_input_file_fn, Arity::Exact(2)),
+    call_with_output_file = ("call-with-output-file", call_with_output_file_fn, Arity::Exact(2)),
 }
 
 fn open_input_file_fn(mut args: Exprs, env: &mut EnvRef) -> ProcedureResult {
@@ -143,6 +145,52 @@ fn with_output_to_file_fn(mut args: Exprs, env: &mut EnvRef) -> ProcedureResult 
     let thunk = args.pop_front().unwrap().into_procedure().map_err(|expr| {
         runtime_error!(
             "expected procedure as second with-output-to-file argument, got {}",
+            expr.kind()
+        )
+    })?;
+
+    let resolved_path = resolve_path(&*file_path.borrow(), env)?;
+    let port = Port::new_output_file(resolved_path).map_err(|e| e.to_string())?;
+
+    let mut eval_env = env.extend();
+    eval_env.set_current_output_port(Rc::new(RefCell::new(port)));
+
+    thunk.apply(Exprs::new(), &mut eval_env)
+}
+
+fn call_with_input_file_fn(mut args: Exprs, env: &mut EnvRef) -> ProcedureResult {
+    let file_path = args.pop_front().unwrap().into_string().map_err(|expr| {
+        runtime_error!(
+            "expected string as first call-with-input-file argument, got {}",
+            expr.kind()
+        )
+    })?;
+    let thunk = args.pop_front().unwrap().into_procedure().map_err(|expr| {
+        runtime_error!(
+            "expected procedure as second call-with-input-file argument, got {}",
+            expr.kind()
+        )
+    })?;
+
+    let resolved_path = resolve_path(&*file_path.borrow(), env)?;
+    let port = Port::new_input_file(resolved_path).map_err(|e| e.to_string())?;
+
+    let mut eval_env = env.extend();
+    eval_env.set_current_input_port(Rc::new(RefCell::new(port)));
+
+    thunk.apply(Exprs::new(), &mut eval_env)
+}
+
+fn call_with_output_file_fn(mut args: Exprs, env: &mut EnvRef) -> ProcedureResult {
+    let file_path = args.pop_front().unwrap().into_string().map_err(|expr| {
+        runtime_error!(
+            "expected string as first call-with-output-file argument, got {}",
+            expr.kind()
+        )
+    })?;
+    let thunk = args.pop_front().unwrap().into_procedure().map_err(|expr| {
+        runtime_error!(
+            "expected procedure as second call-with-output-file argument, got {}",
             expr.kind()
         )
     })?;

@@ -337,6 +337,8 @@ pub fn new_root_env() -> EnvRef {
         ports::close_output_port,
         ports::with_input_from_file,
         ports::with_output_to_file,
+        ports::call_with_input_file,
+        ports::call_with_output_file,
         // io
         io::read,
         io::read_char,
