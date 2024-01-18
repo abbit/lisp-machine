@@ -219,7 +219,7 @@
 	- [x] `newline`
 - [ ] system interface:
 	- [x] `load`
-	- [ ] `file-exists?`
+	- [x] `file-exists?`
 	- [ ] `delete-file`
 	- [ ] `command-line`
 	- [x] `exit`

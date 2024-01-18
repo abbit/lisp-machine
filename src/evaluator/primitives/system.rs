@@ -3,7 +3,7 @@ use crate::{
     evaluator::{error::runtime_error, eval, EnvRef},
     expr::{proc_result_tailcall, proc_result_value, Arity, Expr, Exprs, ProcedureResult},
 };
-use std::time::{SystemTime, UNIX_EPOCH};
+use std::{time::{SystemTime, UNIX_EPOCH}, path::Path};
 
 define_special_forms! {
     include = ("include", include_fn, Arity::AtLeast(1)),
@@ -11,6 +11,7 @@ define_special_forms! {
 
 define_procedures! {
     load = ("load", load_fn, Arity::Exact(1)),
+    file_exists = ("file-exists?", file_exists_fn, Arity::Exact(1)),
     exit = ("exit", exit_fn, Arity::Exact(0)),
     current_second = ("current-second", current_second_fn, Arity::Exact(0)),
 }
@@ -58,4 +59,21 @@ fn current_second_fn(_: Exprs, _: &mut EnvRef) -> ProcedureResult {
         .unwrap()
         .as_secs_f64();
     proc_result_value!(Expr::Float(current_time))
+}
+
+fn file_exists_fn(args: Exprs, _: &mut EnvRef) -> ProcedureResult {
+    let path_expr = args.get(0).ok_or_else(|| {
+        runtime_error!("expected one argument for file-exists?, but got none")
+    })?;
+
+    let path_str = path_expr.clone()
+        .into_string()
+        .map_err(|expr| runtime_error!("expected string as argument for file-exists?, got {}", expr.kind()))?;
+
+    let binding = path_str.borrow();
+    let path = Path::new(&*binding);
+
+    let exists = path.exists();
+
+    proc_result_value!(Expr::Boolean(exists))
 }
