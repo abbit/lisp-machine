@@ -290,7 +290,7 @@ fn cond_fn(args: Exprs, env: &mut EnvRef) -> ProcedureResult {
     for (clause, idx) in args.into_iter().zip(1..) {
         let mut clause = clause
             .into_list()
-            .map_err(|expr| runtime_error!("expected list as clause in cond, got {}", expr))?;
+            .map_err(|expr| runtime_error!("expected list as clause, got {}", expr))?;
 
         if clause.is_empty() {
             return Err(runtime_error!("expected at least 1 element in clause",));
@@ -301,7 +301,7 @@ fn cond_fn(args: Exprs, env: &mut EnvRef) -> ProcedureResult {
         let test_result = if test.is_specific_symbol("else") {
             // `else` clause should be last in cond
             if idx != args_len {
-                return Err(runtime_error!("else clause must be last in cond"));
+                return Err(runtime_error!("else clause must be last"));
             }
             TestResult::Else
         } else {
@@ -314,16 +314,16 @@ fn cond_fn(args: Exprs, env: &mut EnvRef) -> ProcedureResult {
                 TestResult::Normal(result_expr) => {
                     if clause.car().is_some_and(|e| e.is_specific_symbol("=>")) {
                         clause.pop_front(); // pop "=>" symbol
-                        let proc_expr = clause.pop_front().ok_or(runtime_error!(
-                            "expected expression after `=>` in cond clause"
-                        ))?;
+                        let proc_expr = clause
+                            .pop_front()
+                            .ok_or(runtime_error!("expected expression after `=>` in clause"))?;
                         // if clause uses `=>` then next expr should evaluate to a procedure
                         let proc =
                             eval::eval_expr(proc_expr, env)?
                                 .into_procedure()
                                 .map_err(|expr| {
                                     runtime_error!(
-                                        "expected procedure after `=>` in cond clause, got {}",
+                                        "expected procedure after `=>` in clause, got {}",
                                         expr.kind()
                                     )
                                 })?;
@@ -331,7 +331,7 @@ fn cond_fn(args: Exprs, env: &mut EnvRef) -> ProcedureResult {
                         // procedure should accept 1 argument
                         if !matches!(proc.arity(), Arity::Exact(1)) {
                             return Err(runtime_error!(
-                                "expected procedure with 1 argument after `=>` in cond clause"
+                                "expected procedure with 1 argument after `=>` in clause"
                             ));
                         }
 

@@ -210,16 +210,65 @@
 
 (define-macro (letrec* bindings . body) `(letrec ,bindings ,@body))
 
-(define-macro (case key . clauses)
+(define-macro (case key . case-clauses)
   (let ((tmp (gensym)))
     `(let ((,tmp ,key))
-       (cond ,@(map (lambda (clause)
-                      (if (eq? (car clause) 'else)
-                        (if (eq? (cadr clause) '=>)
-                          `(,tmp => ,(caddr clause))
-                          `(,tmp ,@(cdr clause)))
-                        `((if (memv ,tmp ',(car clause)) ,tmp #f) ,@(cdr clause))))
-                    clauses)))))
+       (cond ,@(map (lambda (case-clause)
+                      (if (eq? (car case-clause) 'else)
+                        (if (eq? (cadr case-clause) '=>)
+                          `(,tmp => ,(caddr case-clause))
+                          `(,tmp ,@(cdr case-clause)))
+                        `((if (memv ,tmp ',(car case-clause)) ,tmp #f) ,@(cdr case-clause))))
+                    case-clauses)))))
+
+(define (n-el-list? x n)
+  (and (list? x) (= (length x) n)))
+
+(define (1-el-list? x) (n-el-list? x 1))
+(define (2-el-list? x) (n-el-list? x 2))
+
+(define (unquoted? x)
+  (and (2-el-list? x) (eq? (car x) 'unquote)))
+
+;; (match <expr> (<pattern> <expression> ...) ...)
+;; a simple pattern matcher, that matches <expr> against <pattern>'s
+(define-macro (match expr . match-clauses)
+  (let ((tmp (gensym)))
+    `(let ((,tmp ,expr))
+       (cond ,@(map (lambda (match-clause)
+                      (let ((pat (car match-clause)))
+                        (cond
+                          ;; ,_ - match anything
+                          ((equal? pat ',_)
+                           `(#t ,@(cdr match-clause)))
+                          ;; ,<symbol> - match anything and binds to <symbol>
+                          ((and (unquoted? pat) (symbol? (cadr pat)))
+                           `(#t (let ((,(cadr pat) ,tmp)) ,@(cdr match-clause))))
+                          ;; ,(<type> _) - match anything of <type>
+                          ;; ,(<type> <symbol>) - match anything of <type> and bind it to <symbol>
+                          ((and
+                             (unquoted? pat)
+                             (2-el-list? (cadr pat))
+                             (member (caadr pat) '(number string char boolean pair procedure symbol list)))
+                           (if (equal? (cadadr pat) '_)
+                             `((,(string->symbol (string-append (symbol->string (caadr pat)) "?")) ,tmp)
+                               ,@(cdr match-clause))
+                             `((,(string->symbol (string-append (symbol->string (caadr pat)) "?")) ,tmp)
+                               (let ((,(cadadr pat) ,tmp)) ,@(cdr match-clause)))))
+                          ;; <literal> - match <literal>
+                          ((or
+                             (boolean? pat)
+                             (char? pat)
+                             (number? pat)
+                             (string? pat))
+                           `((equal? ,tmp ,pat) ,@(cdr match-clause)))
+                          ((or
+                             (symbol? pat)
+                             (list? pat))
+                           `((equal? ,tmp ',pat) ,@(cdr match-clause)))
+                          ;; no match - error
+                          (else `(error "no match clause was selected")))))
+                    match-clauses)))))
 
 ; lazy evaluation
 (define make-promise

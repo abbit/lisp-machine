@@ -13,6 +13,7 @@ define_procedures! {
     load = ("load", load_fn, Arity::Exact(1)),
     file_exists = ("file-exists?", file_exists_fn, Arity::Exact(1)),
     delete_file = ("delete-file", delete_file_fn, Arity::Exact(1)),
+    error = ("error", error_fn, Arity::Exact(1)),
     exit = ("exit", exit_fn, Arity::Exact(0)),
     current_second = ("current-second", current_second_fn, Arity::Exact(0)),
     command_line = ("command-line", command_line_fn, Arity::Exact(0)),
@@ -106,6 +107,12 @@ fn command_line_fn(_: Exprs, _: &mut EnvRef) -> ProcedureResult {
     let command_line_: Vec<String> = env::args().collect();
     let command_line_exprs: Exprs = command_line_.into_iter().map(|s| Expr::String(Rc::new(RefCell::new(s)))).collect();
     proc_result_value!(Expr::new_proper_list(command_line_exprs))
+
+fn error_fn(mut args: Exprs, _: &mut EnvRef) -> ProcedureResult {
+    let msg = args.pop_front().unwrap().into_string().map_err(|expr| {
+        runtime_error!("expected string as argument of error, got {}", expr.kind())
+    })?;
+    Err(runtime_error!("{}", (*msg).borrow().clone()))
 }
 
 fn get_environment_variables_fn(_: Exprs, _: &mut EnvRef) -> ProcedureResult {
