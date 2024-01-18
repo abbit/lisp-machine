@@ -146,12 +146,39 @@
 <a href="#146" id="146">146</a>
 <a href="#147" id="147">147</a>
 <a href="#148" id="148">148</a>
+<a href="#149" id="149">149</a>
+<a href="#150" id="150">150</a>
+<a href="#151" id="151">151</a>
+<a href="#152" id="152">152</a>
+<a href="#153" id="153">153</a>
+<a href="#154" id="154">154</a>
+<a href="#155" id="155">155</a>
+<a href="#156" id="156">156</a>
+<a href="#157" id="157">157</a>
+<a href="#158" id="158">158</a>
+<a href="#159" id="159">159</a>
+<a href="#160" id="160">160</a>
+<a href="#161" id="161">161</a>
+<a href="#162" id="162">162</a>
+<a href="#163" id="163">163</a>
+<a href="#164" id="164">164</a>
+<a href="#165" id="165">165</a>
+<a href="#166" id="166">166</a>
+<a href="#167" id="167">167</a>
+<a href="#168" id="168">168</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">super</span>::utils::{define_procedures, define_special_forms, read_exprs_from_path, resolve_path};
 <span class="kw">use crate</span>::{
     evaluator::{error::runtime_error, eval, EnvRef},
     expr::{proc_result_tailcall, proc_result_value, Arity, Expr, Exprs, ProcedureResult},
 };
-<span class="kw">use </span>std::{time::{SystemTime, UNIX_EPOCH}, path::Path, fs, cell::RefCell, rc::Rc, env, collections::HashMap};
+<span class="kw">use </span>std::{
+    cell::RefCell,
+    collections::HashMap,
+    env, fs,
+    path::Path,
+    rc::Rc,
+    time::{SystemTime, UNIX_EPOCH},
+};
 
 <span class="macro">define_special_forms! </span>{
     include = (<span class="string">&quot;include&quot;</span>, include_fn, Arity::AtLeast(<span class="number">1</span>)),
@@ -214,14 +241,17 @@
     <span class="macro">proc_result_value!</span>(Expr::Float(current_time))
 }
 
-<span class="kw">fn </span>file_exists_fn(args: Exprs, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>EnvRef) -&gt; ProcedureResult {
-    <span class="kw">let </span>path_expr = args.get(<span class="number">0</span>).ok_or_else(|| {
-        <span class="macro">runtime_error!</span>(<span class="string">&quot;expected one argument for file-exists?, but got none&quot;</span>)
-    })<span class="question-mark">?</span>;
-
-    <span class="kw">let </span>path_str = path_expr.clone()
-        .into_string()
-        .map_err(|expr| <span class="macro">runtime_error!</span>(<span class="string">&quot;expected string as argument for file-exists?, got {}&quot;</span>, expr.kind()))<span class="question-mark">?</span>;
+<span class="kw">fn </span>file_exists_fn(<span class="kw-2">mut </span>args: Exprs, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>EnvRef) -&gt; ProcedureResult {
+    <span class="kw">let </span>path_str = args
+        .pop_front()
+        .ok_or_else(|| <span class="macro">runtime_error!</span>(<span class="string">&quot;expected one argument for file-exists?, but got none&quot;</span>))<span class="question-mark">?
+        </span>.into_string()
+        .map_err(|expr| {
+            <span class="macro">runtime_error!</span>(
+                <span class="string">&quot;expected string as argument for file-exists?, got {}&quot;</span>,
+                expr.kind()
+            )
+        })<span class="question-mark">?</span>;
 
     <span class="kw">let </span>binding = path_str.borrow();
     <span class="kw">let </span>path = Path::new(<span class="kw-2">&amp;*</span>binding);
@@ -231,14 +261,17 @@
     <span class="macro">proc_result_value!</span>(Expr::Boolean(exists))
 }
 
-<span class="kw">fn </span>delete_file_fn(args: Exprs, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>EnvRef) -&gt; ProcedureResult {
-    <span class="kw">let </span>path_expr = args.get(<span class="number">0</span>).ok_or_else(|| {
-        <span class="macro">runtime_error!</span>(<span class="string">&quot;expected one argument for delete-file, but got none&quot;</span>)
-    })<span class="question-mark">?</span>;
-
-    <span class="kw">let </span>path_str = path_expr.clone()
-        .into_string()
-        .map_err(|expr| <span class="macro">runtime_error!</span>(<span class="string">&quot;expected string as argument for delete-file, got {}&quot;</span>, expr.kind()))<span class="question-mark">?</span>;
+<span class="kw">fn </span>delete_file_fn(<span class="kw-2">mut </span>args: Exprs, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>EnvRef) -&gt; ProcedureResult {
+    <span class="kw">let </span>path_str = args
+        .pop_front()
+        .ok_or_else(|| <span class="macro">runtime_error!</span>(<span class="string">&quot;expected one argument for delete-file, but got none&quot;</span>))<span class="question-mark">?
+        </span>.into_string()
+        .map_err(|expr| {
+            <span class="macro">runtime_error!</span>(
+                <span class="string">&quot;expected string as argument for delete-file, got {}&quot;</span>,
+                expr.kind()
+            )
+        })<span class="question-mark">?</span>;
 
     <span class="kw">let </span>path = path_str.borrow().clone();
 
@@ -247,13 +280,16 @@
         <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; {
             <span class="macro">runtime_error!</span>(<span class="string">&quot;No such file or directory: {}&quot;</span>, path);
             <span class="macro">proc_result_value!</span>(Expr::Void)
-        },
+        }
     }
 }
 
 <span class="kw">fn </span>command_line_fn(<span class="kw">_</span>: Exprs, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>EnvRef) -&gt; ProcedureResult {
     <span class="kw">let </span>command_line_: Vec&lt;String&gt; = env::args().collect();
-    <span class="kw">let </span>command_line_exprs: Exprs = command_line_.into_iter().map(|s| Expr::String(Rc::new(RefCell::new(s)))).collect();
+    <span class="kw">let </span>command_line_exprs: Exprs = command_line_
+        .into_iter()
+        .map(|s| Expr::String(Rc::new(RefCell::new(s))))
+        .collect();
     <span class="macro">proc_result_value!</span>(Expr::new_proper_list(command_line_exprs))
 }
 
@@ -277,14 +313,19 @@
     <span class="macro">proc_result_value!</span>(Expr::new_dotted_list(result_list))
 }
 
-<span class="kw">fn </span>get_environment_variable_fn(args: Exprs, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>EnvRef) -&gt; ProcedureResult {
-    <span class="kw">let </span>key_expr = args
-        .get(<span class="number">0</span>)
-        .ok_or_else(|| <span class="macro">runtime_error!</span>(<span class="string">&quot;Expected one argument for get-environment-variable, but got none&quot;</span>))<span class="question-mark">?</span>;
-
-    <span class="kw">let </span>key = key_expr.clone()
-        .into_string()
-        .map_err(|expr| <span class="macro">runtime_error!</span>(<span class="string">&quot;Expected string as argument for get-environment-variable, got {}&quot;</span>, expr.kind()))<span class="question-mark">?</span>;
+<span class="kw">fn </span>get_environment_variable_fn(<span class="kw-2">mut </span>args: Exprs, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>EnvRef) -&gt; ProcedureResult {
+    <span class="kw">let </span>key = args
+        .pop_front()
+        .ok_or_else(|| {
+            <span class="macro">runtime_error!</span>(<span class="string">&quot;Expected one argument for get-environment-variable, but got none&quot;</span>)
+        })<span class="question-mark">?
+        </span>.into_string()
+        .map_err(|expr| {
+            <span class="macro">runtime_error!</span>(
+                <span class="string">&quot;Expected string as argument for get-environment-variable, got {}&quot;</span>,
+                expr.kind()
+            )
+        })<span class="question-mark">?</span>;
 
     <span class="kw">let </span>value = <span class="kw">match </span>std::env::var(<span class="kw-2">&amp;*</span>key.borrow()) {
         <span class="prelude-val">Ok</span>(val) =&gt; Expr::String(Rc::new(RefCell::new(val))),
@@ -293,5 +334,4 @@
 
     <span class="macro">proc_result_value!</span>(value)
 }
-
 </code></pre></div></section></main></body></html>

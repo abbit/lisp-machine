@@ -200,18 +200,12 @@
 <a href="#200" id="200">200</a>
 <a href="#201" id="201">201</a>
 <a href="#202" id="202">202</a>
-<a href="#203" id="203">203</a>
-<a href="#204" id="204">204</a>
-<a href="#205" id="205">205</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::{cell::RefCell, rc::Rc};
 
 <span class="kw">use </span><span class="kw">super</span>::utils::{define_procedures, resolve_path};
 <span class="kw">use crate</span>::{
     evaluator::{error::runtime_error, procedure::ApplyProcedure, EnvRef},
-    expr::{
-        port::{InputPortTrait, OutputPortTrait, Port},
-        proc_result_value, Arity, Expr, Exprs, ProcedureResult,
-    },
+    expr::{port::Port, proc_result_value, Arity, Expr, Exprs, ProcedureResult},
 };
 
 <span class="macro">define_procedures! </span>{
@@ -407,4 +401,5 @@
     eval_env.set_current_output_port(Rc::new(RefCell::new(port)));
 
     thunk.apply(Exprs::new(), <span class="kw-2">&amp;mut </span>eval_env)
-}</code></pre></div></section></main></body></html>
+}
+</code></pre></div></section></main></body></html>

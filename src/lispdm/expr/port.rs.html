@@ -416,6 +416,43 @@
 <a href="#416" id="416">416</a>
 <a href="#417" id="417">417</a>
 <a href="#418" id="418">418</a>
+<a href="#419" id="419">419</a>
+<a href="#420" id="420">420</a>
+<a href="#421" id="421">421</a>
+<a href="#422" id="422">422</a>
+<a href="#423" id="423">423</a>
+<a href="#424" id="424">424</a>
+<a href="#425" id="425">425</a>
+<a href="#426" id="426">426</a>
+<a href="#427" id="427">427</a>
+<a href="#428" id="428">428</a>
+<a href="#429" id="429">429</a>
+<a href="#430" id="430">430</a>
+<a href="#431" id="431">431</a>
+<a href="#432" id="432">432</a>
+<a href="#433" id="433">433</a>
+<a href="#434" id="434">434</a>
+<a href="#435" id="435">435</a>
+<a href="#436" id="436">436</a>
+<a href="#437" id="437">437</a>
+<a href="#438" id="438">438</a>
+<a href="#439" id="439">439</a>
+<a href="#440" id="440">440</a>
+<a href="#441" id="441">441</a>
+<a href="#442" id="442">442</a>
+<a href="#443" id="443">443</a>
+<a href="#444" id="444">444</a>
+<a href="#445" id="445">445</a>
+<a href="#446" id="446">446</a>
+<a href="#447" id="447">447</a>
+<a href="#448" id="448">448</a>
+<a href="#449" id="449">449</a>
+<a href="#450" id="450">450</a>
+<a href="#451" id="451">451</a>
+<a href="#452" id="452">452</a>
+<a href="#453" id="453">453</a>
+<a href="#454" id="454">454</a>
+<a href="#455" id="455">455</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>core::fmt;
 <span class="attr">#[cfg(unix)]
 </span><span class="kw">use </span>std::os::fd::AsRawFd;
@@ -428,7 +465,7 @@
     path::Path,
 };
 
-<span class="kw">pub trait </span>InputPortTrait {
+<span class="kw">trait </span>InputPortTrait {
     <span class="kw">fn </span>peek(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; io::Result&lt;char&gt;;
     <span class="kw">fn </span>read_char(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; io::Result&lt;char&gt;;
     <span class="kw">fn </span>read_string(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; io::Result&lt;String&gt;;
@@ -436,7 +473,7 @@
     <span class="kw">fn </span>is_closed(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool;
 }
 
-<span class="kw">pub trait </span>OutputPortTrait: Write {
+<span class="kw">trait </span>OutputPortTrait: Write {
     <span class="kw">fn </span>close(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; io::Result&lt;()&gt;;
     <span class="kw">fn </span>is_closed(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool;
 }
@@ -480,7 +517,7 @@
 }
 
 <span class="attr">#[derive(Debug)]
-</span><span class="kw">pub struct </span>PeekableBufReader&lt;R: Read&gt; {
+</span><span class="kw">struct </span>PeekableBufReader&lt;R: Read&gt; {
     reader: BufReader&lt;R&gt;,
     peek_buffer: <span class="prelude-ty">Option</span>&lt;char&gt;,
 }
@@ -527,7 +564,7 @@
 }
 
 <span class="attr">#[derive(Debug)]
-</span><span class="kw">pub struct </span>ReaderInputPort&lt;R: Read&gt; {
+</span><span class="kw">struct </span>ReaderInputPort&lt;R: Read&gt; {
     reader: <span class="prelude-ty">Option</span>&lt;PeekableBufReader&lt;R&gt;&gt;,
 }
 
@@ -621,20 +658,14 @@
 }
 
 <span class="attr">#[derive(Debug)]
-</span><span class="kw">pub enum </span>InputPort {
+</span><span class="kw">enum </span>InputPortInner {
     Stdin(PeekableBufReader&lt;Stdin&gt;),
     File(ReaderInputPort&lt;File&gt;),
 }
 
-<span class="kw">impl </span>InputPort {
-    <span class="kw">pub fn </span>new_stdin() -&gt; <span class="self">Self </span>{
-        <span class="self">Self</span>::Stdin(PeekableBufReader::new(io::stdin()))
-    }
-
-    <span class="kw">pub fn </span>new_file&lt;P: AsRef&lt;Path&gt;&gt;(path: P) -&gt; io::Result&lt;<span class="self">Self</span>&gt; {
-        <span class="prelude-val">Ok</span>(<span class="self">Self</span>::File(ReaderInputPort::new(File::open(path)<span class="question-mark">?</span>)))
-    }
-}
+<span class="attr">#[derive(Debug)]
+</span><span class="doccomment">/// Input port.
+</span><span class="kw">pub struct </span>InputPort(InputPortInner);
 
 <span class="kw">impl </span>PartialEq <span class="kw">for </span>InputPort {
     <span class="kw">fn </span>eq(<span class="kw-2">&amp;</span><span class="self">self</span>, _other: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; bool {
@@ -642,45 +673,65 @@
     }
 }
 
-<span class="kw">impl </span>InputPortTrait <span class="kw">for </span>InputPort {
-    <span class="kw">fn </span>peek(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; io::Result&lt;char&gt; {
-        <span class="kw">match </span><span class="self">self </span>{
-            <span class="self">Self</span>::Stdin(port) =&gt; port.peek(),
-            <span class="self">Self</span>::File(port) =&gt; port.peek(),
-        }
+<span class="kw">impl </span>InputPort {
+    <span class="doccomment">/// Creates a new input port that reads from stdin.
+    </span><span class="kw">pub fn </span>new_stdin() -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>(InputPortInner::Stdin(PeekableBufReader::new(io::stdin())))
     }
-    <span class="kw">fn </span>read_char(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; io::Result&lt;char&gt; {
-        <span class="kw">match </span><span class="self">self </span>{
-            <span class="self">Self</span>::Stdin(port) =&gt; port.read_char(),
-            <span class="self">Self</span>::File(port) =&gt; port.read_char(),
-        }
+
+    <span class="doccomment">/// Creates a new input port that reads from a file.
+    </span><span class="kw">pub fn </span>new_file&lt;P: AsRef&lt;Path&gt;&gt;(path: P) -&gt; io::Result&lt;<span class="self">Self</span>&gt; {
+        <span class="prelude-val">Ok</span>(<span class="self">Self</span>(InputPortInner::File(ReaderInputPort::new(
+            File::open(path)<span class="question-mark">?</span>,
+        ))))
     }
-    <span class="kw">fn </span>read_string(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; io::Result&lt;String&gt; {
-        <span class="kw">match </span><span class="self">self </span>{
-            <span class="self">Self</span>::Stdin(port) =&gt; port.read_string(),
-            <span class="self">Self</span>::File(port) =&gt; port.read_string(),
+
+    <span class="doccomment">/// Returns the next character in the input port without consuming it.
+    </span><span class="kw">pub fn </span>peek(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; io::Result&lt;char&gt; {
+        <span class="kw">match </span><span class="kw-2">&amp;mut </span><span class="self">self</span>.<span class="number">0 </span>{
+            InputPortInner::Stdin(port) =&gt; port.peek(),
+            InputPortInner::File(port) =&gt; port.peek(),
         }
     }
 
-    <span class="kw">fn </span>close(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; io::Result&lt;()&gt; {
-        <span class="kw">match </span><span class="self">self </span>{
-            <span class="self">Self</span>::Stdin(<span class="kw">_</span>) =&gt; <span class="prelude-val">Ok</span>(()),
-            <span class="self">Self</span>::File(port) =&gt; port.close(),
+    <span class="doccomment">/// Returns the next character in the input port and consumes it.
+    </span><span class="kw">pub fn </span>read_char(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; io::Result&lt;char&gt; {
+        <span class="kw">match </span><span class="kw-2">&amp;mut </span><span class="self">self</span>.<span class="number">0 </span>{
+            InputPortInner::Stdin(port) =&gt; port.read_char(),
+            InputPortInner::File(port) =&gt; port.read_char(),
         }
     }
-    <span class="kw">fn </span>is_closed(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
-        <span class="kw">match </span><span class="self">self </span>{
-            <span class="self">Self</span>::Stdin(<span class="kw">_</span>) =&gt; <span class="bool-val">false</span>,
-            <span class="self">Self</span>::File(port) =&gt; port.is_closed(),
+
+    <span class="doccomment">/// Returns the rest of the input port as a string.
+    </span><span class="kw">pub fn </span>read_string(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; io::Result&lt;String&gt; {
+        <span class="kw">match </span><span class="kw-2">&amp;mut </span><span class="self">self</span>.<span class="number">0 </span>{
+            InputPortInner::Stdin(port) =&gt; port.read_string(),
+            InputPortInner::File(port) =&gt; port.read_string(),
+        }
+    }
+
+    <span class="doccomment">/// Closes the input port.
+    </span><span class="kw">pub fn </span>close(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; io::Result&lt;()&gt; {
+        <span class="kw">match </span><span class="kw-2">&amp;mut </span><span class="self">self</span>.<span class="number">0 </span>{
+            InputPortInner::Stdin(<span class="kw">_</span>) =&gt; <span class="prelude-val">Ok</span>(()),
+            InputPortInner::File(port) =&gt; port.close(),
+        }
+    }
+
+    <span class="doccomment">/// Checks if the input port is closed.
+    </span><span class="kw">pub fn </span>is_closed(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="kw">match </span><span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0 </span>{
+            InputPortInner::Stdin(<span class="kw">_</span>) =&gt; <span class="bool-val">false</span>,
+            InputPortInner::File(port) =&gt; port.is_closed(),
         }
     }
 }
 
 <span class="kw">impl </span>fmt::Display <span class="kw">for </span>InputPort {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
-        <span class="kw">match </span><span class="self">self </span>{
-            <span class="self">Self</span>::Stdin(<span class="kw">_</span>) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;#&lt;stdin input port&gt;&quot;</span>),
-            <span class="self">Self</span>::File(port) =&gt; <span class="kw">match </span>port.get_inderlying() {
+        <span class="kw">match </span><span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0 </span>{
+            InputPortInner::Stdin(<span class="kw">_</span>) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;#&lt;stdin input port&gt;&quot;</span>),
+            InputPortInner::File(port) =&gt; <span class="kw">match </span>port.get_inderlying() {
                 <span class="prelude-val">Some</span>(file) =&gt; {
                     <span class="attr">#[cfg(unix)]
                     </span><span class="kw">let </span>fd = file.as_raw_fd();
@@ -695,18 +746,26 @@
 }
 
 <span class="attr">#[derive(Debug)]
-</span><span class="kw">pub enum </span>OutputPort {
+</span><span class="kw">enum </span>OutputPortInner {
     Stdout(WriterOutputPort&lt;Stdout&gt;),
     File(WriterOutputPort&lt;File&gt;),
 }
 
+<span class="attr">#[derive(Debug)]
+</span><span class="doccomment">/// Output port.
+</span><span class="kw">pub struct </span>OutputPort(OutputPortInner);
+
 <span class="kw">impl </span>OutputPort {
-    <span class="kw">pub fn </span>new_stdout() -&gt; <span class="self">Self </span>{
-        <span class="self">Self</span>::Stdout(WriterOutputPort::new(io::stdout()))
+    <span class="doccomment">/// Creates a new output port that writes to stdout.
+    </span><span class="kw">pub fn </span>new_stdout() -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>(OutputPortInner::Stdout(WriterOutputPort::new(io::stdout())))
     }
 
-    <span class="kw">pub fn </span>new_file&lt;P: AsRef&lt;Path&gt;&gt;(path: P) -&gt; io::Result&lt;<span class="self">Self</span>&gt; {
-        <span class="prelude-val">Ok</span>(<span class="self">Self</span>::File(WriterOutputPort::new(File::create(path)<span class="question-mark">?</span>)))
+    <span class="doccomment">/// Creates a new output port that writes to a file.
+    </span><span class="kw">pub fn </span>new_file&lt;P: AsRef&lt;Path&gt;&gt;(path: P) -&gt; io::Result&lt;<span class="self">Self</span>&gt; {
+        <span class="prelude-val">Ok</span>(<span class="self">Self</span>(OutputPortInner::File(WriterOutputPort::new(
+            File::create(path)<span class="question-mark">?</span>,
+        ))))
     }
 }
 
@@ -718,41 +777,43 @@
 
 <span class="kw">impl </span>Write <span class="kw">for </span>OutputPort {
     <span class="kw">fn </span>write(<span class="kw-2">&amp;mut </span><span class="self">self</span>, buf: <span class="kw-2">&amp;</span>[u8]) -&gt; io::Result&lt;usize&gt; {
-        <span class="kw">match </span><span class="self">self </span>{
-            <span class="self">Self</span>::Stdout(port) =&gt; port.write(buf),
-            <span class="self">Self</span>::File(port) =&gt; port.write(buf),
+        <span class="kw">match </span><span class="kw-2">&amp;mut </span><span class="self">self</span>.<span class="number">0 </span>{
+            OutputPortInner::Stdout(port) =&gt; port.write(buf),
+            OutputPortInner::File(port) =&gt; port.write(buf),
         }
     }
 
     <span class="kw">fn </span>flush(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; io::Result&lt;()&gt; {
-        <span class="kw">match </span><span class="self">self </span>{
-            <span class="self">Self</span>::Stdout(port) =&gt; port.flush(),
-            <span class="self">Self</span>::File(port) =&gt; port.flush(),
+        <span class="kw">match </span><span class="kw-2">&amp;mut </span><span class="self">self</span>.<span class="number">0 </span>{
+            OutputPortInner::Stdout(port) =&gt; port.flush(),
+            OutputPortInner::File(port) =&gt; port.flush(),
         }
     }
 }
 
-<span class="kw">impl </span>OutputPortTrait <span class="kw">for </span>OutputPort {
-    <span class="kw">fn </span>close(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; io::Result&lt;()&gt; {
-        <span class="kw">match </span><span class="self">self </span>{
-            <span class="self">Self</span>::Stdout(<span class="kw">_</span>) =&gt; <span class="prelude-val">Ok</span>(()),
-            <span class="self">Self</span>::File(port) =&gt; port.close(),
+<span class="kw">impl </span>OutputPort {
+    <span class="doccomment">/// Closes the output port.
+    </span><span class="kw">pub fn </span>close(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; io::Result&lt;()&gt; {
+        <span class="kw">match </span><span class="kw-2">&amp;mut </span><span class="self">self</span>.<span class="number">0 </span>{
+            OutputPortInner::Stdout(<span class="kw">_</span>) =&gt; <span class="prelude-val">Ok</span>(()),
+            OutputPortInner::File(port) =&gt; port.close(),
         }
     }
 
-    <span class="kw">fn </span>is_closed(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
-        <span class="kw">match </span><span class="self">self </span>{
-            <span class="self">Self</span>::Stdout(<span class="kw">_</span>) =&gt; <span class="bool-val">false</span>,
-            <span class="self">Self</span>::File(port) =&gt; port.is_closed(),
+    <span class="doccomment">/// Checks if the output port is closed.
+    </span><span class="kw">pub fn </span>is_closed(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="kw">match </span><span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0 </span>{
+            OutputPortInner::Stdout(<span class="kw">_</span>) =&gt; <span class="bool-val">false</span>,
+            OutputPortInner::File(port) =&gt; port.is_closed(),
         }
     }
 }
 
 <span class="kw">impl </span>fmt::Display <span class="kw">for </span>OutputPort {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
-        <span class="kw">match </span><span class="self">self </span>{
-            <span class="self">Self</span>::Stdout(<span class="kw">_</span>) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;#&lt;stdout output port&gt;&quot;</span>),
-            <span class="self">Self</span>::File(port) =&gt; <span class="kw">match </span>port.get_inderlying() {
+        <span class="kw">match </span><span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0 </span>{
+            OutputPortInner::Stdout(<span class="kw">_</span>) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;#&lt;stdout output port&gt;&quot;</span>),
+            OutputPortInner::File(port) =&gt; <span class="kw">match </span>port.get_inderlying() {
                 <span class="prelude-val">Some</span>(file) =&gt; {
                     <span class="attr">#[cfg(unix)]
                     </span><span class="kw">let </span>fd = file.as_raw_fd();
@@ -767,58 +828,71 @@
 }
 
 <span class="attr">#[derive(Debug, PartialEq)]
+</span><span class="doccomment">/// Port type that can be either input or output.
 </span><span class="kw">pub enum </span>Port {
-    Input(InputPort),
-    Output(OutputPort),
+    <span class="doccomment">/// Input port.
+    </span>Input(InputPort),
+    <span class="doccomment">/// Output port.
+    </span>Output(OutputPort),
 }
 
 <span class="kw">impl </span>Port {
-    <span class="kw">pub fn </span>new_stdin() -&gt; <span class="self">Self </span>{
+    <span class="doccomment">/// Creates a new input port that reads from stdin.
+    </span><span class="kw">pub fn </span>new_stdin() -&gt; <span class="self">Self </span>{
         <span class="self">Self</span>::Input(InputPort::new_stdin())
     }
 
-    <span class="kw">pub fn </span>new_stdout() -&gt; <span class="self">Self </span>{
+    <span class="doccomment">/// Creates a new output port that writes to stdout.
+    </span><span class="kw">pub fn </span>new_stdout() -&gt; <span class="self">Self </span>{
         <span class="self">Self</span>::Output(OutputPort::new_stdout())
     }
 
-    <span class="kw">pub fn </span>new_input_file&lt;P: AsRef&lt;Path&gt;&gt;(path: P) -&gt; io::Result&lt;<span class="self">Self</span>&gt; {
+    <span class="doccomment">/// Creates a new input port that reads from a file.
+    </span><span class="kw">pub fn </span>new_input_file&lt;P: AsRef&lt;Path&gt;&gt;(path: P) -&gt; io::Result&lt;<span class="self">Self</span>&gt; {
         <span class="prelude-val">Ok</span>(<span class="self">Self</span>::Input(InputPort::new_file(path)<span class="question-mark">?</span>))
     }
 
-    <span class="kw">pub fn </span>new_output_file&lt;P: AsRef&lt;Path&gt;&gt;(path: P) -&gt; io::Result&lt;<span class="self">Self</span>&gt; {
+    <span class="doccomment">/// Creates a new output port that writes to a file.
+    </span><span class="kw">pub fn </span>new_output_file&lt;P: AsRef&lt;Path&gt;&gt;(path: P) -&gt; io::Result&lt;<span class="self">Self</span>&gt; {
         <span class="prelude-val">Ok</span>(<span class="self">Self</span>::Output(OutputPort::new_file(path)<span class="question-mark">?</span>))
     }
 
-    <span class="kw">pub fn </span>is_input(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+    <span class="doccomment">/// Checks if the port is input.
+    </span><span class="kw">pub fn </span>is_input(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         <span class="macro">matches!</span>(<span class="self">self</span>, <span class="self">Self</span>::Input(<span class="kw">_</span>))
     }
 
-    <span class="kw">pub fn </span>is_output(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+    <span class="doccomment">/// Checks if the port is output.
+    </span><span class="kw">pub fn </span>is_output(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         <span class="macro">matches!</span>(<span class="self">self</span>, <span class="self">Self</span>::Output(<span class="kw">_</span>))
     }
 
-    <span class="kw">pub fn </span>as_input(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;mut </span>InputPort&gt; {
+    <span class="doccomment">/// Returns mutable reference to the underlying input port.
+    </span><span class="kw">pub fn </span>as_input(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;mut </span>InputPort&gt; {
         <span class="kw">match </span><span class="self">self </span>{
             <span class="self">Self</span>::Input(port) =&gt; <span class="prelude-val">Some</span>(port),
             <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
         }
     }
 
-    <span class="kw">pub fn </span>as_output(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;mut </span>OutputPort&gt; {
+    <span class="doccomment">/// Returns mutable reference to the underlying output port.
+    </span><span class="kw">pub fn </span>as_output(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;mut </span>OutputPort&gt; {
         <span class="kw">match </span><span class="self">self </span>{
             <span class="self">Self</span>::Output(port) =&gt; <span class="prelude-val">Some</span>(port),
             <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
         }
     }
 
-    <span class="kw">pub fn </span>close(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; io::Result&lt;()&gt; {
+    <span class="doccomment">/// Closes the port.
+    </span><span class="kw">pub fn </span>close(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; io::Result&lt;()&gt; {
         <span class="kw">match </span><span class="self">self </span>{
             <span class="self">Self</span>::Input(port) =&gt; port.close(),
             <span class="self">Self</span>::Output(port) =&gt; port.close(),
         }
     }
 
-    <span class="kw">pub fn </span>is_closed(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+    <span class="doccomment">/// Checks if the port is closed.
+    </span><span class="kw">pub fn </span>is_closed(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         <span class="kw">match </span><span class="self">self </span>{
             <span class="self">Self</span>::Input(port) =&gt; port.is_closed(),
             <span class="self">Self</span>::Output(port) =&gt; port.is_closed(),
@@ -833,4 +907,5 @@
             <span class="self">Self</span>::Output(port) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{}&quot;</span>, port),
         }
     }
-}</code></pre></div></section></main></body></html>
+}
+</code></pre></div></section></main></body></html>

@@ -292,10 +292,25 @@
 <a href="#292" id="292">292</a>
 <a href="#293" id="293">293</a>
 <a href="#294" id="294">294</a>
+<a href="#295" id="295">295</a>
+<a href="#296" id="296">296</a>
+<a href="#297" id="297">297</a>
+<a href="#298" id="298">298</a>
+<a href="#299" id="299">299</a>
+<a href="#300" id="300">300</a>
+<a href="#301" id="301">301</a>
+<a href="#302" id="302">302</a>
+<a href="#303" id="303">303</a>
+<a href="#304" id="304">304</a>
+<a href="#305" id="305">305</a>
+<a href="#306" id="306">306</a>
+<a href="#307" id="307">307</a>
+<a href="#308" id="308">308</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">super</span>::expr::{Expr, Exprs};
 <span class="kw">use </span>core::fmt;
 
 <span class="attr">#[derive(Debug, PartialEq, Clone)]
+</span><span class="doccomment">/// List of expressions.
 </span><span class="kw">pub struct </span>List {
     but_last: Exprs,
     last: <span class="prelude-ty">Option</span>&lt;Box&lt;Expr&gt;&gt;,
@@ -308,7 +323,8 @@
 }
 
 <span class="kw">impl </span>List {
-    <span class="kw">pub fn </span>new(but_last: Exprs, last: <span class="prelude-ty">Option</span>&lt;Expr&gt;) -&gt; <span class="self">Self </span>{
+    <span class="doccomment">/// Creates a new list.
+    </span><span class="kw">pub fn </span>new(but_last: Exprs, last: <span class="prelude-ty">Option</span>&lt;Expr&gt;) -&gt; <span class="self">Self </span>{
         List {
             but_last,
             last: last.map(Box::new),
@@ -316,19 +332,22 @@
         .flatten()
     }
 
-    <span class="kw">pub fn </span>new_empty() -&gt; <span class="self">Self </span>{
+    <span class="doccomment">/// Creates a new empty list.
+    </span><span class="kw">pub fn </span>new_empty() -&gt; <span class="self">Self </span>{
         List::new(Exprs::new(), <span class="prelude-val">None</span>)
     }
 
-    <span class="kw">pub fn </span>new_proper(list: Exprs) -&gt; <span class="self">Self </span>{
+    <span class="doccomment">/// Creates a new proper list.
+    </span><span class="kw">pub fn </span>new_proper(list: Exprs) -&gt; <span class="self">Self </span>{
         List::new(list, <span class="prelude-val">None</span>)
     }
 
-    <span class="kw">pub fn </span>new_dotted(but_last: Exprs, last: Expr) -&gt; <span class="self">Self </span>{
+    <span class="doccomment">/// Creates a new dotted list.
+    </span><span class="kw">pub fn </span>new_dotted(but_last: Exprs, last: Expr) -&gt; <span class="self">Self </span>{
         List::new(but_last, <span class="prelude-val">Some</span>(last))
     }
 
-    <span class="kw">pub fn </span>flatten(<span class="self">self</span>) -&gt; <span class="self">Self </span>{
+    <span class="kw">fn </span>flatten(<span class="self">self</span>) -&gt; <span class="self">Self </span>{
         <span class="kw">let </span><span class="kw-2">mut </span>last = <span class="kw">match </span><span class="self">self</span>.last {
             <span class="prelude-val">None </span>=&gt; <span class="kw">return </span><span class="self">self</span>,
             expr =&gt; expr.map(|e| <span class="kw-2">*</span>e),
@@ -348,7 +367,8 @@
         }
     }
 
-    <span class="kw">pub fn </span>len(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
+    <span class="doccomment">/// Returns the length of the list.
+    </span><span class="kw">pub fn </span>len(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
         <span class="self">self</span>.but_last.len()
             + <span class="self">self
                 </span>.last
@@ -356,30 +376,35 @@
                 .map_or(<span class="number">0</span>, |expr| expr.as_list().map_or(<span class="number">1</span>, |list| list.len()))
     }
 
-    <span class="kw">pub fn </span>is_empty(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
-        <span class="self">self</span>.len() == <span class="number">0
-    </span>}
-
-    <span class="kw">pub fn </span>kind(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; ListKind {
+    <span class="doccomment">/// Returns the kind of the list.
+    </span><span class="kw">pub fn </span>kind(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; ListKind {
         <span class="kw">match </span><span class="self">self</span>.last {
             <span class="prelude-val">Some</span>(<span class="kw-2">ref </span>expr) =&gt; expr.as_list().map_or(ListKind::Dotted, |list| list.kind()),
             <span class="prelude-val">None </span>=&gt; ListKind::Proper,
         }
     }
 
-    <span class="kw">pub fn </span>is_proper(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+    <span class="doccomment">/// Checks if list is empty.
+    </span><span class="kw">pub fn </span>is_empty(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.len() == <span class="number">0
+    </span>}
+
+    <span class="doccomment">/// Checks if list is proper.
+    </span><span class="kw">pub fn </span>is_proper(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         <span class="macro">matches!</span>(<span class="self">self</span>.kind(), ListKind::Proper)
     }
 
-    <span class="kw">pub fn </span>is_dotted(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+    <span class="doccomment">/// Checks if list is dotted.
+    </span><span class="kw">pub fn </span>is_dotted(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         <span class="macro">matches!</span>(<span class="self">self</span>.kind(), ListKind::Dotted)
     }
 
-    <span class="kw">pub fn </span>car(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Expr&gt; {
+    <span class="doccomment">/// Returns the first element of the list or `None` if list is empty.
+    </span><span class="kw">pub fn </span>car(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Expr&gt; {
         <span class="self">self</span>.but_last.front()
     }
 
-    <span class="doccomment">/// Returns the first element of the list.
+    <span class="doccomment">/// Removes the first element of the list and returns it.
     /// Returns `None` if list is empty.
     </span><span class="kw">pub fn </span>pop_front(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;Expr&gt; {
         <span class="self">self</span>.but_last
@@ -408,15 +433,18 @@
         <span class="self">self</span>.but_last.iter()
     }
 
-    <span class="kw">pub fn </span>last(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Expr&gt; {
+    <span class="doccomment">/// Returns the last element of the list or `None` if list is empty.
+    </span><span class="kw">pub fn </span>last(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Expr&gt; {
         <span class="self">self</span>.last.as_deref()
     }
 
-    <span class="kw">pub fn </span>iter(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">impl </span>Iterator&lt;Item = <span class="kw-2">&amp;</span>Expr&gt; {
+    <span class="doccomment">/// Returns iterator over all elements of the list.
+    </span><span class="kw">pub fn </span>iter(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">impl </span>Iterator&lt;Item = <span class="kw-2">&amp;</span>Expr&gt; {
         <span class="self">self</span>.into_iter()
     }
 
-    <span class="kw">pub fn </span>into_exprs(<span class="self">self</span>) -&gt; Exprs {
+    <span class="doccomment">/// Converts list into [`Exprs`].
+    </span><span class="kw">pub fn </span>into_exprs(<span class="self">self</span>) -&gt; Exprs {
         <span class="self">self</span>.into_iter().collect()
     }
 }

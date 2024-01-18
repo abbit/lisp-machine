@@ -186,14 +186,10 @@
 <a href="#186" id="186">186</a>
 <a href="#187" id="187">187</a>
 <a href="#188" id="188">188</a>
-<a href="#189" id="189">189</a>
-<a href="#190" id="190">190</a>
-<a href="#191" id="191">191</a>
-<a href="#192" id="192">192</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">super</span>::utils::define_procedures;
 <span class="kw">use crate</span>::{
     evaluator::{error::runtime_error, EnvRef},
-    expr::{port::InputPortTrait, proc_result_value, Arity, Expr, Exprs, ProcedureResult},
+    expr::{proc_result_value, Arity, Expr, Exprs, ProcedureResult},
     parser,
 };
 <span class="kw">use </span>std::io::Write;
@@ -305,10 +301,7 @@
 
 <span class="kw">fn </span>write_char_fn(<span class="kw-2">mut </span>args: Exprs, env: <span class="kw-2">&amp;mut </span>EnvRef) -&gt; ProcedureResult {
     <span class="kw">let </span>char_arg = args.pop_front().unwrap().into_char().map_err(|expr| {
-        <span class="macro">runtime_error!</span>(
-            <span class="string">&quot;expected char as write-char argument, got {}&quot;</span>,
-            expr.kind()
-        )
+        <span class="macro">runtime_error!</span>(<span class="string">&quot;expected char as write-char argument, got {}&quot;</span>, expr.kind())
     })<span class="question-mark">?</span>;
 
     <span class="kw">let </span>port = <span class="kw">match </span>args.pop_front() {
@@ -330,7 +323,6 @@
 
     <span class="macro">proc_result_value!</span>(Expr::Void)
 }
-
 
 <span class="kw">fn </span>write_string_fn(<span class="kw-2">mut </span>args: Exprs, env: <span class="kw-2">&amp;mut </span>EnvRef) -&gt; ProcedureResult {
     <span class="kw">let </span>string_arg = args.pop_front().unwrap().into_string().map_err(|expr| {
