@@ -3,7 +3,14 @@ use crate::{
     evaluator::{error::runtime_error, eval, EnvRef},
     expr::{proc_result_tailcall, proc_result_value, Arity, Expr, Exprs, ProcedureResult},
 };
-use std::{time::{SystemTime, UNIX_EPOCH}, path::Path, fs, cell::RefCell, rc::Rc, env, collections::HashMap};
+use std::{
+    cell::RefCell,
+    collections::HashMap,
+    env, fs,
+    path::Path,
+    rc::Rc,
+    time::{SystemTime, UNIX_EPOCH},
+};
 
 define_special_forms! {
     include = ("include", include_fn, Arity::AtLeast(1)),
@@ -67,13 +74,16 @@ fn current_second_fn(_: Exprs, _: &mut EnvRef) -> ProcedureResult {
 }
 
 fn file_exists_fn(args: Exprs, _: &mut EnvRef) -> ProcedureResult {
-    let path_expr = args.get(0).ok_or_else(|| {
-        runtime_error!("expected one argument for file-exists?, but got none")
-    })?;
+    let path_expr = args
+        .get(0)
+        .ok_or_else(|| runtime_error!("expected one argument for file-exists?, but got none"))?;
 
-    let path_str = path_expr.clone()
-        .into_string()
-        .map_err(|expr| runtime_error!("expected string as argument for file-exists?, got {}", expr.kind()))?;
+    let path_str = path_expr.clone().into_string().map_err(|expr| {
+        runtime_error!(
+            "expected string as argument for file-exists?, got {}",
+            expr.kind()
+        )
+    })?;
 
     let binding = path_str.borrow();
     let path = Path::new(&*binding);
@@ -84,13 +94,16 @@ fn file_exists_fn(args: Exprs, _: &mut EnvRef) -> ProcedureResult {
 }
 
 fn delete_file_fn(args: Exprs, _: &mut EnvRef) -> ProcedureResult {
-    let path_expr = args.get(0).ok_or_else(|| {
-        runtime_error!("expected one argument for delete-file, but got none")
-    })?;
+    let path_expr = args
+        .get(0)
+        .ok_or_else(|| runtime_error!("expected one argument for delete-file, but got none"))?;
 
-    let path_str = path_expr.clone()
-        .into_string()
-        .map_err(|expr| runtime_error!("expected string as argument for delete-file, got {}", expr.kind()))?;
+    let path_str = path_expr.clone().into_string().map_err(|expr| {
+        runtime_error!(
+            "expected string as argument for delete-file, got {}",
+            expr.kind()
+        )
+    })?;
 
     let path = path_str.borrow().clone();
 
@@ -99,13 +112,16 @@ fn delete_file_fn(args: Exprs, _: &mut EnvRef) -> ProcedureResult {
         Err(_) => {
             runtime_error!("No such file or directory: {}", path);
             proc_result_value!(Expr::Void)
-        },
+        }
     }
 }
 
 fn command_line_fn(_: Exprs, _: &mut EnvRef) -> ProcedureResult {
     let command_line_: Vec<String> = env::args().collect();
-    let command_line_exprs: Exprs = command_line_.into_iter().map(|s| Expr::String(Rc::new(RefCell::new(s)))).collect();
+    let command_line_exprs: Exprs = command_line_
+        .into_iter()
+        .map(|s| Expr::String(Rc::new(RefCell::new(s))))
+        .collect();
     proc_result_value!(Expr::new_proper_list(command_line_exprs))
 }
 
@@ -130,13 +146,16 @@ fn get_environment_variables_fn(_: Exprs, _: &mut EnvRef) -> ProcedureResult {
 }
 
 fn get_environment_variable_fn(args: Exprs, _: &mut EnvRef) -> ProcedureResult {
-    let key_expr = args
-        .get(0)
-        .ok_or_else(|| runtime_error!("Expected one argument for get-environment-variable, but got none"))?;
+    let key_expr = args.get(0).ok_or_else(|| {
+        runtime_error!("Expected one argument for get-environment-variable, but got none")
+    })?;
 
-    let key = key_expr.clone()
-        .into_string()
-        .map_err(|expr| runtime_error!("Expected string as argument for get-environment-variable, got {}", expr.kind()))?;
+    let key = key_expr.clone().into_string().map_err(|expr| {
+        runtime_error!(
+            "Expected string as argument for get-environment-variable, got {}",
+            expr.kind()
+        )
+    })?;
 
     let value = match std::env::var(&*key.borrow()) {
         Ok(val) => Expr::String(Rc::new(RefCell::new(val))),
@@ -145,4 +164,3 @@ fn get_environment_variable_fn(args: Exprs, _: &mut EnvRef) -> ProcedureResult {
 
     proc_result_value!(value)
 }
-

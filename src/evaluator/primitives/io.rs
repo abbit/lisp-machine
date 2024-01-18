@@ -113,10 +113,7 @@ fn newline_fn(mut args: Exprs, env: &mut EnvRef) -> ProcedureResult {
 
 fn write_char_fn(mut args: Exprs, env: &mut EnvRef) -> ProcedureResult {
     let char_arg = args.pop_front().unwrap().into_char().map_err(|expr| {
-        runtime_error!(
-            "expected char as write-char argument, got {}",
-            expr.kind()
-        )
+        runtime_error!("expected char as write-char argument, got {}", expr.kind())
     })?;
 
     let port = match args.pop_front() {
@@ -138,7 +135,6 @@ fn write_char_fn(mut args: Exprs, env: &mut EnvRef) -> ProcedureResult {
 
     proc_result_value!(Expr::Void)
 }
-
 
 fn write_string_fn(mut args: Exprs, env: &mut EnvRef) -> ProcedureResult {
     let string_arg = args.pop_front().unwrap().into_string().map_err(|expr| {
