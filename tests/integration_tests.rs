@@ -37,6 +37,19 @@ fn ensure_special_forms_defined_in_scheme_prelude() {
 }
 
 #[test]
+fn ensure_lexical_scope() {
+    let source = "
+        (define x 1)
+        (define (foo) x)
+        (define (bar) (define x 2) (foo))
+        (bar)
+    ";
+    let mut engine = Engine::default();
+    let result = engine.eval::<i64>(source).unwrap().unwrap();
+    assert_eq!(result, 1);
+}
+
+#[test]
 fn eval_number() {
     let source = "1";
     let mut engine = Engine::default();
