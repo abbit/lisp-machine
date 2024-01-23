@@ -346,6 +346,146 @@ fn eval_case_else_with_arrow() {
 }
 
 // ========================================================================
+//                           `match` tests
+// ========================================================================
+
+#[test]
+fn eval_match_empty() {
+    let source = "(match)";
+    let mut engine = Engine::default();
+    let result = engine.eval::<()>(source);
+    assert!(result.is_err());
+}
+
+#[test]
+fn eval_match_no_clauses() {
+    let source = "(match 1)";
+    let mut engine = Engine::default();
+    let result = engine.eval::<()>(source);
+    assert!(result.is_err());
+}
+
+#[test]
+fn eval_match_unkown_pattern() {
+    let source = "(match 1
+        (,(unknown _) 'unknown))";
+    let mut engine = Engine::default();
+    let result = engine.eval::<()>(source);
+    assert!(result.is_err());
+}
+
+#[test]
+fn eval_match_no_match() {
+    let source = "(match 1
+        (0 'zero)
+        (2 'two))";
+    let mut engine = Engine::default();
+    let result = engine.eval::<()>(source);
+    println!("{:?}", result);
+    assert!(result.is_err());
+}
+
+#[test]
+fn eval_match_simple() {
+    let source = "(match 1
+        (0 'zero)
+        (1 'one)
+        (2 'two))";
+    let mut engine = Engine::default();
+    let result = engine.eval::<Expr>(source).unwrap().unwrap();
+    assert_eq!(result, Expr::new_symbol("one"));
+}
+
+#[test]
+fn eval_match_exact() {
+    let source = "(match '(1 2 3)
+        ((1 2) 'one-two)
+        ((1 2 3) 'one-two-three)
+        ((1 2 3 4) 'one-two-three-four))";
+    let mut engine = Engine::default();
+    let result = engine.eval::<Expr>(source).unwrap().unwrap();
+    assert_eq!(result, Expr::new_symbol("one-two-three"));
+}
+
+#[test]
+fn eval_match_any() {
+    let source = "(match 23
+        (0 'zero)
+        (1 'one)
+        (,_ 'something-else))";
+    let mut engine = Engine::default();
+    let result = engine.eval::<Expr>(source).unwrap().unwrap();
+    assert_eq!(result, Expr::new_symbol("something-else"));
+}
+
+#[test]
+fn eval_match_any_bind() {
+    let source = "(match 23
+        (0 'zero)
+        (1 'one)
+        (,x x))";
+    let mut engine = Engine::default();
+    let result = engine.eval::<i64>(source).unwrap().unwrap();
+    assert_eq!(result, 23);
+}
+
+#[test]
+fn eval_match_type() {
+    let source = "(match 23
+        (,(symbol _) 'symbol)
+        (,(string _) 'string)
+        (,(number _) 'number))";
+    let mut engine = Engine::default();
+    let result = engine.eval::<Expr>(source).unwrap().unwrap();
+    assert_eq!(result, Expr::new_symbol("number"));
+}
+
+#[test]
+fn eval_match_type_bind() {
+    let source = "(match 23
+        (,(symbol sym) (list 'symbol sym))
+        (,(string str) (list 'string str))
+        (,(number num) (list 'number num)))";
+    let mut engine = Engine::default();
+    let result = engine.eval::<Expr>(source).unwrap().unwrap();
+    assert_eq!(
+        result,
+        Expr::new_proper_list(exprs![Expr::new_symbol("number"), Expr::Integer(23)])
+    );
+}
+
+#[test]
+fn eval_match_literal_string() {
+    let source = r#"(match "hello"
+        ("hello" 'hello)
+        ("world" 'world))"#;
+    let mut engine = Engine::default();
+    let result = engine.eval::<Expr>(source).unwrap().unwrap();
+    assert_eq!(result, Expr::new_symbol("hello"));
+}
+
+#[test]
+fn eval_match_literal_symbol() {
+    let source = "(match 'hello
+        (hello 1)
+        (world 0))";
+    let mut engine = Engine::default();
+    let result = engine.eval::<i64>(source).unwrap().unwrap();
+    assert_eq!(result, 1);
+}
+
+#[test]
+fn eval_match_literal_list() {
+    let source = r#"(match '(1 ("2" 'three) ((4) 5))
+        ((1 (2 3) ((4) 5)) 'int-list)
+        ((1 ("2" 'three) ((4) 5)) 'mixed-list)
+        (,_ 'no-match))"#;
+    let mut engine = Engine::default();
+    let result = engine.eval::<Expr>(source).unwrap().unwrap();
+    assert_eq!(result, Expr::new_symbol("mixed-list"));
+}
+
+// ========================================================================
 //                           `do` tests
 // ========================================================================
 

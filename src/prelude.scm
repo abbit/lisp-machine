@@ -266,9 +266,11 @@
                              (symbol? pat)
                              (list? pat))
                            `((equal? ,tmp ',pat) ,@(cdr match-clause)))
-                          ;; no match - error
-                          (else `(error "no match clause was selected")))))
-                    match-clauses)))))
+                          ;; unknown pattern
+                          (else `(error "unknown pattern" ',pat)))))
+                    match-clauses)
+             ;; no match - error
+             (else (error "no match clause was selected"))))))
 
 ; lazy evaluation
 (define make-promise
