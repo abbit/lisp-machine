@@ -29,7 +29,7 @@ fn open_input_file_fn(mut args: Exprs, env: &mut EnvRef) -> ProcedureResult {
         )
     })?;
 
-    let resolved_path = resolve_path(&*file_path.borrow(), env)?;
+    let resolved_path = resolve_path(&file_path.borrow(), env)?;
     let port = FileInputPort::from_path(resolved_path).map_err(|e| e.to_string())?;
 
     proc_result_value!(Expr::new_input_port(port))
@@ -43,7 +43,7 @@ fn open_output_file_fn(mut args: Exprs, env: &mut EnvRef) -> ProcedureResult {
         )
     })?;
 
-    let resolved_path = resolve_path(&*file_path.borrow(), env)?;
+    let resolved_path = resolve_path(&file_path.borrow(), env)?;
     let port = FileOutputPort::from_path(resolved_path).map_err(|e| e.to_string())?;
 
     proc_result_value!(Expr::new_output_port(port))
@@ -121,7 +121,7 @@ fn with_input_from_file_fn(mut args: Exprs, env: &mut EnvRef) -> ProcedureResult
         )
     })?;
 
-    let resolved_path = resolve_path(&*file_path.borrow(), env)?;
+    let resolved_path = resolve_path(&file_path.borrow(), env)?;
     let port = FileInputPort::from_path(resolved_path).map_err(|e| e.to_string())?;
 
     let mut eval_env = env.extend();
@@ -144,7 +144,7 @@ fn with_output_to_file_fn(mut args: Exprs, env: &mut EnvRef) -> ProcedureResult 
         )
     })?;
 
-    let resolved_path = resolve_path(&*file_path.borrow(), env)?;
+    let resolved_path = resolve_path(&file_path.borrow(), env)?;
     let port = FileOutputPort::from_path(resolved_path).map_err(|e| e.to_string())?;
 
     let mut eval_env = env.extend();
@@ -167,7 +167,7 @@ fn call_with_input_file_fn(mut args: Exprs, env: &mut EnvRef) -> ProcedureResult
         )
     })?;
 
-    let resolved_path = resolve_path(&*file_path.borrow(), env)?;
+    let resolved_path = resolve_path(&file_path.borrow(), env)?;
     let port = FileInputPort::from_path(resolved_path).map_err(|e| e.to_string())?;
 
     let mut eval_env = env.extend();
@@ -190,7 +190,7 @@ fn call_with_output_file_fn(mut args: Exprs, env: &mut EnvRef) -> ProcedureResul
         )
     })?;
 
-    let resolved_path = resolve_path(&*file_path.borrow(), env)?;
+    let resolved_path = resolve_path(&file_path.borrow(), env)?;
     let port = FileOutputPort::from_path(resolved_path).map_err(|e| e.to_string())?;
 
     let mut eval_env = env.extend();

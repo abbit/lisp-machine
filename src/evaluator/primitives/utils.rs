@@ -1,5 +1,6 @@
 use std::{
     fs,
+    ops::Deref,
     path::{Path, PathBuf},
 };
 
@@ -82,8 +83,9 @@ pub fn create_procedure(
     Ok(Procedure::new_compound(name, params, body, env.clone()))
 }
 
-pub fn resolve_path<P: AsRef<Path>>(path: P, env: &EnvRef) -> Result<PathBuf, EvalError> {
-    let path = path.as_ref();
+pub fn resolve_path(path: &str, env: &EnvRef) -> Result<PathBuf, EvalError> {
+    let path = shellexpand::tilde(path);
+    let path = Path::new(path.deref());
     if path.is_absolute() {
         return Ok(path.into());
     }

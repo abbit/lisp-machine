@@ -38,7 +38,7 @@ fn include_fn(args: Exprs, env: &mut EnvRef) -> ProcedureResult {
                 idx
             )
         })?;
-        let src_path = resolve_path(&*src_path.borrow(), env)?;
+        let src_path = resolve_path(&src_path.borrow(), env)?;
 
         exprs.extend(read_exprs_from_path(&src_path)?);
     }
@@ -52,7 +52,7 @@ fn load_fn(mut args: Exprs, env: &mut EnvRef) -> ProcedureResult {
         args.pop_front().unwrap().into_string().map_err(|expr| {
             runtime_error!("expected string as load argument, got {}", expr.kind())
         })?;
-    let src_path = resolve_path(&*src_path.borrow(), env)?;
+    let src_path = resolve_path(&src_path.borrow(), env)?;
     let exprs = read_exprs_from_path(&src_path)?;
     let mut eval_env = env.extend();
     eval_env.set_cwd(src_path.parent().unwrap().to_path_buf());
