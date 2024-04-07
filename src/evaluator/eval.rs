@@ -109,7 +109,8 @@ fn eval_expanded_expr(mut expr: Expr, env: &mut EnvRef) -> EvalResult {
             Expr::Float(_) => return Ok(expr),
             Expr::Char(_) => return Ok(expr),
             Expr::String(_) => return Ok(expr),
-            Expr::Port(_) => return Ok(expr),
+            Expr::InputPort(_) => return Ok(expr),
+            Expr::OutputPort(_) => return Ok(expr),
             Expr::Symbol(symbol) => return eval_symbol(symbol, &mut env),
             Expr::List(list) => match list.kind() {
                 ListKind::Proper => match eval_list(list.into(), &mut env)? {

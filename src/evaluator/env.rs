@@ -1,18 +1,32 @@
 use super::primitives::{
     chars, convert, equal, eval, forms, io, lists, macros, nums, ports, strings, system, types,
 };
-use crate::expr::{port::Port, Expr, FromExpr, FromExprResult, Procedure};
+use crate::expr::{
+    Expr, FromExpr, FromExprResult, InputPortSuperTrait, OutputPortSuperTrait, Procedure,
+    StdinInputPort, StdoutOutputPort,
+};
 use core::fmt;
 use std::{cell::RefCell, collections::HashMap, path::PathBuf, rc::Rc};
 
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, Clone)]
 struct Env {
     bindings: HashMap<String, Expr>,
     macros: HashMap<String, Procedure>,
     parent: Option<EnvRef>,
     cwd: PathBuf,
-    cur_input_port: Rc<RefCell<Port>>,
-    cur_output_port: Rc<RefCell<Port>>,
+    cur_input_port: Rc<RefCell<dyn InputPortSuperTrait>>,
+    cur_output_port: Rc<RefCell<dyn OutputPortSuperTrait>>,
+}
+
+impl PartialEq for Env {
+    fn eq(&self, other: &Self) -> bool {
+        self.bindings == other.bindings
+            && self.macros == other.macros
+            && self.parent == other.parent
+            && self.cwd == other.cwd
+            && Rc::ptr_eq(&self.cur_input_port, &other.cur_input_port)
+            && Rc::ptr_eq(&self.cur_output_port, &other.cur_output_port)
+    }
 }
 
 impl Default for Env {
@@ -22,8 +36,8 @@ impl Default for Env {
             macros: HashMap::new(),
             parent: None,
             cwd: PathBuf::new(),
-            cur_input_port: Rc::new(RefCell::new(Port::new_stdin())),
-            cur_output_port: Rc::new(RefCell::new(Port::new_stdout())),
+            cur_input_port: Rc::new(RefCell::new(StdinInputPort::new())),
+            cur_output_port: Rc::new(RefCell::new(StdoutOutputPort::new())),
         }
     }
 }
@@ -197,22 +211,22 @@ impl EnvRef {
     }
 
     /// Returns the current input port of the environment.
-    pub fn current_input_port(&self) -> Rc<RefCell<Port>> {
+    pub fn current_input_port(&self) -> Rc<RefCell<dyn InputPortSuperTrait>> {
         self.0.borrow().cur_input_port.clone()
     }
 
     /// Returns the current output port of the environment.
-    pub fn current_output_port(&self) -> Rc<RefCell<Port>> {
+    pub fn current_output_port(&self) -> Rc<RefCell<dyn OutputPortSuperTrait>> {
         self.0.borrow().cur_output_port.clone()
     }
 
     /// Sets the current input port of the environment.
-    pub fn set_current_input_port(&mut self, port: Rc<RefCell<Port>>) {
+    pub fn set_current_input_port(&mut self, port: Rc<RefCell<dyn InputPortSuperTrait>>) {
         self.0.borrow_mut().cur_input_port = port;
     }
 
     /// Sets the current output port of the environment.
-    pub fn set_current_output_port(&mut self, port: Rc<RefCell<Port>>) {
+    pub fn set_current_output_port(&mut self, port: Rc<RefCell<dyn OutputPortSuperTrait>>) {
         self.0.borrow_mut().cur_output_port = port;
     }
 }
@@ -292,6 +306,8 @@ pub fn new_root_env() -> EnvRef {
         types::is_string,
         types::is_procedure,
         types::is_char,
+        types::is_input_port,
+        types::is_output_port,
         types::is_port,
         // system interaction
         system::include,

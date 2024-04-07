@@ -4,7 +4,6 @@ use crate::{
     expr::{proc_result_value, Arity, Expr, Exprs, ProcedureResult},
     parser,
 };
-use std::io::Write;
 
 define_procedures! {
     read = ("read", read_fn, Arity::Range(0, 1)),
@@ -19,15 +18,16 @@ define_procedures! {
 
 fn read_fn(mut args: Exprs, env: &mut EnvRef) -> ProcedureResult {
     let port = match args.pop_front() {
-        Some(e) => e.into_port().map_err(|expr| {
-            runtime_error!("expected port as read-string argument, got {}", expr.kind())
+        Some(e) => e.into_input_port().map_err(|expr| {
+            runtime_error!(
+                "expected input port as read-string argument, got {}",
+                expr.kind()
+            )
         })?,
         None => env.current_input_port(),
     };
     let input = port
         .borrow_mut()
-        .as_input()
-        .ok_or(runtime_error!("expected input port"))?
         .read_string()
         .map_err(|e| runtime_error!("Could not read input string: {}", e))?;
 
@@ -41,15 +41,16 @@ fn read_fn(mut args: Exprs, env: &mut EnvRef) -> ProcedureResult {
 
 fn read_char_fn(mut args: Exprs, env: &mut EnvRef) -> ProcedureResult {
     let port = match args.pop_front() {
-        Some(e) => e.into_port().map_err(|expr| {
-            runtime_error!("expected port as read-char argument, got {}", expr.kind())
+        Some(e) => e.into_input_port().map_err(|expr| {
+            runtime_error!(
+                "expected input port as read-char argument, got {}",
+                expr.kind()
+            )
         })?,
         None => env.current_input_port(),
     };
     let char_result = port
         .borrow_mut()
-        .as_input()
-        .ok_or(runtime_error!("expected input port"))?
         .read_char()
         .map_err(|e| runtime_error!("Could not read character: {}", e))?;
 
@@ -58,15 +59,16 @@ fn read_char_fn(mut args: Exprs, env: &mut EnvRef) -> ProcedureResult {
 
 fn read_string_fn(mut args: Exprs, env: &mut EnvRef) -> ProcedureResult {
     let port = match args.pop_front() {
-        Some(e) => e.into_port().map_err(|expr| {
-            runtime_error!("expected port as read-string argument, got {}", expr.kind())
+        Some(e) => e.into_input_port().map_err(|expr| {
+            runtime_error!(
+                "expected input port as read-string argument, got {}",
+                expr.kind()
+            )
         })?,
         None => env.current_input_port(),
     };
     let input = port
         .borrow_mut()
-        .as_input()
-        .ok_or(runtime_error!("expected input port"))?
         .read_string()
         .map_err(|e| runtime_error!("Could not read input string: {}", e))?;
 
@@ -76,9 +78,9 @@ fn read_string_fn(mut args: Exprs, env: &mut EnvRef) -> ProcedureResult {
 fn write_fn(mut args: Exprs, env: &mut EnvRef) -> ProcedureResult {
     let expr = args.pop_front().unwrap();
     let port = match args.pop_front() {
-        Some(expr) => expr.into_port().map_err(|expr| {
+        Some(expr) => expr.into_output_port().map_err(|expr| {
             runtime_error!(
-                "expected port as second display argument, got {}",
+                "expected output port as second display argument, got {}",
                 expr.kind()
             )
         })?,
@@ -86,27 +88,24 @@ fn write_fn(mut args: Exprs, env: &mut EnvRef) -> ProcedureResult {
     };
 
     let mut port = port.borrow_mut();
-    let output_port = port
-        .as_output()
-        .ok_or(runtime_error!("expected output port"))?;
-    write!(output_port, "{}", expr).map_err(|e| e.to_string())?;
+    write!(port, "{}", expr).map_err(|e| e.to_string())?;
 
     proc_result_value!(Expr::Void)
 }
 
 fn newline_fn(mut args: Exprs, env: &mut EnvRef) -> ProcedureResult {
     let port = match args.pop_front() {
-        Some(expr) => expr.into_port().map_err(|expr| {
-            runtime_error!("expected port as newline argument, got {}", expr.kind())
+        Some(expr) => expr.into_output_port().map_err(|expr| {
+            runtime_error!(
+                "expected output port as newline argument, got {}",
+                expr.kind()
+            )
         })?,
         None => env.current_output_port(),
     };
 
     let mut port = port.borrow_mut();
-    let output_port = port
-        .as_output()
-        .ok_or(runtime_error!("expected output port"))?;
-    writeln!(output_port).map_err(|e| e.to_string())?;
+    writeln!(port).map_err(|e| e.to_string())?;
 
     proc_result_value!(Expr::Void)
 }
@@ -117,9 +116,9 @@ fn write_char_fn(mut args: Exprs, env: &mut EnvRef) -> ProcedureResult {
     })?;
 
     let port = match args.pop_front() {
-        Some(expr) => expr.into_port().map_err(|expr| {
+        Some(expr) => expr.into_output_port().map_err(|expr| {
             runtime_error!(
-                "expected port as second write-char argument, got {}",
+                "expected output port as second write-char argument, got {}",
                 expr.kind()
             )
         })?,
@@ -127,11 +126,7 @@ fn write_char_fn(mut args: Exprs, env: &mut EnvRef) -> ProcedureResult {
     };
 
     let mut port = port.borrow_mut();
-    let output_port = port
-        .as_output()
-        .ok_or(runtime_error!("expected output port"))?;
-
-    write!(output_port, "{}", char_arg).map_err(|e| e.to_string())?;
+    write!(port, "{}", char_arg).map_err(|e| e.to_string())?;
 
     proc_result_value!(Expr::Void)
 }
@@ -145,9 +140,9 @@ fn write_string_fn(mut args: Exprs, env: &mut EnvRef) -> ProcedureResult {
     })?;
 
     let port = match args.pop_front() {
-        Some(expr) => expr.into_port().map_err(|expr| {
+        Some(expr) => expr.into_output_port().map_err(|expr| {
             runtime_error!(
-                "expected port as second write-string argument, got {}",
+                "expected output port as second write-string argument, got {}",
                 expr.kind()
             )
         })?,
@@ -178,11 +173,7 @@ fn write_string_fn(mut args: Exprs, env: &mut EnvRef) -> ProcedureResult {
     let substring = string_value[start..end].to_string();
 
     let mut port = port.borrow_mut();
-    let output_port = port
-        .as_output()
-        .ok_or(runtime_error!("expected output port"))?;
-
-    write!(output_port, "{}", substring).map_err(|e| e.to_string())?;
+    write!(port, "{}", substring).map_err(|e| e.to_string())?;
 
     proc_result_value!(Expr::Void)
 }

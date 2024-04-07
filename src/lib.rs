@@ -16,8 +16,8 @@ pub use evaluator::EnvRef;
 use evaluator::EvalError;
 use expr::Procedure;
 pub use expr::{
-    Arity, Expr, Exprs, FromExpr, FromExprResult, InputPort, List, OutputPort, Port, ProcedureFn,
-    ProcedureKind, ProcedureResult, ProcedureReturn,
+    Arity, Expr, Exprs, FromExpr, FromExprResult, List, ProcedureFn, ProcedureKind,
+    ProcedureResult, ProcedureReturn,
 };
 use parser::ParseError;
 

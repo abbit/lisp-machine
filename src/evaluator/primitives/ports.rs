@@ -3,7 +3,7 @@ use std::{cell::RefCell, rc::Rc};
 use super::utils::{define_procedures, resolve_path};
 use crate::{
     evaluator::{error::runtime_error, procedure::ApplyProcedure, EnvRef},
-    expr::{port::Port, proc_result_value, Arity, Expr, Exprs, ProcedureResult},
+    expr::{proc_result_value, Arity, Expr, Exprs, FileInputPort, FileOutputPort, ProcedureResult},
 };
 
 define_procedures! {
@@ -30,9 +30,9 @@ fn open_input_file_fn(mut args: Exprs, env: &mut EnvRef) -> ProcedureResult {
     })?;
 
     let resolved_path = resolve_path(&*file_path.borrow(), env)?;
-    let port = Port::new_input_file(resolved_path).map_err(|e| e.to_string())?;
+    let port = FileInputPort::from_path(resolved_path).map_err(|e| e.to_string())?;
 
-    proc_result_value!(Expr::new_port(port))
+    proc_result_value!(Expr::new_input_port(port))
 }
 
 fn open_output_file_fn(mut args: Exprs, env: &mut EnvRef) -> ProcedureResult {
@@ -44,69 +44,67 @@ fn open_output_file_fn(mut args: Exprs, env: &mut EnvRef) -> ProcedureResult {
     })?;
 
     let resolved_path = resolve_path(&*file_path.borrow(), env)?;
-    let port = Port::new_output_file(resolved_path).map_err(|e| e.to_string())?;
+    let port = FileOutputPort::from_path(resolved_path).map_err(|e| e.to_string())?;
 
-    proc_result_value!(Expr::new_port(port))
+    proc_result_value!(Expr::new_output_port(port))
 }
 
 fn is_input_port_fn(mut args: Exprs, _: &mut EnvRef) -> ProcedureResult {
     let expr = args.pop_front().unwrap();
-    let is_input = matches!(expr, Expr::Port(port) if (*port).borrow().is_input());
+    let is_input = matches!(expr, Expr::InputPort(_));
 
     proc_result_value!(Expr::Boolean(is_input))
 }
 
 fn is_output_port_fn(mut args: Exprs, _: &mut EnvRef) -> ProcedureResult {
     let expr = args.pop_front().unwrap();
-    let is_output = matches!(expr, Expr::Port(port) if (*port).borrow().is_output());
+    let is_output = matches!(expr, Expr::OutputPort(_));
 
     proc_result_value!(Expr::Boolean(is_output))
 }
 
 fn current_input_port_fn(_: Exprs, env: &mut EnvRef) -> ProcedureResult {
-    proc_result_value!(Expr::Port(env.current_input_port()))
+    proc_result_value!(Expr::InputPort(env.current_input_port()))
 }
 
 fn current_output_port_fn(_: Exprs, env: &mut EnvRef) -> ProcedureResult {
-    proc_result_value!(Expr::Port(env.current_output_port()))
+    proc_result_value!(Expr::OutputPort(env.current_output_port()))
 }
 
 fn close_input_port_fn(mut exprs: Exprs, _: &mut EnvRef) -> ProcedureResult {
-    let port = exprs.pop_front().unwrap().into_port().map_err(|expr| {
-        runtime_error!(
-            "expected port as close-input-port argument, got {}",
-            expr.kind()
-        )
-    })?;
+    let port = exprs
+        .pop_front()
+        .unwrap()
+        .into_input_port()
+        .map_err(|expr| {
+            runtime_error!(
+                "expected input port as close-input-port argument, got {}",
+                expr.kind()
+            )
+        })?;
 
     let mut port = port.borrow_mut();
-    if let Some(input_port) = port.as_input() {
-        input_port
-            .close()
-            .map_err(|e| runtime_error!("got error while closing input port: {}", e))?;
-        proc_result_value!(Expr::Void)
-    } else {
-        Err(runtime_error!("expected input port in close-input-port"))
-    }
+    port.close()
+        .map_err(|e| runtime_error!("got error while closing input port: {}", e))?;
+    proc_result_value!(Expr::Void)
 }
 
 fn close_output_port_fn(mut args: Exprs, _: &mut EnvRef) -> ProcedureResult {
-    let port = args.pop_front().unwrap().into_port().map_err(|expr| {
-        runtime_error!(
-            "expected port as close-output-port argument, got {}",
-            expr.kind()
-        )
-    })?;
+    let port = args
+        .pop_front()
+        .unwrap()
+        .into_output_port()
+        .map_err(|expr| {
+            runtime_error!(
+                "expected output port as close-output-port argument, got {}",
+                expr.kind()
+            )
+        })?;
 
     let mut port = port.borrow_mut();
-    if let Some(output_port) = port.as_output() {
-        output_port
-            .close()
-            .map_err(|e| runtime_error!("got error while closing output port: {}", e))?;
-        proc_result_value!(Expr::Void)
-    } else {
-        Err(runtime_error!("expected output port in close-output-port"))
-    }
+    port.close()
+        .map_err(|e| runtime_error!("got error while closing output port: {}", e))?;
+    proc_result_value!(Expr::Void)
 }
 
 fn with_input_from_file_fn(mut args: Exprs, env: &mut EnvRef) -> ProcedureResult {
@@ -124,7 +122,7 @@ fn with_input_from_file_fn(mut args: Exprs, env: &mut EnvRef) -> ProcedureResult
     })?;
 
     let resolved_path = resolve_path(&*file_path.borrow(), env)?;
-    let port = Port::new_input_file(resolved_path).map_err(|e| e.to_string())?;
+    let port = FileInputPort::from_path(resolved_path).map_err(|e| e.to_string())?;
 
     let mut eval_env = env.extend();
     eval_env.set_current_input_port(Rc::new(RefCell::new(port)));
@@ -147,7 +145,7 @@ fn with_output_to_file_fn(mut args: Exprs, env: &mut EnvRef) -> ProcedureResult 
     })?;
 
     let resolved_path = resolve_path(&*file_path.borrow(), env)?;
-    let port = Port::new_output_file(resolved_path).map_err(|e| e.to_string())?;
+    let port = FileOutputPort::from_path(resolved_path).map_err(|e| e.to_string())?;
 
     let mut eval_env = env.extend();
     eval_env.set_current_output_port(Rc::new(RefCell::new(port)));
@@ -170,7 +168,7 @@ fn call_with_input_file_fn(mut args: Exprs, env: &mut EnvRef) -> ProcedureResult
     })?;
 
     let resolved_path = resolve_path(&*file_path.borrow(), env)?;
-    let port = Port::new_input_file(resolved_path).map_err(|e| e.to_string())?;
+    let port = FileInputPort::from_path(resolved_path).map_err(|e| e.to_string())?;
 
     let mut eval_env = env.extend();
     eval_env.set_current_input_port(Rc::new(RefCell::new(port)));
@@ -193,7 +191,7 @@ fn call_with_output_file_fn(mut args: Exprs, env: &mut EnvRef) -> ProcedureResul
     })?;
 
     let resolved_path = resolve_path(&*file_path.borrow(), env)?;
-    let port = Port::new_output_file(resolved_path).map_err(|e| e.to_string())?;
+    let port = FileOutputPort::from_path(resolved_path).map_err(|e| e.to_string())?;
 
     let mut eval_env = env.extend();
     eval_env.set_current_output_port(Rc::new(RefCell::new(port)));

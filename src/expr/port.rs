@@ -10,7 +10,7 @@ use std::{
     path::Path,
 };
 
-trait InputPortTrait {
+pub trait InputPortTrait {
     fn peek(&mut self) -> io::Result<char>;
     fn read_char(&mut self) -> io::Result<char>;
     fn read_string(&mut self) -> io::Result<String>;
@@ -18,10 +18,14 @@ trait InputPortTrait {
     fn is_closed(&self) -> bool;
 }
 
-trait OutputPortTrait: Write {
+pub trait InputPortSuperTrait: InputPortTrait + std::fmt::Debug + std::fmt::Display {}
+
+pub trait OutputPortTrait: Write {
     fn close(&mut self) -> io::Result<()>;
     fn is_closed(&self) -> bool;
 }
+
+pub trait OutputPortSuperTrait: OutputPortTrait + std::fmt::Debug + std::fmt::Display {}
 
 fn read_u8(reader: &mut impl Read) -> io::Result<u8> {
     let mut byte_buf = [0_u8];
@@ -202,155 +206,84 @@ impl<W: Write> OutputPortTrait for WriterOutputPort<W> {
     }
 }
 
-#[derive(Debug)]
-enum InputPortInner {
-    Stdin(PeekableBufReader<Stdin>),
-    File(ReaderInputPort<File>),
-}
+// StdinInputPort
 
 #[derive(Debug)]
-/// Input port.
-pub struct InputPort(InputPortInner);
+pub struct StdinInputPort {
+    reader: PeekableBufReader<Stdin>,
+}
 
-impl PartialEq for InputPort {
-    fn eq(&self, other: &Self) -> bool {
-        match (&self.0, &other.0) {
-            (InputPortInner::Stdin(_), InputPortInner::Stdin(_)) => true,
-            (InputPortInner::File(file1), InputPortInner::File(file2)) => {
-                match (file1.get_inderlying(), file2.get_inderlying()) {
-                    (Some(file1), Some(file2)) => {
-                        #[cfg(unix)]
-                        let fd1 = file1.as_raw_fd();
-                        #[cfg(windows)]
-                        let fd1 = file1.as_raw_handle();
-                        #[cfg(unix)]
-                        let fd2 = file2.as_raw_fd();
-                        #[cfg(windows)]
-                        let fd2 = file2.as_raw_handle();
-                        fd1 == fd2
-                    }
-                    _ => false,
-                }
-            }
-            _ => false,
+impl StdinInputPort {
+    pub fn new() -> Self {
+        Self {
+            reader: PeekableBufReader::new(io::stdin()),
         }
     }
 }
 
-impl InputPort {
-    /// Creates a new input port that reads from stdin.
-    pub fn new_stdin() -> Self {
-        Self(InputPortInner::Stdin(PeekableBufReader::new(io::stdin())))
-    }
-
-    /// Creates a new input port that reads from a file.
-    pub fn new_file<P: AsRef<Path>>(path: P) -> io::Result<Self> {
-        Ok(Self(InputPortInner::File(ReaderInputPort::new(
-            File::open(path)?,
-        ))))
-    }
-
-    /// Returns the next character in the input port without consuming it.
-    pub fn peek(&mut self) -> io::Result<char> {
-        match &mut self.0 {
-            InputPortInner::Stdin(port) => port.peek(),
-            InputPortInner::File(port) => port.peek(),
-        }
-    }
-
-    /// Returns the next character in the input port and consumes it.
-    pub fn read_char(&mut self) -> io::Result<char> {
-        match &mut self.0 {
-            InputPortInner::Stdin(port) => port.read_char(),
-            InputPortInner::File(port) => port.read_char(),
-        }
-    }
-
-    /// Returns the rest of the input port as a string.
-    pub fn read_string(&mut self) -> io::Result<String> {
-        match &mut self.0 {
-            InputPortInner::Stdin(port) => port.read_string(),
-            InputPortInner::File(port) => port.read_string(),
-        }
-    }
-
-    /// Closes the input port.
-    pub fn close(&mut self) -> io::Result<()> {
-        match &mut self.0 {
-            InputPortInner::Stdin(_) => Ok(()),
-            InputPortInner::File(port) => port.close(),
-        }
-    }
-
-    /// Checks if the input port is closed.
-    pub fn is_closed(&self) -> bool {
-        match &self.0 {
-            InputPortInner::Stdin(_) => false,
-            InputPortInner::File(port) => port.is_closed(),
-        }
+impl PartialEq for StdinInputPort {
+    fn eq(&self, _: &Self) -> bool {
+        true
     }
 }
 
-impl fmt::Display for InputPort {
+impl InputPortTrait for StdinInputPort {
+    fn peek(&mut self) -> io::Result<char> {
+        self.reader.peek()
+    }
+    fn read_char(&mut self) -> io::Result<char> {
+        self.reader.read_char()
+    }
+    fn read_string(&mut self) -> io::Result<String> {
+        self.reader.read_string()
+    }
+    fn close(&mut self) -> io::Result<()> {
+        Ok(())
+    }
+    fn is_closed(&self) -> bool {
+        false
+    }
+}
+
+impl fmt::Display for StdinInputPort {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match &self.0 {
-            InputPortInner::Stdin(_) => write!(f, "#<stdin input port>"),
-            InputPortInner::File(port) => match port.get_inderlying() {
-                Some(file) => {
-                    #[cfg(unix)]
-                    let fd = file.as_raw_fd();
-                    #[cfg(windows)]
-                    let fd = file.as_raw_handle();
-                    write!(f, "#<file input port #{:?}>", fd)
-                }
-                None => write!(f, "#<closed file input port>"),
-            },
-        }
+        write!(f, "#<stdin input port>")
     }
 }
+
+impl InputPortSuperTrait for StdinInputPort {}
+
+// FileInputPort
 
 #[derive(Debug)]
-enum OutputPortInner {
-    Stdout(WriterOutputPort<Stdout>),
-    File(WriterOutputPort<File>),
+pub struct FileInputPort {
+    reader: ReaderInputPort<File>,
 }
 
-#[derive(Debug)]
-/// Output port.
-pub struct OutputPort(OutputPortInner);
-
-impl OutputPort {
-    /// Creates a new output port that writes to stdout.
-    pub fn new_stdout() -> Self {
-        Self(OutputPortInner::Stdout(WriterOutputPort::new(io::stdout())))
-    }
-
-    /// Creates a new output port that writes to a file.
-    pub fn new_file<P: AsRef<Path>>(path: P) -> io::Result<Self> {
-        Ok(Self(OutputPortInner::File(WriterOutputPort::new(
-            File::create(path)?,
-        ))))
+impl FileInputPort {
+    pub fn from_path<P: AsRef<Path>>(path: P) -> io::Result<Self> {
+        let file = File::open(path)?;
+        Ok(Self {
+            reader: ReaderInputPort::new(file),
+        })
     }
 }
 
-impl PartialEq for OutputPort {
+impl PartialEq for FileInputPort {
     fn eq(&self, other: &Self) -> bool {
-        match (&self.0, &other.0) {
-            (OutputPortInner::Stdout(_), OutputPortInner::Stdout(_)) => true,
-            (OutputPortInner::File(file1), OutputPortInner::File(file2)) => {
-                match (file1.get_inderlying(), file2.get_inderlying()) {
-                    (Some(file1), Some(file2)) => {
-                        #[cfg(unix)]
-                        let fd1 = file1.as_raw_fd();
-                        #[cfg(windows)]
-                        let fd1 = file1.as_raw_handle();
-                        #[cfg(unix)]
-                        let fd2 = file2.as_raw_fd();
-                        #[cfg(windows)]
-                        let fd2 = file2.as_raw_handle();
-                        fd1 == fd2
-                    }
-                    _ => false,
+        match (self.reader.get_inderlying(), other.reader.get_inderlying()) {
+            (Some(file1), Some(file2)) => {
+                #[cfg(unix)]
+                {
+                    let fd1 = file1.as_raw_fd();
+                    let fd2 = file2.as_raw_fd();
+                    fd1 == fd2
+                }
+                #[cfg(windows)]
+                {
+                    let fd1 = file1.as_raw_handle();
+                    let fd2 = file2.as_raw_handle();
+                    fd1 == fd2
                 }
             }
             _ => false,
@@ -358,136 +291,157 @@ impl PartialEq for OutputPort {
     }
 }
 
-impl Write for OutputPort {
+impl InputPortTrait for FileInputPort {
+    fn peek(&mut self) -> io::Result<char> {
+        self.reader.peek()
+    }
+    fn read_char(&mut self) -> io::Result<char> {
+        self.reader.read_char()
+    }
+    fn read_string(&mut self) -> io::Result<String> {
+        self.reader.read_string()
+    }
+    fn close(&mut self) -> io::Result<()> {
+        self.reader.close()
+    }
+    fn is_closed(&self) -> bool {
+        self.reader.is_closed()
+    }
+}
+
+impl fmt::Display for FileInputPort {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self.reader.get_inderlying() {
+            Some(file) => {
+                #[cfg(unix)]
+                let fd = file.as_raw_fd();
+                #[cfg(windows)]
+                let fd = file.as_raw_handle();
+                write!(f, "#<file input port #{:?}>", fd)
+            }
+            None => write!(f, "#<closed file input port>"),
+        }
+    }
+}
+
+impl InputPortSuperTrait for FileInputPort {}
+
+// StdoutOutputPort
+
+#[derive(Debug)]
+pub struct StdoutOutputPort {
+    writer: WriterOutputPort<Stdout>,
+}
+
+impl StdoutOutputPort {
+    pub fn new() -> Self {
+        Self {
+            writer: WriterOutputPort::new(io::stdout()),
+        }
+    }
+}
+
+impl PartialEq for StdoutOutputPort {
+    fn eq(&self, _: &Self) -> bool {
+        true
+    }
+}
+
+impl Write for StdoutOutputPort {
     fn write(&mut self, buf: &[u8]) -> io::Result<usize> {
-        match &mut self.0 {
-            OutputPortInner::Stdout(port) => port.write(buf),
-            OutputPortInner::File(port) => port.write(buf),
-        }
+        self.writer.write(buf)
     }
-
     fn flush(&mut self) -> io::Result<()> {
-        match &mut self.0 {
-            OutputPortInner::Stdout(port) => port.flush(),
-            OutputPortInner::File(port) => port.flush(),
-        }
+        self.writer.flush()
     }
 }
 
-impl OutputPort {
-    /// Closes the output port.
-    pub fn close(&mut self) -> io::Result<()> {
-        match &mut self.0 {
-            OutputPortInner::Stdout(_) => Ok(()),
-            OutputPortInner::File(port) => port.close(),
-        }
+impl OutputPortTrait for StdoutOutputPort {
+    fn close(&mut self) -> io::Result<()> {
+        Ok(())
     }
-
-    /// Checks if the output port is closed.
-    pub fn is_closed(&self) -> bool {
-        match &self.0 {
-            OutputPortInner::Stdout(_) => false,
-            OutputPortInner::File(port) => port.is_closed(),
-        }
+    fn is_closed(&self) -> bool {
+        false
     }
 }
 
-impl fmt::Display for OutputPort {
+impl fmt::Display for StdoutOutputPort {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match &self.0 {
-            OutputPortInner::Stdout(_) => write!(f, "#<stdout output port>"),
-            OutputPortInner::File(port) => match port.get_inderlying() {
-                Some(file) => {
-                    #[cfg(unix)]
-                    let fd = file.as_raw_fd();
-                    #[cfg(windows)]
-                    let fd = file.as_raw_handle();
-                    write!(f, "#<file output port #{:?}>", fd)
+        write!(f, "#<stdout output port>")
+    }
+}
+
+impl OutputPortSuperTrait for StdoutOutputPort {}
+
+// FileOutputPort
+
+#[derive(Debug)]
+pub struct FileOutputPort {
+    writer: WriterOutputPort<File>,
+}
+
+impl FileOutputPort {
+    pub fn from_path<P: AsRef<Path>>(path: P) -> io::Result<Self> {
+        let file = File::create(path)?;
+        Ok(Self {
+            writer: WriterOutputPort::new(file),
+        })
+    }
+}
+
+impl PartialEq for FileOutputPort {
+    fn eq(&self, other: &Self) -> bool {
+        match (self.writer.get_inderlying(), other.writer.get_inderlying()) {
+            (Some(file1), Some(file2)) => {
+                #[cfg(unix)]
+                {
+                    let fd1 = file1.as_raw_fd();
+                    let fd2 = file2.as_raw_fd();
+                    fd1 == fd2
                 }
-                None => write!(f, "#<closed file output port>"),
-            },
+                #[cfg(windows)]
+                {
+                    let fd1 = file1.as_raw_handle();
+                    let fd2 = file2.as_raw_handle();
+                    fd1 == fd2
+                }
+            }
+            _ => false,
         }
     }
 }
 
-#[derive(Debug, PartialEq)]
-/// Port type that can be either input or output.
-pub enum Port {
-    /// Input port.
-    Input(InputPort),
-    /// Output port.
-    Output(OutputPort),
-}
-
-impl Port {
-    /// Creates a new input port that reads from stdin.
-    pub fn new_stdin() -> Self {
-        Self::Input(InputPort::new_stdin())
+impl Write for FileOutputPort {
+    fn write(&mut self, buf: &[u8]) -> io::Result<usize> {
+        self.writer.write(buf)
     }
-
-    /// Creates a new output port that writes to stdout.
-    pub fn new_stdout() -> Self {
-        Self::Output(OutputPort::new_stdout())
-    }
-
-    /// Creates a new input port that reads from a file.
-    pub fn new_input_file<P: AsRef<Path>>(path: P) -> io::Result<Self> {
-        Ok(Self::Input(InputPort::new_file(path)?))
-    }
-
-    /// Creates a new output port that writes to a file.
-    pub fn new_output_file<P: AsRef<Path>>(path: P) -> io::Result<Self> {
-        Ok(Self::Output(OutputPort::new_file(path)?))
-    }
-
-    /// Checks if the port is input.
-    pub fn is_input(&self) -> bool {
-        matches!(self, Self::Input(_))
-    }
-
-    /// Checks if the port is output.
-    pub fn is_output(&self) -> bool {
-        matches!(self, Self::Output(_))
-    }
-
-    /// Returns mutable reference to the underlying input port.
-    pub fn as_input(&mut self) -> Option<&mut InputPort> {
-        match self {
-            Self::Input(port) => Some(port),
-            _ => None,
-        }
-    }
-
-    /// Returns mutable reference to the underlying output port.
-    pub fn as_output(&mut self) -> Option<&mut OutputPort> {
-        match self {
-            Self::Output(port) => Some(port),
-            _ => None,
-        }
-    }
-
-    /// Closes the port.
-    pub fn close(&mut self) -> io::Result<()> {
-        match self {
-            Self::Input(port) => port.close(),
-            Self::Output(port) => port.close(),
-        }
-    }
-
-    /// Checks if the port is closed.
-    pub fn is_closed(&self) -> bool {
-        match self {
-            Self::Input(port) => port.is_closed(),
-            Self::Output(port) => port.is_closed(),
-        }
+    fn flush(&mut self) -> io::Result<()> {
+        self.writer.flush()
     }
 }
 
-impl fmt::Display for Port {
+impl OutputPortTrait for FileOutputPort {
+    fn close(&mut self) -> io::Result<()> {
+        self.writer.close()
+    }
+    fn is_closed(&self) -> bool {
+        self.writer.is_closed()
+    }
+}
+
+impl fmt::Display for FileOutputPort {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
-            Self::Input(port) => write!(f, "{}", port),
-            Self::Output(port) => write!(f, "{}", port),
+        match self.writer.get_inderlying() {
+            Some(file) => {
+                #[cfg(unix)]
+                let fd = file.as_raw_fd();
+                #[cfg(windows)]
+                let fd = file.as_raw_handle();
+                write!(f, "#<file output port #{:?}>", fd)
+            }
+            None => write!(f, "#<closed file output port>"),
         }
     }
 }
+
+impl OutputPortSuperTrait for FileOutputPort {}

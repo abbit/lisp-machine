@@ -1,12 +1,12 @@
 use super::{
     list::{List, ListKind},
-    port::Port,
     procedure::Procedure,
+    InputPortSuperTrait, OutputPortSuperTrait,
 };
 use core::fmt;
 use std::{cell::RefCell, collections::VecDeque, rc::Rc};
 
-#[derive(PartialEq, Debug, Clone)]
+#[derive(Debug, Clone)]
 /// Represents all possible values in interpreter.
 ///
 /// This is the only type that can be used in interpreter.
@@ -49,8 +49,29 @@ pub enum Expr {
     /// Because of this, internal <code>Procedure</code> struct does not exported, so you can't construct procedure directly.
     /// </div>
     Procedure(Procedure),
-    /// Port
-    Port(Rc<RefCell<Port>>),
+    /// Input port
+    InputPort(Rc<RefCell<dyn InputPortSuperTrait>>),
+    /// Output port
+    OutputPort(Rc<RefCell<dyn OutputPortSuperTrait>>),
+}
+
+impl PartialEq for Expr {
+    fn eq(&self, other: &Self) -> bool {
+        match (self, other) {
+            (Expr::Integer(a), Expr::Integer(b)) => a == b,
+            (Expr::Float(a), Expr::Float(b)) => a == b,
+            (Expr::Symbol(a), Expr::Symbol(b)) => a == b,
+            (Expr::String(a), Expr::String(b)) => a == b,
+            (Expr::Char(a), Expr::Char(b)) => a == b,
+            (Expr::Boolean(a), Expr::Boolean(b)) => a == b,
+            (Expr::List(a), Expr::List(b)) => a == b,
+            (Expr::Void, Expr::Void) => true,
+            (Expr::Procedure(a), Expr::Procedure(b)) => a == b,
+            (Expr::InputPort(a), Expr::InputPort(b)) => Rc::ptr_eq(a, b),
+            (Expr::OutputPort(a), Expr::OutputPort(b)) => Rc::ptr_eq(a, b),
+            _ => false,
+        }
+    }
 }
 
 /// A list of [`Expr`]s. Also can be created with [`exprs!`] macro.
@@ -141,8 +162,12 @@ impl Expr {
         Expr::Symbol(string.into())
     }
 
-    pub(crate) fn new_port(port: Port) -> Self {
-        Self::Port(Rc::new(RefCell::new(port)))
+    pub(crate) fn new_input_port(port: impl InputPortSuperTrait + 'static) -> Self {
+        Self::InputPort(Rc::new(RefCell::new(port)))
+    }
+
+    pub(crate) fn new_output_port(port: impl OutputPortSuperTrait + 'static) -> Self {
+        Self::OutputPort(Rc::new(RefCell::new(port)))
     }
 
     /// Returns string representation of the type of `self`
@@ -161,7 +186,8 @@ impl Expr {
             },
             Expr::Void => "void",
             Expr::Procedure(_) => "procedure",
-            Expr::Port(_) => "port",
+            Expr::InputPort(_) => "input_port",
+            Expr::OutputPort(_) => "output_port",
         }
     }
 
@@ -241,9 +267,14 @@ impl Expr {
         matches!(self, Expr::Procedure(_))
     }
 
-    /// Checks if `self` is a [`Expr::Port`]
-    pub fn is_port(&self) -> bool {
-        matches!(self, Expr::Port(_))
+    /// Checks if `self` is a [`Expr::InputPort`]
+    pub fn is_input_port(&self) -> bool {
+        matches!(self, Expr::InputPort(_))
+    }
+
+    /// Checks if `self` is a [`Expr::OutputPort`]
+    pub fn is_output_port(&self) -> bool {
+        matches!(self, Expr::OutputPort(_))
     }
 
     // exctraction methods
@@ -309,9 +340,16 @@ impl Expr {
         }
     }
 
-    pub(crate) fn into_port(self) -> FromExprResult<Rc<RefCell<Port>>> {
+    pub(crate) fn into_input_port(self) -> FromExprResult<Rc<RefCell<dyn InputPortSuperTrait>>> {
         match self {
-            Expr::Port(port) => Ok(port),
+            Expr::InputPort(port) => Ok(port),
+            _ => Err(self),
+        }
+    }
+
+    pub(crate) fn into_output_port(self) -> FromExprResult<Rc<RefCell<dyn OutputPortSuperTrait>>> {
+        match self {
+            Expr::OutputPort(port) => Ok(port),
             _ => Err(self),
         }
     }
@@ -336,7 +374,8 @@ impl fmt::Display for Expr {
             Expr::Procedure(proc) => write!(f, "{}", proc),
             Expr::Boolean(bool) => write!(f, "{}", if *bool { "#t" } else { "#f" }),
             Expr::List(list) => write!(f, "{}", list),
-            Expr::Port(port) => write!(f, "{}", port.borrow()),
+            Expr::InputPort(port) => write!(f, "{}", port.borrow()),
+            Expr::OutputPort(port) => write!(f, "{}", port.borrow()),
         }
     }
 }
@@ -389,15 +428,15 @@ impl From<Procedure> for Expr {
     }
 }
 
-impl From<Port> for Expr {
-    fn from(port: Port) -> Self {
-        Expr::new_port(port)
+impl From<Rc<RefCell<dyn InputPortSuperTrait>>> for Expr {
+    fn from(port: Rc<RefCell<dyn InputPortSuperTrait>>) -> Self {
+        Expr::InputPort(port)
     }
 }
 
-impl From<Rc<RefCell<Port>>> for Expr {
-    fn from(port: Rc<RefCell<Port>>) -> Self {
-        Expr::Port(port)
+impl From<Rc<RefCell<dyn OutputPortSuperTrait>>> for Expr {
+    fn from(port: Rc<RefCell<dyn OutputPortSuperTrait>>) -> Self {
+        Expr::OutputPort(port)
     }
 }
 
@@ -504,9 +543,15 @@ impl FromExpr for List {
     }
 }
 
-impl FromExpr for Rc<RefCell<Port>> {
+impl FromExpr for Rc<RefCell<dyn InputPortSuperTrait>> {
     fn from_expr(expr: Expr) -> FromExprResult<Self> {
-        expr.into_port()
+        expr.into_input_port()
+    }
+}
+
+impl FromExpr for Rc<RefCell<dyn OutputPortSuperTrait>> {
+    fn from_expr(expr: Expr) -> FromExprResult<Self> {
+        expr.into_output_port()
     }
 }
 
