@@ -8,13 +8,13 @@ LispDM is a Scheme interpreter written in Rust. It is based on the R7RS standard
 
 ## Features
 
-- [x] Tail call optimization for recursion
-- [x] Macros (like Clojure's `defmacro`)
-- [x] Input-output (console and file)
-- [x] Lazy evaluation
-- [x] Pattern matching
-- [x] REPL
-- [x] Standard library
+- Tail call optimization for recursion
+- Macros (like Clojure's `defmacro`)
+- Input-output (console and file)
+- Lazy evaluation
+- Pattern matching
+- REPL
+- Standard library
 
 ## R7RS compatibility
 
@@ -219,7 +219,7 @@ Implemented in Scheme:
   - [x] `get-environment-variables`
   - [x] `current-second`
 
-### Extensions
+## Extensions
 
 - pattern matching with `match`
 - lazy evaluation:
