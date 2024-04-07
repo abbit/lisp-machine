@@ -187,7 +187,10 @@ impl<W: Write> WriterOutputPort<W> {
 
 impl<W: Write> Write for WriterOutputPort<W> {
     fn write(&mut self, buf: &[u8]) -> io::Result<usize> {
-        self.writer_or_closed_err()?.write(buf)
+        let w = self.writer_or_closed_err()?;
+        w.write_all(buf)?;
+        w.flush()?;
+        Ok(buf.len())
     }
 
     fn flush(&mut self) -> io::Result<()> {
