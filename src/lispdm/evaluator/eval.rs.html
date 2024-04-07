@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/evaluator/eval.rs`."><title>eval.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="lispdm" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/evaluator/eval.rs`."><title>eval.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="lispdm" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.1 (7cf61ebde 2024-03-27)" data-channel="1.77.1" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../../lispdm/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -366,6 +368,7 @@
 <a href="#366" id="366">366</a>
 <a href="#367" id="367">367</a>
 <a href="#368" id="368">368</a>
+<a href="#369" id="369">369</a>
 </pre></div><pre class="rust"><code><span class="kw">use super</span>::{
     env::EnvRef,
     error::{runtime_error, EvalError},
@@ -406,11 +409,11 @@
             <span class="comment">// expr is a macro call
             // evaluate a macro and return result
             </span><span class="prelude-val">Some</span>(macro_proc) =&gt; {
-                <span class="macro">debug!</span>(<span class="string">&quot;expand_macros: {}&quot;</span>, original_expr);
+                <span class="macro">debug!</span>(<span class="string">"expand_macros: {}"</span>, original_expr);
                 <span class="kw">let </span>expanded_expr = <span class="kw">match </span>macro_proc.apply(expanded_cdr_list, env)<span class="question-mark">? </span>{
                     ProcedureReturn::Value(expr) =&gt; expr,
                     ProcedureReturn::TailCall(expr, <span class="kw-2">mut </span>eval_env) =&gt; {
-                        <span class="macro">debug!</span>(<span class="string">&quot;expand_macro_tailcall_expr: {}&quot;</span>, expr);
+                        <span class="macro">debug!</span>(<span class="string">"expand_macro_tailcall_expr: {}"</span>, expr);
                         <span class="comment">// using eval_expanede_expr here
                         // so we do not call make unnecessary expand_macros
                         </span>eval_expanded_expr(expr, <span class="kw-2">&amp;mut </span>eval_env)<span class="question-mark">?
@@ -460,15 +463,15 @@
 <span class="kw">pub fn </span>eval_expr(expr: Expr, env: <span class="kw-2">&amp;mut </span>EnvRef) -&gt; EvalResult {
     <span class="attr">#[cfg(debug_assertions)]
     </span><span class="kw">let </span>original_expr = expr.clone(); <span class="comment">// for debug purposes
-    </span><span class="macro">debug!</span>(<span class="string">&quot;eval_expr: {}&quot;</span>, expr);
+    </span><span class="macro">debug!</span>(<span class="string">"eval_expr: {}"</span>, expr);
     <span class="kw">let </span>expr = expand_macros(expr, env)<span class="question-mark">?</span>;
     <span class="kw">let </span>evaluated = eval_expanded_expr(expr, env)<span class="question-mark">?</span>;
-    <span class="macro">debug!</span>(<span class="string">&quot;evaluated: {} -&gt; {}&quot;</span>, original_expr, evaluated);
+    <span class="macro">debug!</span>(<span class="string">"evaluated: {} -&gt; {}"</span>, original_expr, evaluated);
     <span class="prelude-val">Ok</span>(evaluated)
 }
 
 <span class="kw">fn </span>eval_expanded_expr(<span class="kw-2">mut </span>expr: Expr, env: <span class="kw-2">&amp;mut </span>EnvRef) -&gt; EvalResult {
-    <span class="macro">debug!</span>(<span class="string">&quot;eval_expanded_expr: {}&quot;</span>, expr);
+    <span class="macro">debug!</span>(<span class="string">"eval_expanded_expr: {}"</span>, expr);
     <span class="kw">let </span><span class="kw-2">mut </span>env = env.clone();
     <span class="kw">loop </span>{
         <span class="kw">match </span>expr {
@@ -477,7 +480,8 @@
             Expr::Float(<span class="kw">_</span>) =&gt; <span class="kw">return </span><span class="prelude-val">Ok</span>(expr),
             Expr::Char(<span class="kw">_</span>) =&gt; <span class="kw">return </span><span class="prelude-val">Ok</span>(expr),
             Expr::String(<span class="kw">_</span>) =&gt; <span class="kw">return </span><span class="prelude-val">Ok</span>(expr),
-            Expr::Port(<span class="kw">_</span>) =&gt; <span class="kw">return </span><span class="prelude-val">Ok</span>(expr),
+            Expr::InputPort(<span class="kw">_</span>) =&gt; <span class="kw">return </span><span class="prelude-val">Ok</span>(expr),
+            Expr::OutputPort(<span class="kw">_</span>) =&gt; <span class="kw">return </span><span class="prelude-val">Ok</span>(expr),
             Expr::Symbol(symbol) =&gt; <span class="kw">return </span>eval_symbol(symbol, <span class="kw-2">&amp;mut </span>env),
             Expr::List(list) =&gt; <span class="kw">match </span>list.kind() {
                 ListKind::Proper =&gt; <span class="kw">match </span>eval_list(list.into(), <span class="kw-2">&amp;mut </span>env)<span class="question-mark">? </span>{
@@ -485,38 +489,38 @@
                     ProcedureReturn::TailCall(e, eval_env) =&gt; {
                         expr = e;
                         env = eval_env;
-                        <span class="macro">debug!</span>(<span class="string">&quot;tailcall: {} in {:?}&quot;</span>, expr, env);
+                        <span class="macro">debug!</span>(<span class="string">"tailcall: {} in {:?}"</span>, expr, env);
                     }
                 },
-                ListKind::Dotted =&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">runtime_error!</span>(<span class="string">&quot;dotted list cannot be evaluated&quot;</span>)),
+                ListKind::Dotted =&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">runtime_error!</span>(<span class="string">"dotted list cannot be evaluated"</span>)),
             },
-            Expr::Void =&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">runtime_error!</span>(<span class="string">&quot;void object cannot be evaluated&quot;</span>)),
+            Expr::Void =&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">runtime_error!</span>(<span class="string">"void object cannot be evaluated"</span>)),
             Expr::Procedure(<span class="kw">_</span>) =&gt; {
-                <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">runtime_error!</span>(<span class="string">&quot;procedure object cannot be evaluated&quot;</span>))
+                <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">runtime_error!</span>(<span class="string">"procedure object cannot be evaluated"</span>))
             }
         }
     }
 }
 
 <span class="kw">fn </span>eval_symbol(symbol: String, env: <span class="kw-2">&amp;mut </span>EnvRef) -&gt; EvalResult {
-    <span class="macro">debug!</span>(<span class="string">&quot;eval_symbol: {}&quot;</span>, symbol);
+    <span class="macro">debug!</span>(<span class="string">"eval_symbol: {}"</span>, symbol);
     <span class="kw">let </span>value = env
         .get_expr(<span class="kw-2">&amp;</span>symbol)
-        .ok_or(<span class="macro">runtime_error!</span>(<span class="string">&quot;undefined symbol: {}&quot;</span>, symbol))<span class="question-mark">?</span>;
-    <span class="macro">debug!</span>(<span class="string">&quot;symbol {} resolved to {}&quot;</span>, symbol, value);
+        .ok_or(<span class="macro">runtime_error!</span>(<span class="string">"undefined symbol: {}"</span>, symbol))<span class="question-mark">?</span>;
+    <span class="macro">debug!</span>(<span class="string">"symbol {} resolved to {}"</span>, symbol, value);
     <span class="prelude-val">Ok</span>(value)
 }
 
 <span class="kw">fn </span>eval_list(<span class="kw-2">mut </span>list: Exprs, env: <span class="kw-2">&amp;mut </span>EnvRef) -&gt; ProcedureResult {
-    <span class="macro">debug!</span>(<span class="string">&quot;eval_list: {:?}&quot;</span>, list);
+    <span class="macro">debug!</span>(<span class="string">"eval_list: {:?}"</span>, list);
 
     <span class="kw">let </span>proc = list
         .pop_front()
-        .ok_or(<span class="macro">runtime_error!</span>(<span class="string">&quot;empty list cannot be evaluated&quot;</span>))
+        .ok_or(<span class="macro">runtime_error!</span>(<span class="string">"empty list cannot be evaluated"</span>))
         .and_then(|expr| eval_expr(expr, env))<span class="question-mark">?
         </span>.into_procedure()
         .map_err(|expr| {
-            <span class="macro">runtime_error!</span>(<span class="string">&quot;expected procedure as first element of call, got {}&quot;</span>, expr)
+            <span class="macro">runtime_error!</span>(<span class="string">"expected procedure as first element of call, got {}"</span>, expr)
         })<span class="question-mark">?</span>;
 
     <span class="kw">let </span><span class="kw-2">mut </span>args = list;
@@ -547,7 +551,7 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>create_lambda() {
-        <span class="kw">let </span>source = <span class="string">&quot;(lambda (x) (* x x))&quot;</span>;
+        <span class="kw">let </span>source = <span class="string">"(lambda (x) (* x x))"</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>env = env::new_root_env();
         <span class="kw">let </span>result = eval_str(source, <span class="kw-2">&amp;mut </span>env).unwrap();
 
@@ -556,181 +560,181 @@
                 Procedure::Compound(compound) =&gt; {
                     <span class="macro">assert_eq!</span>(
                         compound.params,
-                        ProcedureParams::Fixed(<span class="macro">vec!</span>[<span class="string">&quot;x&quot;</span>.to_string()])
+                        ProcedureParams::Fixed(<span class="macro">vec!</span>[<span class="string">"x"</span>.to_string()])
                     );
                     <span class="macro">assert_eq!</span>(
                         compound.body,
                         Box::new(Body::new_single(Expr::new_proper_list(<span class="macro">exprs!</span>[
-                            Expr::Symbol(<span class="string">&quot;*&quot;</span>.to_string()),
-                            Expr::Symbol(<span class="string">&quot;x&quot;</span>.to_string()),
-                            Expr::Symbol(<span class="string">&quot;x&quot;</span>.to_string())
+                            Expr::Symbol(<span class="string">"*"</span>.to_string()),
+                            Expr::Symbol(<span class="string">"x"</span>.to_string()),
+                            Expr::Symbol(<span class="string">"x"</span>.to_string())
                         ])))
                     );
                 }
-                <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">&quot;expected compound procedure&quot;</span>),
+                <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">"expected compound procedure"</span>),
             },
-            <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">&quot;expected procedure&quot;</span>),
+            <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">"expected procedure"</span>),
         }
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>define_lambda() {
-        <span class="kw">let </span>source = <span class="string">&quot;(define square (lambda (x) (* x x)))&quot;</span>;
+        <span class="kw">let </span>source = <span class="string">"(define square (lambda (x) (* x x)))"</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>env = env::new_root_env();
         <span class="kw">let </span>result = eval_str(source, <span class="kw-2">&amp;mut </span>env).unwrap();
 
         <span class="macro">assert_eq!</span>(result, Expr::Void);
-        <span class="kw">match </span>env.get_expr(<span class="string">&quot;square&quot;</span>) {
+        <span class="kw">match </span>env.get_expr(<span class="string">"square"</span>) {
             <span class="prelude-val">Some</span>(Expr::Procedure(proc)) =&gt; <span class="kw">match </span>proc {
                 Procedure::Compound(compound) =&gt; {
                     <span class="macro">assert_eq!</span>(
                         compound.params,
-                        ProcedureParams::Fixed(<span class="macro">vec!</span>[<span class="string">&quot;x&quot;</span>.to_string()])
+                        ProcedureParams::Fixed(<span class="macro">vec!</span>[<span class="string">"x"</span>.to_string()])
                     );
                     <span class="macro">assert_eq!</span>(
                         compound.body,
                         Box::new(Body::new_single(Expr::new_proper_list(<span class="macro">exprs!</span>[
-                            Expr::Symbol(<span class="string">&quot;*&quot;</span>.to_string()),
-                            Expr::Symbol(<span class="string">&quot;x&quot;</span>.to_string()),
-                            Expr::Symbol(<span class="string">&quot;x&quot;</span>.to_string())
+                            Expr::Symbol(<span class="string">"*"</span>.to_string()),
+                            Expr::Symbol(<span class="string">"x"</span>.to_string()),
+                            Expr::Symbol(<span class="string">"x"</span>.to_string())
                         ])))
                     );
                 }
-                <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">&quot;expected compound procedure&quot;</span>),
+                <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">"expected compound procedure"</span>),
             },
-            <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">&quot;expected procedure&quot;</span>),
+            <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">"expected procedure"</span>),
         }
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>define_proc_with_fixed_param() {
-        <span class="kw">let </span>source = <span class="string">&quot;(define (square x) (* x x))&quot;</span>;
+        <span class="kw">let </span>source = <span class="string">"(define (square x) (* x x))"</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>env = env::new_root_env();
         <span class="kw">let </span>result = eval_str(source, <span class="kw-2">&amp;mut </span>env).unwrap();
 
         <span class="macro">assert_eq!</span>(result, Expr::Void);
-        <span class="kw">match </span>env.get_expr(<span class="string">&quot;square&quot;</span>) {
+        <span class="kw">match </span>env.get_expr(<span class="string">"square"</span>) {
             <span class="prelude-val">Some</span>(Expr::Procedure(proc)) =&gt; <span class="kw">match </span>proc {
                 Procedure::Compound(compound) =&gt; {
-                    <span class="macro">assert_eq!</span>(compound.name(), <span class="string">&quot;square&quot;</span>);
+                    <span class="macro">assert_eq!</span>(compound.name(), <span class="string">"square"</span>);
                     <span class="macro">assert_eq!</span>(
                         compound.params,
-                        ProcedureParams::Fixed(<span class="macro">vec!</span>[<span class="string">&quot;x&quot;</span>.to_string()])
+                        ProcedureParams::Fixed(<span class="macro">vec!</span>[<span class="string">"x"</span>.to_string()])
                     );
                     <span class="macro">assert_eq!</span>(
                         compound.body,
                         Box::new(Body::new_single(Expr::new_proper_list(<span class="macro">exprs!</span>[
-                            Expr::Symbol(<span class="string">&quot;*&quot;</span>.to_string()),
-                            Expr::Symbol(<span class="string">&quot;x&quot;</span>.to_string()),
-                            Expr::Symbol(<span class="string">&quot;x&quot;</span>.to_string())
+                            Expr::Symbol(<span class="string">"*"</span>.to_string()),
+                            Expr::Symbol(<span class="string">"x"</span>.to_string()),
+                            Expr::Symbol(<span class="string">"x"</span>.to_string())
                         ])))
                     );
                 }
-                <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">&quot;expected compound procedure&quot;</span>),
+                <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">"expected compound procedure"</span>),
             },
-            <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">&quot;expected procedure&quot;</span>),
+            <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">"expected procedure"</span>),
         }
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>define_proc_with_variadic_param() {
-        <span class="kw">let </span>source = <span class="string">&quot;(define (f . x) x)&quot;</span>;
+        <span class="kw">let </span>source = <span class="string">"(define (f . x) x)"</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>env = env::new_root_env();
         <span class="kw">let </span>result = eval_str(source, <span class="kw-2">&amp;mut </span>env).unwrap();
 
         <span class="macro">assert_eq!</span>(result, Expr::Void);
-        <span class="kw">match </span>env.get_expr(<span class="string">&quot;f&quot;</span>) {
+        <span class="kw">match </span>env.get_expr(<span class="string">"f"</span>) {
             <span class="prelude-val">Some</span>(Expr::Procedure(proc)) =&gt; <span class="kw">match </span>proc {
                 Procedure::Compound(compound) =&gt; {
-                    <span class="macro">assert_eq!</span>(compound.name(), <span class="string">&quot;f&quot;</span>);
-                    <span class="macro">assert_eq!</span>(compound.params, ProcedureParams::Variadic(<span class="string">&quot;x&quot;</span>.to_string()));
+                    <span class="macro">assert_eq!</span>(compound.name(), <span class="string">"f"</span>);
+                    <span class="macro">assert_eq!</span>(compound.params, ProcedureParams::Variadic(<span class="string">"x"</span>.to_string()));
                     <span class="macro">assert_eq!</span>(
                         compound.body,
-                        Box::new(Body::new_single(Expr::Symbol(<span class="string">&quot;x&quot;</span>.to_string())))
+                        Box::new(Body::new_single(Expr::Symbol(<span class="string">"x"</span>.to_string())))
                     );
                 }
-                <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">&quot;expected compound procedure&quot;</span>),
+                <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">"expected compound procedure"</span>),
             },
-            <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">&quot;expected procedure&quot;</span>),
+            <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">"expected procedure"</span>),
         }
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>define_proc_with_mixed_params() {
-        <span class="kw">let </span>source = <span class="string">&quot;(define (f x . y) (list x y))&quot;</span>;
+        <span class="kw">let </span>source = <span class="string">"(define (f x . y) (list x y))"</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>env = env::new_root_env();
         <span class="kw">let </span>result = eval_str(source, <span class="kw-2">&amp;mut </span>env).unwrap();
 
         <span class="macro">assert_eq!</span>(result, Expr::Void);
-        <span class="kw">match </span>env.get_expr(<span class="string">&quot;f&quot;</span>) {
+        <span class="kw">match </span>env.get_expr(<span class="string">"f"</span>) {
             <span class="prelude-val">Some</span>(Expr::Procedure(proc)) =&gt; <span class="kw">match </span>proc {
                 Procedure::Compound(compound) =&gt; {
-                    <span class="macro">assert_eq!</span>(compound.name(), <span class="string">&quot;f&quot;</span>);
+                    <span class="macro">assert_eq!</span>(compound.name(), <span class="string">"f"</span>);
                     <span class="macro">assert_eq!</span>(
                         compound.params,
-                        ProcedureParams::Mixed(<span class="macro">vec!</span>[<span class="string">&quot;x&quot;</span>.to_string()], <span class="string">&quot;y&quot;</span>.to_string())
+                        ProcedureParams::Mixed(<span class="macro">vec!</span>[<span class="string">"x"</span>.to_string()], <span class="string">"y"</span>.to_string())
                     );
                     <span class="macro">assert_eq!</span>(
                         compound.body,
                         Box::new(Body::new_single(Expr::new_proper_list(<span class="macro">exprs!</span>[
-                            Expr::Symbol(<span class="string">&quot;list&quot;</span>.to_string()),
-                            Expr::Symbol(<span class="string">&quot;x&quot;</span>.to_string()),
-                            Expr::Symbol(<span class="string">&quot;y&quot;</span>.to_string())
+                            Expr::Symbol(<span class="string">"list"</span>.to_string()),
+                            Expr::Symbol(<span class="string">"x"</span>.to_string()),
+                            Expr::Symbol(<span class="string">"y"</span>.to_string())
                         ])))
                     );
                 }
-                <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">&quot;expected compound procedure&quot;</span>),
+                <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">"expected compound procedure"</span>),
             },
-            <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">&quot;expected procedure&quot;</span>),
+            <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">"expected procedure"</span>),
         }
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>define_macro() {
-        <span class="kw">let </span>source = <span class="string">&quot;
+        <span class="kw">let </span>source = <span class="string">"
             (define-macro (infix infixed)
                 (list (car (cdr infixed)) (car infixed) (car (cdr (cdr infixed)))))
-        &quot;</span>;
+        "</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>env = env::new_root_env();
 
-        <span class="macro">assert!</span>(env.get_macro(<span class="string">&quot;infix&quot;</span>).is_none());
+        <span class="macro">assert!</span>(env.get_macro(<span class="string">"infix"</span>).is_none());
         <span class="kw">let </span>result = eval_str(source, <span class="kw-2">&amp;mut </span>env).unwrap();
         <span class="macro">assert_eq!</span>(result, Expr::Void);
-        <span class="kw">match </span>env.get_macro(<span class="string">&quot;infix&quot;</span>) {
+        <span class="kw">match </span>env.get_macro(<span class="string">"infix"</span>) {
             <span class="prelude-val">Some</span>(Procedure::Compound(macro_proc)) =&gt; {
                 <span class="macro">assert_eq!</span>(
                     macro_proc.params,
-                    ProcedureParams::Fixed(<span class="macro">vec!</span>[<span class="string">&quot;infixed&quot;</span>.to_string()])
+                    ProcedureParams::Fixed(<span class="macro">vec!</span>[<span class="string">"infixed"</span>.to_string()])
                 );
                 <span class="macro">assert_eq!</span>(
                     macro_proc.body,
                     Box::new(Body::new_single(Expr::new_proper_list(<span class="macro">exprs!</span>[
-                        Expr::Symbol(<span class="string">&quot;list&quot;</span>.to_string()),
+                        Expr::Symbol(<span class="string">"list"</span>.to_string()),
                         Expr::new_proper_list(<span class="macro">exprs!</span>[
-                            Expr::Symbol(<span class="string">&quot;car&quot;</span>.to_string()),
+                            Expr::Symbol(<span class="string">"car"</span>.to_string()),
                             Expr::new_proper_list(<span class="macro">exprs!</span>[
-                                Expr::Symbol(<span class="string">&quot;cdr&quot;</span>.to_string()),
-                                Expr::Symbol(<span class="string">&quot;infixed&quot;</span>.to_string())
+                                Expr::Symbol(<span class="string">"cdr"</span>.to_string()),
+                                Expr::Symbol(<span class="string">"infixed"</span>.to_string())
                             ])
                         ]),
                         Expr::new_proper_list(<span class="macro">exprs!</span>[
-                            Expr::Symbol(<span class="string">&quot;car&quot;</span>.to_string()),
-                            Expr::Symbol(<span class="string">&quot;infixed&quot;</span>.to_string())
+                            Expr::Symbol(<span class="string">"car"</span>.to_string()),
+                            Expr::Symbol(<span class="string">"infixed"</span>.to_string())
                         ]),
                         Expr::new_proper_list(<span class="macro">exprs!</span>[
-                            Expr::Symbol(<span class="string">&quot;car&quot;</span>.to_string()),
+                            Expr::Symbol(<span class="string">"car"</span>.to_string()),
                             Expr::new_proper_list(<span class="macro">exprs!</span>[
-                                Expr::Symbol(<span class="string">&quot;cdr&quot;</span>.to_string()),
+                                Expr::Symbol(<span class="string">"cdr"</span>.to_string()),
                                 Expr::new_proper_list(<span class="macro">exprs!</span>[
-                                    Expr::Symbol(<span class="string">&quot;cdr&quot;</span>.to_string()),
-                                    Expr::Symbol(<span class="string">&quot;infixed&quot;</span>.to_string())
+                                    Expr::Symbol(<span class="string">"cdr"</span>.to_string()),
+                                    Expr::Symbol(<span class="string">"infixed"</span>.to_string())
                                 ])
                             ])
                         ])
                     ])))
                 );
             }
-            <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">&quot;expected macro procedure&quot;</span>),
+            <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">"expected macro procedure"</span>),
         }
     }
 }

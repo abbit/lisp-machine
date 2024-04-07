@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/evaluator/primitives/ports.rs`."><title>ports.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="lispdm" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/evaluator/primitives/ports.rs`."><title>ports.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="lispdm" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.1 (7cf61ebde 2024-03-27)" data-channel="1.77.1" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../../../lispdm/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -198,135 +200,131 @@
 <a href="#198" id="198">198</a>
 <a href="#199" id="199">199</a>
 <a href="#200" id="200">200</a>
-<a href="#201" id="201">201</a>
-<a href="#202" id="202">202</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::{cell::RefCell, rc::Rc};
 
 <span class="kw">use </span><span class="kw">super</span>::utils::{define_procedures, resolve_path};
 <span class="kw">use crate</span>::{
     evaluator::{error::runtime_error, procedure::ApplyProcedure, EnvRef},
-    expr::{port::Port, proc_result_value, Arity, Expr, Exprs, ProcedureResult},
+    expr::{proc_result_value, Arity, Expr, Exprs, FileInputPort, FileOutputPort, ProcedureResult},
 };
 
 <span class="macro">define_procedures! </span>{
-    open_input_file = (<span class="string">&quot;open-input-file&quot;</span>, open_input_file_fn, Arity::Exact(<span class="number">1</span>)),
-    open_output_file = (<span class="string">&quot;open-output-file&quot;</span>, open_output_file_fn, Arity::Exact(<span class="number">1</span>)),
-    is_input_port = (<span class="string">&quot;input-port?&quot;</span>, is_input_port_fn, Arity::Exact(<span class="number">1</span>)),
-    is_output_port = (<span class="string">&quot;output-port?&quot;</span>, is_output_port_fn, Arity::Exact(<span class="number">1</span>)),
-    current_input_port = (<span class="string">&quot;current-input-port&quot;</span>, current_input_port_fn, Arity::Exact(<span class="number">0</span>)),
-    current_output_port = (<span class="string">&quot;current-output-port&quot;</span>, current_output_port_fn, Arity::Exact(<span class="number">0</span>)),
-    close_input_port = (<span class="string">&quot;close-input-port&quot;</span>, close_input_port_fn, Arity::Exact(<span class="number">1</span>)),
-    close_output_port = (<span class="string">&quot;close-output-port&quot;</span>, close_output_port_fn, Arity::Exact(<span class="number">1</span>)),
-    with_input_from_file = (<span class="string">&quot;with-input-from-file&quot;</span>, with_input_from_file_fn, Arity::Exact(<span class="number">2</span>)),
-    with_output_to_file = (<span class="string">&quot;with-output-to-file&quot;</span>, with_output_to_file_fn, Arity::Exact(<span class="number">2</span>)),
-    call_with_input_file = (<span class="string">&quot;call-with-input-file&quot;</span>, call_with_input_file_fn, Arity::Exact(<span class="number">2</span>)),
-    call_with_output_file = (<span class="string">&quot;call-with-output-file&quot;</span>, call_with_output_file_fn, Arity::Exact(<span class="number">2</span>)),
+    open_input_file = (<span class="string">"open-input-file"</span>, open_input_file_fn, Arity::Exact(<span class="number">1</span>)),
+    open_output_file = (<span class="string">"open-output-file"</span>, open_output_file_fn, Arity::Exact(<span class="number">1</span>)),
+    is_input_port = (<span class="string">"input-port?"</span>, is_input_port_fn, Arity::Exact(<span class="number">1</span>)),
+    is_output_port = (<span class="string">"output-port?"</span>, is_output_port_fn, Arity::Exact(<span class="number">1</span>)),
+    current_input_port = (<span class="string">"current-input-port"</span>, current_input_port_fn, Arity::Exact(<span class="number">0</span>)),
+    current_output_port = (<span class="string">"current-output-port"</span>, current_output_port_fn, Arity::Exact(<span class="number">0</span>)),
+    close_input_port = (<span class="string">"close-input-port"</span>, close_input_port_fn, Arity::Exact(<span class="number">1</span>)),
+    close_output_port = (<span class="string">"close-output-port"</span>, close_output_port_fn, Arity::Exact(<span class="number">1</span>)),
+    with_input_from_file = (<span class="string">"with-input-from-file"</span>, with_input_from_file_fn, Arity::Exact(<span class="number">2</span>)),
+    with_output_to_file = (<span class="string">"with-output-to-file"</span>, with_output_to_file_fn, Arity::Exact(<span class="number">2</span>)),
+    call_with_input_file = (<span class="string">"call-with-input-file"</span>, call_with_input_file_fn, Arity::Exact(<span class="number">2</span>)),
+    call_with_output_file = (<span class="string">"call-with-output-file"</span>, call_with_output_file_fn, Arity::Exact(<span class="number">2</span>)),
 }
 
 <span class="kw">fn </span>open_input_file_fn(<span class="kw-2">mut </span>args: Exprs, env: <span class="kw-2">&amp;mut </span>EnvRef) -&gt; ProcedureResult {
     <span class="kw">let </span>file_path = args.pop_front().unwrap().into_string().map_err(|expr| {
         <span class="macro">runtime_error!</span>(
-            <span class="string">&quot;expected string as open-input-file argument, got {}&quot;</span>,
+            <span class="string">"expected string as open-input-file argument, got {}"</span>,
             expr.kind()
         )
     })<span class="question-mark">?</span>;
 
-    <span class="kw">let </span>resolved_path = resolve_path(<span class="kw-2">&amp;*</span>file_path.borrow(), env)<span class="question-mark">?</span>;
-    <span class="kw">let </span>port = Port::new_input_file(resolved_path).map_err(|e| e.to_string())<span class="question-mark">?</span>;
+    <span class="kw">let </span>resolved_path = resolve_path(<span class="kw-2">&amp;</span>file_path.borrow(), env)<span class="question-mark">?</span>;
+    <span class="kw">let </span>port = FileInputPort::from_path(resolved_path).map_err(|e| e.to_string())<span class="question-mark">?</span>;
 
-    <span class="macro">proc_result_value!</span>(Expr::new_port(port))
+    <span class="macro">proc_result_value!</span>(Expr::new_input_port(port))
 }
 
 <span class="kw">fn </span>open_output_file_fn(<span class="kw-2">mut </span>args: Exprs, env: <span class="kw-2">&amp;mut </span>EnvRef) -&gt; ProcedureResult {
     <span class="kw">let </span>file_path = args.pop_front().unwrap().into_string().map_err(|expr| {
         <span class="macro">runtime_error!</span>(
-            <span class="string">&quot;expected string as open-output-file argument, got {}&quot;</span>,
+            <span class="string">"expected string as open-output-file argument, got {}"</span>,
             expr.kind()
         )
     })<span class="question-mark">?</span>;
 
-    <span class="kw">let </span>resolved_path = resolve_path(<span class="kw-2">&amp;*</span>file_path.borrow(), env)<span class="question-mark">?</span>;
-    <span class="kw">let </span>port = Port::new_output_file(resolved_path).map_err(|e| e.to_string())<span class="question-mark">?</span>;
+    <span class="kw">let </span>resolved_path = resolve_path(<span class="kw-2">&amp;</span>file_path.borrow(), env)<span class="question-mark">?</span>;
+    <span class="kw">let </span>port = FileOutputPort::from_path(resolved_path).map_err(|e| e.to_string())<span class="question-mark">?</span>;
 
-    <span class="macro">proc_result_value!</span>(Expr::new_port(port))
+    <span class="macro">proc_result_value!</span>(Expr::new_output_port(port))
 }
 
 <span class="kw">fn </span>is_input_port_fn(<span class="kw-2">mut </span>args: Exprs, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>EnvRef) -&gt; ProcedureResult {
     <span class="kw">let </span>expr = args.pop_front().unwrap();
-    <span class="kw">let </span>is_input = <span class="macro">matches!</span>(expr, Expr::Port(port) <span class="kw">if </span>(<span class="kw-2">*</span>port).borrow().is_input());
+    <span class="kw">let </span>is_input = <span class="macro">matches!</span>(expr, Expr::InputPort(<span class="kw">_</span>));
 
     <span class="macro">proc_result_value!</span>(Expr::Boolean(is_input))
 }
 
 <span class="kw">fn </span>is_output_port_fn(<span class="kw-2">mut </span>args: Exprs, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>EnvRef) -&gt; ProcedureResult {
     <span class="kw">let </span>expr = args.pop_front().unwrap();
-    <span class="kw">let </span>is_output = <span class="macro">matches!</span>(expr, Expr::Port(port) <span class="kw">if </span>(<span class="kw-2">*</span>port).borrow().is_output());
+    <span class="kw">let </span>is_output = <span class="macro">matches!</span>(expr, Expr::OutputPort(<span class="kw">_</span>));
 
     <span class="macro">proc_result_value!</span>(Expr::Boolean(is_output))
 }
 
 <span class="kw">fn </span>current_input_port_fn(<span class="kw">_</span>: Exprs, env: <span class="kw-2">&amp;mut </span>EnvRef) -&gt; ProcedureResult {
-    <span class="macro">proc_result_value!</span>(Expr::Port(env.current_input_port()))
+    <span class="macro">proc_result_value!</span>(Expr::InputPort(env.current_input_port()))
 }
 
 <span class="kw">fn </span>current_output_port_fn(<span class="kw">_</span>: Exprs, env: <span class="kw-2">&amp;mut </span>EnvRef) -&gt; ProcedureResult {
-    <span class="macro">proc_result_value!</span>(Expr::Port(env.current_output_port()))
+    <span class="macro">proc_result_value!</span>(Expr::OutputPort(env.current_output_port()))
 }
 
 <span class="kw">fn </span>close_input_port_fn(<span class="kw-2">mut </span>exprs: Exprs, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>EnvRef) -&gt; ProcedureResult {
-    <span class="kw">let </span>port = exprs.pop_front().unwrap().into_port().map_err(|expr| {
-        <span class="macro">runtime_error!</span>(
-            <span class="string">&quot;expected port as close-input-port argument, got {}&quot;</span>,
-            expr.kind()
-        )
-    })<span class="question-mark">?</span>;
+    <span class="kw">let </span>port = exprs
+        .pop_front()
+        .unwrap()
+        .into_input_port()
+        .map_err(|expr| {
+            <span class="macro">runtime_error!</span>(
+                <span class="string">"expected input port as close-input-port argument, got {}"</span>,
+                expr.kind()
+            )
+        })<span class="question-mark">?</span>;
 
     <span class="kw">let </span><span class="kw-2">mut </span>port = port.borrow_mut();
-    <span class="kw">if let </span><span class="prelude-val">Some</span>(input_port) = port.as_input() {
-        input_port
-            .close()
-            .map_err(|e| <span class="macro">runtime_error!</span>(<span class="string">&quot;got error while closing input port: {}&quot;</span>, e))<span class="question-mark">?</span>;
-        <span class="macro">proc_result_value!</span>(Expr::Void)
-    } <span class="kw">else </span>{
-        <span class="prelude-val">Err</span>(<span class="macro">runtime_error!</span>(<span class="string">&quot;expected input port in close-input-port&quot;</span>))
-    }
+    port.close()
+        .map_err(|e| <span class="macro">runtime_error!</span>(<span class="string">"got error while closing input port: {}"</span>, e))<span class="question-mark">?</span>;
+    <span class="macro">proc_result_value!</span>(Expr::Void)
 }
 
 <span class="kw">fn </span>close_output_port_fn(<span class="kw-2">mut </span>args: Exprs, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>EnvRef) -&gt; ProcedureResult {
-    <span class="kw">let </span>port = args.pop_front().unwrap().into_port().map_err(|expr| {
-        <span class="macro">runtime_error!</span>(
-            <span class="string">&quot;expected port as close-output-port argument, got {}&quot;</span>,
-            expr.kind()
-        )
-    })<span class="question-mark">?</span>;
+    <span class="kw">let </span>port = args
+        .pop_front()
+        .unwrap()
+        .into_output_port()
+        .map_err(|expr| {
+            <span class="macro">runtime_error!</span>(
+                <span class="string">"expected output port as close-output-port argument, got {}"</span>,
+                expr.kind()
+            )
+        })<span class="question-mark">?</span>;
 
     <span class="kw">let </span><span class="kw-2">mut </span>port = port.borrow_mut();
-    <span class="kw">if let </span><span class="prelude-val">Some</span>(output_port) = port.as_output() {
-        output_port
-            .close()
-            .map_err(|e| <span class="macro">runtime_error!</span>(<span class="string">&quot;got error while closing output port: {}&quot;</span>, e))<span class="question-mark">?</span>;
-        <span class="macro">proc_result_value!</span>(Expr::Void)
-    } <span class="kw">else </span>{
-        <span class="prelude-val">Err</span>(<span class="macro">runtime_error!</span>(<span class="string">&quot;expected output port in close-output-port&quot;</span>))
-    }
+    port.close()
+        .map_err(|e| <span class="macro">runtime_error!</span>(<span class="string">"got error while closing output port: {}"</span>, e))<span class="question-mark">?</span>;
+    <span class="macro">proc_result_value!</span>(Expr::Void)
 }
 
 <span class="kw">fn </span>with_input_from_file_fn(<span class="kw-2">mut </span>args: Exprs, env: <span class="kw-2">&amp;mut </span>EnvRef) -&gt; ProcedureResult {
     <span class="kw">let </span>file_path = args.pop_front().unwrap().into_string().map_err(|expr| {
         <span class="macro">runtime_error!</span>(
-            <span class="string">&quot;expected string as first with-input-from-file argument, got {}&quot;</span>,
+            <span class="string">"expected string as first with-input-from-file argument, got {}"</span>,
             expr.kind()
         )
     })<span class="question-mark">?</span>;
     <span class="kw">let </span>thunk = args.pop_front().unwrap().into_procedure().map_err(|expr| {
         <span class="macro">runtime_error!</span>(
-            <span class="string">&quot;expected procedure as second with-input-from-file argument, got {}&quot;</span>,
+            <span class="string">"expected procedure as second with-input-from-file argument, got {}"</span>,
             expr.kind()
         )
     })<span class="question-mark">?</span>;
 
-    <span class="kw">let </span>resolved_path = resolve_path(<span class="kw-2">&amp;*</span>file_path.borrow(), env)<span class="question-mark">?</span>;
-    <span class="kw">let </span>port = Port::new_input_file(resolved_path).map_err(|e| e.to_string())<span class="question-mark">?</span>;
+    <span class="kw">let </span>resolved_path = resolve_path(<span class="kw-2">&amp;</span>file_path.borrow(), env)<span class="question-mark">?</span>;
+    <span class="kw">let </span>port = FileInputPort::from_path(resolved_path).map_err(|e| e.to_string())<span class="question-mark">?</span>;
 
     <span class="kw">let </span><span class="kw-2">mut </span>eval_env = env.extend();
     eval_env.set_current_input_port(Rc::new(RefCell::new(port)));
@@ -337,19 +335,19 @@
 <span class="kw">fn </span>with_output_to_file_fn(<span class="kw-2">mut </span>args: Exprs, env: <span class="kw-2">&amp;mut </span>EnvRef) -&gt; ProcedureResult {
     <span class="kw">let </span>file_path = args.pop_front().unwrap().into_string().map_err(|expr| {
         <span class="macro">runtime_error!</span>(
-            <span class="string">&quot;expected string as first with-output-to-file argument, got {}&quot;</span>,
+            <span class="string">"expected string as first with-output-to-file argument, got {}"</span>,
             expr.kind()
         )
     })<span class="question-mark">?</span>;
     <span class="kw">let </span>thunk = args.pop_front().unwrap().into_procedure().map_err(|expr| {
         <span class="macro">runtime_error!</span>(
-            <span class="string">&quot;expected procedure as second with-output-to-file argument, got {}&quot;</span>,
+            <span class="string">"expected procedure as second with-output-to-file argument, got {}"</span>,
             expr.kind()
         )
     })<span class="question-mark">?</span>;
 
-    <span class="kw">let </span>resolved_path = resolve_path(<span class="kw-2">&amp;*</span>file_path.borrow(), env)<span class="question-mark">?</span>;
-    <span class="kw">let </span>port = Port::new_output_file(resolved_path).map_err(|e| e.to_string())<span class="question-mark">?</span>;
+    <span class="kw">let </span>resolved_path = resolve_path(<span class="kw-2">&amp;</span>file_path.borrow(), env)<span class="question-mark">?</span>;
+    <span class="kw">let </span>port = FileOutputPort::from_path(resolved_path).map_err(|e| e.to_string())<span class="question-mark">?</span>;
 
     <span class="kw">let </span><span class="kw-2">mut </span>eval_env = env.extend();
     eval_env.set_current_output_port(Rc::new(RefCell::new(port)));
@@ -360,19 +358,19 @@
 <span class="kw">fn </span>call_with_input_file_fn(<span class="kw-2">mut </span>args: Exprs, env: <span class="kw-2">&amp;mut </span>EnvRef) -&gt; ProcedureResult {
     <span class="kw">let </span>file_path = args.pop_front().unwrap().into_string().map_err(|expr| {
         <span class="macro">runtime_error!</span>(
-            <span class="string">&quot;expected string as first call-with-input-file argument, got {}&quot;</span>,
+            <span class="string">"expected string as first call-with-input-file argument, got {}"</span>,
             expr.kind()
         )
     })<span class="question-mark">?</span>;
     <span class="kw">let </span>thunk = args.pop_front().unwrap().into_procedure().map_err(|expr| {
         <span class="macro">runtime_error!</span>(
-            <span class="string">&quot;expected procedure as second call-with-input-file argument, got {}&quot;</span>,
+            <span class="string">"expected procedure as second call-with-input-file argument, got {}"</span>,
             expr.kind()
         )
     })<span class="question-mark">?</span>;
 
-    <span class="kw">let </span>resolved_path = resolve_path(<span class="kw-2">&amp;*</span>file_path.borrow(), env)<span class="question-mark">?</span>;
-    <span class="kw">let </span>port = Port::new_input_file(resolved_path).map_err(|e| e.to_string())<span class="question-mark">?</span>;
+    <span class="kw">let </span>resolved_path = resolve_path(<span class="kw-2">&amp;</span>file_path.borrow(), env)<span class="question-mark">?</span>;
+    <span class="kw">let </span>port = FileInputPort::from_path(resolved_path).map_err(|e| e.to_string())<span class="question-mark">?</span>;
 
     <span class="kw">let </span><span class="kw-2">mut </span>eval_env = env.extend();
     eval_env.set_current_input_port(Rc::new(RefCell::new(port)));
@@ -383,19 +381,19 @@
 <span class="kw">fn </span>call_with_output_file_fn(<span class="kw-2">mut </span>args: Exprs, env: <span class="kw-2">&amp;mut </span>EnvRef) -&gt; ProcedureResult {
     <span class="kw">let </span>file_path = args.pop_front().unwrap().into_string().map_err(|expr| {
         <span class="macro">runtime_error!</span>(
-            <span class="string">&quot;expected string as first call-with-output-file argument, got {}&quot;</span>,
+            <span class="string">"expected string as first call-with-output-file argument, got {}"</span>,
             expr.kind()
         )
     })<span class="question-mark">?</span>;
     <span class="kw">let </span>thunk = args.pop_front().unwrap().into_procedure().map_err(|expr| {
         <span class="macro">runtime_error!</span>(
-            <span class="string">&quot;expected procedure as second call-with-output-file argument, got {}&quot;</span>,
+            <span class="string">"expected procedure as second call-with-output-file argument, got {}"</span>,
             expr.kind()
         )
     })<span class="question-mark">?</span>;
 
-    <span class="kw">let </span>resolved_path = resolve_path(<span class="kw-2">&amp;*</span>file_path.borrow(), env)<span class="question-mark">?</span>;
-    <span class="kw">let </span>port = Port::new_output_file(resolved_path).map_err(|e| e.to_string())<span class="question-mark">?</span>;
+    <span class="kw">let </span>resolved_path = resolve_path(<span class="kw-2">&amp;</span>file_path.borrow(), env)<span class="question-mark">?</span>;
+    <span class="kw">let </span>port = FileOutputPort::from_path(resolved_path).map_err(|e| e.to_string())<span class="question-mark">?</span>;
 
     <span class="kw">let </span><span class="kw-2">mut </span>eval_env = env.extend();
     eval_env.set_current_output_port(Rc::new(RefCell::new(port)));

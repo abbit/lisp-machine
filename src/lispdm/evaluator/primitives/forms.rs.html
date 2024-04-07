@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/evaluator/primitives/forms.rs`."><title>forms.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="lispdm" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/evaluator/primitives/forms.rs`."><title>forms.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="lispdm" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.1 (7cf61ebde 2024-03-27)" data-channel="1.77.1" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../../../lispdm/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -512,17 +514,17 @@
 <span class="kw">use </span>std::collections::VecDeque;
 
 <span class="macro">define_special_forms! </span>{
-    define = (<span class="string">&quot;define&quot;</span>, define_fn, Arity::AtLeast(<span class="number">2</span>)),
-    set = (<span class="string">&quot;set!&quot;</span>, set_fn, Arity::Exact(<span class="number">2</span>)),
-    lambda = (<span class="string">&quot;lambda&quot;</span>, lambda_fn, Arity::AtLeast(<span class="number">2</span>)),
-    let_ = (<span class="string">&quot;let&quot;</span>, let_fn, Arity::AtLeast(<span class="number">1</span>)),
-    letrec = (<span class="string">&quot;letrec&quot;</span>, letrec_fn, Arity::AtLeast(<span class="number">1</span>)),
-    if_ = (<span class="string">&quot;if&quot;</span>, if_fn, Arity::Range(<span class="number">2</span>, <span class="number">3</span>)),
-    cond = (<span class="string">&quot;cond&quot;</span>, cond_fn, Arity::AtLeast(<span class="number">1</span>)),
-    begin = (<span class="string">&quot;begin&quot;</span>, begin_fn, Arity::Any),
-    do_ = (<span class="string">&quot;do&quot;</span>, do_fn, Arity::Any),
-    quote = (<span class="string">&quot;quote&quot;</span>, quote_fn, Arity::Exact(<span class="number">1</span>)),
-    quasiquote = (<span class="string">&quot;quasiquote&quot;</span>, quasiquote_fn, Arity::Exact(<span class="number">1</span>)),
+    define = (<span class="string">"define"</span>, define_fn, Arity::AtLeast(<span class="number">2</span>)),
+    set = (<span class="string">"set!"</span>, set_fn, Arity::Exact(<span class="number">2</span>)),
+    lambda = (<span class="string">"lambda"</span>, lambda_fn, Arity::AtLeast(<span class="number">2</span>)),
+    let_ = (<span class="string">"let"</span>, let_fn, Arity::AtLeast(<span class="number">1</span>)),
+    letrec = (<span class="string">"letrec"</span>, letrec_fn, Arity::AtLeast(<span class="number">1</span>)),
+    if_ = (<span class="string">"if"</span>, if_fn, Arity::Range(<span class="number">2</span>, <span class="number">3</span>)),
+    cond = (<span class="string">"cond"</span>, cond_fn, Arity::AtLeast(<span class="number">1</span>)),
+    begin = (<span class="string">"begin"</span>, begin_fn, Arity::Any),
+    do_ = (<span class="string">"do"</span>, do_fn, Arity::Any),
+    quote = (<span class="string">"quote"</span>, quote_fn, Arity::Exact(<span class="number">1</span>)),
+    quasiquote = (<span class="string">"quasiquote"</span>, quasiquote_fn, Arity::Exact(<span class="number">1</span>)),
 }
 
 <span class="kw">enum </span>ModifyEnv {
@@ -538,7 +540,7 @@
 ) -&gt; ProcedureResult {
     <span class="kw">let </span>symbol = symbol_expr.into_symbol().map_err(|expr| {
         <span class="macro">runtime_error!</span>(
-            <span class="string">&quot;expected symbol as first argument of define, got {}&quot;</span>,
+            <span class="string">"expected symbol as first argument of define, got {}"</span>,
             expr.kind()
         )
     })<span class="question-mark">?</span>;
@@ -552,7 +554,7 @@
         ModifyEnv::Set =&gt; env
             .set(symbol, body)
             .map(|<span class="kw">_</span>| ProcedureReturn::Value(Expr::Void))
-            .map_err(|err| <span class="macro">runtime_error!</span>(<span class="string">&quot;{}&quot;</span>, err)),
+            .map_err(|err| <span class="macro">runtime_error!</span>(<span class="string">"{}"</span>, err)),
     }
 }
 
@@ -569,7 +571,7 @@
     // it must be a list (define procedure)
     </span><span class="kw">let </span>name_and_params = first_arg.into_list().map_err(|expr| {
         <span class="macro">runtime_error!</span>(
-            <span class="string">&quot;expected symbol or list as the first argument for define, got {}&quot;</span>,
+            <span class="string">"expected symbol or list as the first argument for define, got {}"</span>,
             expr
         )
     })<span class="question-mark">?</span>;
@@ -581,14 +583,14 @@
         .try_for_each(|expr| <span class="kw">match </span>expr {
             (Expr::Symbol(<span class="kw">_</span>), <span class="kw">_</span>) =&gt; <span class="prelude-val">Ok</span>(()),
             (expr, idx) =&gt; <span class="prelude-val">Err</span>(<span class="macro">runtime_error!</span>(
-                <span class="string">&quot;expected symbols in define procedure formals list, got {} at position {}&quot;</span>,
+                <span class="string">"expected symbols in define procedure formals list, got {} at position {}"</span>,
                 expr.kind(),
                 idx
             )),
         })<span class="question-mark">?</span>;
 
     <span class="kw">let </span>(name_expr, <span class="kw-2">mut </span>params) = name_and_params.split_first().map_err(|<span class="kw">_</span>| {
-        <span class="macro">runtime_error!</span>(<span class="string">&quot;expected at least 1 argument for define procedure formals list, got 0&quot;</span>)
+        <span class="macro">runtime_error!</span>(<span class="string">"expected at least 1 argument for define procedure formals list, got 0"</span>)
     })<span class="question-mark">?</span>;
     <span class="comment">// unwrap is safe since we checked `name_and_params` above
     </span><span class="kw">let </span>name = name_expr.into_symbol().unwrap();
@@ -626,7 +628,7 @@
 
     <span class="kw">let </span><span class="kw-2">mut </span>bindings = first_arg.into_list().map_err(|expr| {
         <span class="macro">runtime_error!</span>(
-            <span class="string">&quot;expected bindings list as first argument of let, got {}&quot;</span>,
+            <span class="string">"expected bindings list as first argument of let, got {}"</span>,
             expr
         )
     })<span class="question-mark">?</span>;
@@ -637,18 +639,18 @@
             .pop_front()
             .unwrap()
             .into_list()
-            .map_err(|expr| <span class="macro">runtime_error!</span>(<span class="string">&quot;expected list as binding in let, got {}&quot;</span>, expr))<span class="question-mark">?</span>;
+            .map_err(|expr| <span class="macro">runtime_error!</span>(<span class="string">"expected list as binding in let, got {}"</span>, expr))<span class="question-mark">?</span>;
 
         <span class="kw">if </span>binding.len() != <span class="number">2 </span>{
             <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">runtime_error!</span>(
-                <span class="string">&quot;expected 2 elements in binding in let, got {}&quot;</span>,
+                <span class="string">"expected 2 elements in binding in let, got {}"</span>,
                 binding.len()
             ));
         }
 
         <span class="kw">let </span>symbol = binding.pop_front().unwrap().into_symbol().map_err(|expr| {
             <span class="macro">runtime_error!</span>(
-                <span class="string">&quot;expected symbol as first element of binding in let, got {}&quot;</span>,
+                <span class="string">"expected symbol as first element of binding in let, got {}"</span>,
                 expr.kind()
             )
         })<span class="question-mark">?</span>;
@@ -665,7 +667,7 @@
 </span><span class="kw">fn </span>named_let_form(name: String, <span class="kw-2">mut </span>args: Exprs, env: <span class="kw-2">&amp;mut </span>EnvRef) -&gt; ProcedureResult {
     <span class="kw">let </span><span class="kw-2">mut </span>bindings = args.pop_front().unwrap().into_list().map_err(|expr| {
         <span class="macro">runtime_error!</span>(
-            <span class="string">&quot;expected bindings list as first argument of let, got {}&quot;</span>,
+            <span class="string">"expected bindings list as first argument of let, got {}"</span>,
             expr
         )
     })<span class="question-mark">?</span>;
@@ -677,18 +679,18 @@
             .pop_front()
             .unwrap()
             .into_list()
-            .map_err(|expr| <span class="macro">runtime_error!</span>(<span class="string">&quot;expected list as binding in let, got {}&quot;</span>, expr))<span class="question-mark">?</span>;
+            .map_err(|expr| <span class="macro">runtime_error!</span>(<span class="string">"expected list as binding in let, got {}"</span>, expr))<span class="question-mark">?</span>;
 
         <span class="kw">if </span>binding.len() != <span class="number">2 </span>{
             <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">runtime_error!</span>(
-                <span class="string">&quot;expected 2 elements in binding in let, got {}&quot;</span>,
+                <span class="string">"expected 2 elements in binding in let, got {}"</span>,
                 binding.len()
             ));
         }
 
         <span class="kw">let </span>symbol = binding.pop_front().unwrap().into_symbol().map_err(|expr| {
             <span class="macro">runtime_error!</span>(
-                <span class="string">&quot;expected symbol as first element of binding in let, got {}&quot;</span>,
+                <span class="string">"expected symbol as first element of binding in let, got {}"</span>,
                 expr.kind()
             )
         })<span class="question-mark">?</span>;
@@ -712,7 +714,7 @@
 <span class="kw">fn </span>letrec_fn(<span class="kw-2">mut </span>args: Exprs, env: <span class="kw-2">&amp;mut </span>EnvRef) -&gt; ProcedureResult {
     <span class="kw">let </span><span class="kw-2">mut </span>bindings = args.pop_front().unwrap().into_list().map_err(|expr| {
         <span class="macro">runtime_error!</span>(
-            <span class="string">&quot;expected bindings list as first argument of letrec, got {}&quot;</span>,
+            <span class="string">"expected bindings list as first argument of letrec, got {}"</span>,
             expr
         )
     })<span class="question-mark">?</span>;
@@ -721,17 +723,17 @@
     <span class="kw">while </span>!bindings.is_empty() {
         <span class="kw">let </span><span class="kw-2">mut </span>binding =
             bindings.pop_front().unwrap().into_list().map_err(|expr| {
-                <span class="macro">runtime_error!</span>(<span class="string">&quot;expected list as binding in letrec, got {}&quot;</span>, expr)
+                <span class="macro">runtime_error!</span>(<span class="string">"expected list as binding in letrec, got {}"</span>, expr)
             })<span class="question-mark">?</span>;
         <span class="kw">if </span>binding.len() != <span class="number">2 </span>{
             <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">runtime_error!</span>(
-                <span class="string">&quot;expected 2 elements in binding in letrec, got {}&quot;</span>,
+                <span class="string">"expected 2 elements in binding in letrec, got {}"</span>,
                 binding.len()
             ));
         }
         <span class="kw">let </span>symbol = binding.pop_front().unwrap().into_symbol().map_err(|expr| {
             <span class="macro">runtime_error!</span>(
-                <span class="string">&quot;expected symbol as first element of binding in letrec, got {}&quot;</span>,
+                <span class="string">"expected symbol as first element of binding in letrec, got {}"</span>,
                 expr.kind()
             )
         })<span class="question-mark">?</span>;
@@ -787,18 +789,18 @@
     <span class="kw">for </span>(clause, idx) <span class="kw">in </span>args.into_iter().zip(<span class="number">1</span>..) {
         <span class="kw">let </span><span class="kw-2">mut </span>clause = clause
             .into_list()
-            .map_err(|expr| <span class="macro">runtime_error!</span>(<span class="string">&quot;expected list as clause, got {}&quot;</span>, expr))<span class="question-mark">?</span>;
+            .map_err(|expr| <span class="macro">runtime_error!</span>(<span class="string">"expected list as clause, got {}"</span>, expr))<span class="question-mark">?</span>;
 
         <span class="kw">if </span>clause.is_empty() {
-            <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">runtime_error!</span>(<span class="string">&quot;expected at least 1 element in clause&quot;</span>,));
+            <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">runtime_error!</span>(<span class="string">"expected at least 1 element in clause"</span>,));
         }
 
         <span class="kw">let </span>test = clause.pop_front().unwrap();
         <span class="comment">// check if clause test is special `else` clause
-        </span><span class="kw">let </span>test_result = <span class="kw">if </span>test.is_specific_symbol(<span class="string">&quot;else&quot;</span>) {
+        </span><span class="kw">let </span>test_result = <span class="kw">if </span>test.is_specific_symbol(<span class="string">"else"</span>) {
             <span class="comment">// `else` clause should be last in cond
             </span><span class="kw">if </span>idx != args_len {
-                <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">runtime_error!</span>(<span class="string">&quot;else clause must be last&quot;</span>));
+                <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">runtime_error!</span>(<span class="string">"else clause must be last"</span>));
             }
             TestResult::Else
         } <span class="kw">else </span>{
@@ -809,18 +811,18 @@
         <span class="kw">if </span>test_result.is_truthy() {
             <span class="kw">return match </span>test_result {
                 TestResult::Normal(result_expr) =&gt; {
-                    <span class="kw">if </span>clause.car().is_some_and(|e| e.is_specific_symbol(<span class="string">&quot;=&gt;&quot;</span>)) {
-                        clause.pop_front(); <span class="comment">// pop &quot;=&gt;&quot; symbol
+                    <span class="kw">if </span>clause.car().is_some_and(|e| e.is_specific_symbol(<span class="string">"=&gt;"</span>)) {
+                        clause.pop_front(); <span class="comment">// pop "=&gt;" symbol
                         </span><span class="kw">let </span>proc_expr = clause
                             .pop_front()
-                            .ok_or(<span class="macro">runtime_error!</span>(<span class="string">&quot;expected expression after `=&gt;` in clause&quot;</span>))<span class="question-mark">?</span>;
+                            .ok_or(<span class="macro">runtime_error!</span>(<span class="string">"expected expression after `=&gt;` in clause"</span>))<span class="question-mark">?</span>;
                         <span class="comment">// if clause uses `=&gt;` then next expr should evaluate to a procedure
                         </span><span class="kw">let </span>proc =
                             eval::eval_expr(proc_expr, env)<span class="question-mark">?
                                 </span>.into_procedure()
                                 .map_err(|expr| {
                                     <span class="macro">runtime_error!</span>(
-                                        <span class="string">&quot;expected procedure after `=&gt;` in clause, got {}&quot;</span>,
+                                        <span class="string">"expected procedure after `=&gt;` in clause, got {}"</span>,
                                         expr.kind()
                                     )
                                 })<span class="question-mark">?</span>;
@@ -828,7 +830,7 @@
                         <span class="comment">// procedure should accept 1 argument
                         </span><span class="kw">if </span>!<span class="macro">matches!</span>(proc.arity(), Arity::Exact(<span class="number">1</span>)) {
                             <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">runtime_error!</span>(
-                                <span class="string">&quot;expected procedure with 1 argument after `=&gt;` in clause&quot;
+                                <span class="string">"expected procedure with 1 argument after `=&gt;` in clause"
                             </span>));
                         }
 
@@ -852,7 +854,7 @@
                     <span class="kw">if </span>exprs.is_empty() {
                         <span class="comment">// `else` clause should contain at least 1 expression
                         </span><span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">runtime_error!</span>(
-                            <span class="string">&quot;else clause should contain at least 1 expression&quot;
+                            <span class="string">"else clause should contain at least 1 expression"
                         </span>));
                     }
                     <span class="comment">// if clause test is truthy and it has at least 1 expression
@@ -873,7 +875,7 @@
 <span class="kw">fn </span>do_fn(<span class="kw-2">mut </span>args: Exprs, env: <span class="kw-2">&amp;mut </span>EnvRef) -&gt; ProcedureResult {
     <span class="kw">let </span><span class="kw-2">mut </span>bindings = args.pop_front().unwrap().into_list().map_err(|expr| {
         <span class="macro">runtime_error!</span>(
-            <span class="string">&quot;expected bindings list as first argument of do, got {}&quot;</span>,
+            <span class="string">"expected bindings list as first argument of do, got {}"</span>,
             expr
         )
     })<span class="question-mark">?</span>;
@@ -885,18 +887,18 @@
             .pop_front()
             .unwrap()
             .into_list()
-            .map_err(|expr| <span class="macro">runtime_error!</span>(<span class="string">&quot;expected list as binding in do, got {}&quot;</span>, expr))<span class="question-mark">?</span>;
+            .map_err(|expr| <span class="macro">runtime_error!</span>(<span class="string">"expected list as binding in do, got {}"</span>, expr))<span class="question-mark">?</span>;
 
         <span class="kw">if </span>binding.len() &lt; <span class="number">2 </span>|| binding.len() &gt; <span class="number">3 </span>{
             <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">runtime_error!</span>(
-                <span class="string">&quot;expected 2 or 3 elements in binding in do, got {}&quot;</span>,
+                <span class="string">"expected 2 or 3 elements in binding in do, got {}"</span>,
                 binding.len()
             ));
         }
 
         <span class="kw">let </span>symbol = binding.pop_front().unwrap().into_symbol().map_err(|expr| {
             <span class="macro">runtime_error!</span>(
-                <span class="string">&quot;expected symbol as first element of binding in do, got {}&quot;</span>,
+                <span class="string">"expected symbol as first element of binding in do, got {}"</span>,
                 expr.kind()
             )
         })<span class="question-mark">?</span>;
@@ -904,7 +906,7 @@
         <span class="kw">let </span>init = eval::eval_expr(init, env)<span class="question-mark">?</span>;
         init_env.add(symbol.clone(), init);
 
-        <span class="comment">// `step` is optional, so if it&#39;s not present then use `symbol` as `step`
+        <span class="comment">// `step` is optional, so if it's not present then use `symbol` as `step`
         </span><span class="kw">let </span>step = <span class="kw">match </span>binding.pop_front() {
             <span class="prelude-val">Some</span>(step) =&gt; step,
             <span class="prelude-val">None </span>=&gt; Expr::new_symbol(<span class="kw-2">&amp;</span>symbol),
@@ -914,11 +916,11 @@
 
     <span class="kw">let </span><span class="kw-2">mut </span>test_expr_list =
         args.pop_front().unwrap().into_list().map_err(|expr| {
-            <span class="macro">runtime_error!</span>(<span class="string">&quot;expected list as test expression in do, got {}&quot;</span>, expr)
+            <span class="macro">runtime_error!</span>(<span class="string">"expected list as test expression in do, got {}"</span>, expr)
         })<span class="question-mark">?</span>;
     <span class="kw">let </span>test = test_expr_list
         .pop_front()
-        .ok_or(<span class="macro">runtime_error!</span>(<span class="string">&quot;expected test expression in do&quot;</span>))<span class="question-mark">?</span>;
+        .ok_or(<span class="macro">runtime_error!</span>(<span class="string">"expected test expression in do"</span>))<span class="question-mark">?</span>;
     <span class="kw">let </span>ret_exprs = test_expr_list.into_exprs();
     <span class="kw">let </span>commands = args;
 
@@ -938,7 +940,7 @@
             <span class="kw">let </span>step = eval::eval_expr(step, <span class="kw-2">&amp;mut </span>freezed_eval_env)<span class="question-mark">?</span>;
             eval_env
                 .set(symbol, step)
-                .map_err(|err_msg| <span class="macro">runtime_error!</span>(<span class="string">&quot;{}&quot;</span>, err_msg))<span class="question-mark">?</span>;
+                .map_err(|err_msg| <span class="macro">runtime_error!</span>(<span class="string">"{}"</span>, err_msg))<span class="question-mark">?</span>;
         }
     }
 
@@ -962,24 +964,24 @@
 
     <span class="kw">for </span>expr <span class="kw">in </span>list {
         <span class="kw">if </span>expr.is_list() {
-            <span class="comment">// if expr is a list, check if it&#39;s unquote call
+            <span class="comment">// if expr is a list, check if it's unquote call
             </span><span class="kw">let </span><span class="kw-2">mut </span>expr_list = expr.into_list().unwrap();
             <span class="kw">match </span>expr_list.car() {
-                <span class="prelude-val">Some</span>(expr) <span class="kw">if </span>expr.is_specific_symbol(<span class="string">&quot;unquote&quot;</span>) =&gt; {
-                    expr_list.pop_front(); <span class="comment">// pop &quot;unquote&quot; symbol
+                <span class="prelude-val">Some</span>(expr) <span class="kw">if </span>expr.is_specific_symbol(<span class="string">"unquote"</span>) =&gt; {
+                    expr_list.pop_front(); <span class="comment">// pop "unquote" symbol
                     </span><span class="kw">let </span>expr = expr_list
                         .pop_front()
-                        .ok_or(<span class="macro">runtime_error!</span>(<span class="string">&quot;expected expression after unquote&quot;</span>))<span class="question-mark">?</span>;
+                        .ok_or(<span class="macro">runtime_error!</span>(<span class="string">"expected expression after unquote"</span>))<span class="question-mark">?</span>;
                     new_list.push_back(eval::eval_expr(expr, env)<span class="question-mark">?</span>);
                 }
-                <span class="prelude-val">Some</span>(expr) <span class="kw">if </span>expr.is_specific_symbol(<span class="string">&quot;unquote-splicing&quot;</span>) =&gt; {
-                    expr_list.pop_front(); <span class="comment">// pop &quot;unquote-splicing&quot; symbol
+                <span class="prelude-val">Some</span>(expr) <span class="kw">if </span>expr.is_specific_symbol(<span class="string">"unquote-splicing"</span>) =&gt; {
+                    expr_list.pop_front(); <span class="comment">// pop "unquote-splicing" symbol
                     </span><span class="kw">let </span>expr = expr_list
                         .pop_front()
-                        .ok_or(<span class="macro">runtime_error!</span>(<span class="string">&quot;expected expression after unquote&quot;</span>))<span class="question-mark">?</span>;
+                        .ok_or(<span class="macro">runtime_error!</span>(<span class="string">"expected expression after unquote"</span>))<span class="question-mark">?</span>;
 
                     <span class="kw">let </span>list = eval::eval_expr(expr, env)<span class="question-mark">?</span>.into_list().map_err(|expr| {
-                        <span class="macro">runtime_error!</span>(<span class="string">&quot;expected list after unquote-splicing, got {}&quot;</span>, expr.kind())
+                        <span class="macro">runtime_error!</span>(<span class="string">"expected list after unquote-splicing, got {}"</span>, expr.kind())
                     })<span class="question-mark">?</span>;
                     new_list.extend(list);
                 }

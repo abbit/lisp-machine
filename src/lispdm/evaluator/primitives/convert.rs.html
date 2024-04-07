@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/evaluator/primitives/convert.rs`."><title>convert.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="lispdm" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/evaluator/primitives/convert.rs`."><title>convert.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="lispdm" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.1 (7cf61ebde 2024-03-27)" data-channel="1.77.1" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../../../lispdm/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -233,13 +235,13 @@
 };
 
 <span class="macro">define_procedures! </span>{
-    number_to_string = (<span class="string">&quot;number-&gt;string&quot;</span>, number_to_string_fn, Arity::AtLeast(<span class="number">1</span>)),
-    string_to_number = (<span class="string">&quot;string-&gt;number&quot;</span>, string_to_number_fn, Arity::AtLeast(<span class="number">1</span>)),
-    char_to_integer = (<span class="string">&quot;char-&gt;integer&quot;</span>, char_to_integer_fn, Arity::Exact(<span class="number">1</span>)),
-    integer_to_char = (<span class="string">&quot;integer-&gt;char&quot;</span>, integer_to_char_fn, Arity::Exact(<span class="number">1</span>)),
-    string_to_list = (<span class="string">&quot;string-&gt;list&quot;</span>, string_to_list_fn, Arity::AtLeast(<span class="number">1</span>)),
-    symbol_to_string = (<span class="string">&quot;symbol-&gt;string&quot;</span>, symbol_to_string_fn, Arity::Exact(<span class="number">1</span>)),
-    string_to_symbol = (<span class="string">&quot;string-&gt;symbol&quot;</span>, string_to_symbol_fn, Arity::Exact(<span class="number">1</span>)),
+    number_to_string = (<span class="string">"number-&gt;string"</span>, number_to_string_fn, Arity::AtLeast(<span class="number">1</span>)),
+    string_to_number = (<span class="string">"string-&gt;number"</span>, string_to_number_fn, Arity::AtLeast(<span class="number">1</span>)),
+    char_to_integer = (<span class="string">"char-&gt;integer"</span>, char_to_integer_fn, Arity::Exact(<span class="number">1</span>)),
+    integer_to_char = (<span class="string">"integer-&gt;char"</span>, integer_to_char_fn, Arity::Exact(<span class="number">1</span>)),
+    string_to_list = (<span class="string">"string-&gt;list"</span>, string_to_list_fn, Arity::AtLeast(<span class="number">1</span>)),
+    symbol_to_string = (<span class="string">"symbol-&gt;string"</span>, symbol_to_string_fn, Arity::Exact(<span class="number">1</span>)),
+    string_to_symbol = (<span class="string">"string-&gt;symbol"</span>, string_to_symbol_fn, Arity::Exact(<span class="number">1</span>)),
 }
 
 <span class="kw">fn </span>number_to_string_fn(<span class="kw-2">mut </span>args: Exprs, _env: <span class="kw-2">&amp;mut </span>EnvRef) -&gt; ProcedureResult {
@@ -251,7 +253,7 @@
             Expr::Integer(r) <span class="kw">if </span>[<span class="number">2</span>, <span class="number">8</span>, <span class="number">10</span>, <span class="number">16</span>].contains(<span class="kw-2">&amp;</span>r) =&gt; r <span class="kw">as </span>u32,
             <span class="kw">_ </span>=&gt; {
                 <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">runtime_error!</span>(
-                    <span class="string">&quot;radix must be one of 2, 8, 10, or 16, got {}&quot;</span>,
+                    <span class="string">"radix must be one of 2, 8, 10, or 16, got {}"</span>,
                     arg.kind()
                 ))
             }
@@ -261,10 +263,10 @@
 
     <span class="kw">let </span>result = <span class="kw">match </span>number {
         Expr::Integer(n) =&gt; n.to_string_radix(radix),
-        Expr::Float(f) =&gt; <span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, f),
+        Expr::Float(f) =&gt; <span class="macro">format!</span>(<span class="string">"{}"</span>, f),
         <span class="kw">_ </span>=&gt; {
             <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">runtime_error!</span>(
-                <span class="string">&quot;number-&gt;string is only supported for integers and inexact numbers with radix 10&quot;
+                <span class="string">"number-&gt;string is only supported for integers and inexact numbers with radix 10"
             </span>))
         }
     };
@@ -279,7 +281,7 @@
 <span class="kw">impl </span>ToRadix <span class="kw">for </span>i64 {
     <span class="kw">fn </span>to_string_radix(<span class="kw-2">&amp;</span><span class="self">self</span>, radix: u32) -&gt; String {
         <span class="kw">if </span>!(<span class="number">2</span>..=<span class="number">36</span>).contains(<span class="kw-2">&amp;</span>radix) {
-            <span class="macro">panic!</span>(<span class="string">&quot;Radix out of range: {}&quot;</span>, radix);
+            <span class="macro">panic!</span>(<span class="string">"Radix out of range: {}"</span>, radix);
         }
 
         <span class="kw">let </span><span class="kw-2">mut </span>n = <span class="kw-2">*</span><span class="self">self</span>;
@@ -288,9 +290,9 @@
         <span class="kw">while </span>n != <span class="number">0 </span>{
             <span class="kw">let </span>digit = n % radix <span class="kw">as </span>i64;
             <span class="kw">let </span>digit_char = <span class="kw">if </span>digit &lt; <span class="number">10 </span>{
-                (<span class="string">b&#39;0&#39; </span>+ digit <span class="kw">as </span>u8) <span class="kw">as </span>char
+                (<span class="string">b'0' </span>+ digit <span class="kw">as </span>u8) <span class="kw">as </span>char
             } <span class="kw">else </span>{
-                (<span class="string">b&#39;A&#39; </span>+ (digit - <span class="number">10</span>) <span class="kw">as </span>u8) <span class="kw">as </span>char
+                (<span class="string">b'A' </span>+ (digit - <span class="number">10</span>) <span class="kw">as </span>u8) <span class="kw">as </span>char
             };
 
             result.insert(<span class="number">0</span>, digit_char);
@@ -298,7 +300,7 @@
         }
 
         <span class="kw">if </span>result.is_empty() {
-            result.push(<span class="string">&#39;0&#39;</span>);
+            result.push(<span class="string">'0'</span>);
         }
 
         result
@@ -314,7 +316,7 @@
             Expr::Integer(r) <span class="kw">if </span>[<span class="number">2</span>, <span class="number">8</span>, <span class="number">10</span>, <span class="number">16</span>].contains(<span class="kw-2">&amp;</span>r) =&gt; r <span class="kw">as </span>u32,
             <span class="kw">_ </span>=&gt; {
                 <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">runtime_error!</span>(
-                    <span class="string">&quot;radix must be one of 2, 8, 10, or 16, got {}&quot;</span>,
+                    <span class="string">"radix must be one of 2, 8, 10, or 16, got {}"</span>,
                     arg.kind()
                 ))
             }
@@ -331,13 +333,13 @@
                 Expr::Float(parsed)
             } <span class="kw">else </span>{
                 <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">runtime_error!</span>(
-                    <span class="string">&quot;string-&gt;number: cannot parse string as a number with the given radix&quot;
+                    <span class="string">"string-&gt;number: cannot parse string as a number with the given radix"
                 </span>));
             }
         }
         <span class="kw">_ </span>=&gt; {
             <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">runtime_error!</span>(
-                <span class="string">&quot;string-&gt;number is only supported for string arguments&quot;
+                <span class="string">"string-&gt;number is only supported for string arguments"
             </span>))
         }
     };
@@ -352,7 +354,7 @@
         Expr::Char(c) =&gt; c <span class="kw">as </span>i64,
         <span class="kw">_ </span>=&gt; {
             <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">runtime_error!</span>(
-                <span class="string">&quot;char-&gt;integer is only supported for char arguments&quot;
+                <span class="string">"char-&gt;integer is only supported for char arguments"
             </span>))
         }
     };
@@ -368,14 +370,14 @@
             <span class="prelude-val">Some</span>(c) =&gt; c,
             <span class="prelude-val">None </span>=&gt; {
                 <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">runtime_error!</span>(
-                    <span class="string">&quot;integer-&gt;char: code point {} does not correspond to a valid Unicode character&quot;</span>,
+                    <span class="string">"integer-&gt;char: code point {} does not correspond to a valid Unicode character"</span>,
                     code_point
                 ))
             }
         },
         <span class="kw">_ </span>=&gt; {
             <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">runtime_error!</span>(
-                <span class="string">&quot;integer-&gt;char is only supported for integer arguments&quot;
+                <span class="string">"integer-&gt;char is only supported for integer arguments"
             </span>))
         }
     };
@@ -392,7 +394,7 @@
         Expr::String(s) =&gt; s.borrow().clone(),
         <span class="kw">_ </span>=&gt; {
             <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">runtime_error!</span>(
-                <span class="string">&quot;string-&gt;list is only supported for string arguments&quot;
+                <span class="string">"string-&gt;list is only supported for string arguments"
             </span>))
         }
     };
@@ -401,7 +403,7 @@
         Expr::Integer(i) <span class="kw">if </span>i &gt;= <span class="number">0 </span>=&gt; i <span class="kw">as </span>usize,
         <span class="kw">_ </span>=&gt; {
             <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">runtime_error!</span>(
-                <span class="string">&quot;string-&gt;list: start index must be a non-negative integer&quot;
+                <span class="string">"string-&gt;list: start index must be a non-negative integer"
             </span>))
         }
     };
@@ -411,13 +413,13 @@
         Expr::Integer(-<span class="number">1</span>) =&gt; string.len(),
         <span class="kw">_ </span>=&gt; {
             <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">runtime_error!</span>(
-                <span class="string">&quot;string-&gt;list: end index must be a non-negative integer or -1&quot;
+                <span class="string">"string-&gt;list: end index must be a non-negative integer or -1"
             </span>))
         }
     };
 
     <span class="kw">if </span>start &gt; end || end &gt; string.len() {
-        <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">runtime_error!</span>(<span class="string">&quot;string-&gt;list: indices are out of bounds&quot;</span>));
+        <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">runtime_error!</span>(<span class="string">"string-&gt;list: indices are out of bounds"</span>));
     }
 
     <span class="kw">let </span>result_list: Exprs = string[start..end].chars().map(Expr::Char).collect();
@@ -432,7 +434,7 @@
         Expr::Symbol(sym) =&gt; sym.to_string(),
         <span class="kw">_ </span>=&gt; {
             <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">runtime_error!</span>(
-                <span class="string">&quot;symbol-&gt;string expected a symbol as its argument&quot;
+                <span class="string">"symbol-&gt;string expected a symbol as its argument"
             </span>))
         }
     };
@@ -447,7 +449,7 @@
         Expr::String(string_expr) =&gt; string_expr.borrow().clone(),
         <span class="kw">_ </span>=&gt; {
             <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">runtime_error!</span>(
-                <span class="string">&quot;string-&gt;symbol expected a string as its argument&quot;
+                <span class="string">"string-&gt;symbol expected a string as its argument"
             </span>))
         }
     };

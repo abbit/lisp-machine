@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/evaluator/primitives/nums.rs`."><title>nums.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="lispdm" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/evaluator/primitives/nums.rs`."><title>nums.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="lispdm" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.1 (7cf61ebde 2024-03-27)" data-channel="1.77.1" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../../../lispdm/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -446,27 +448,27 @@
 };
 
 <span class="macro">define_procedures! </span>{
-    add = (<span class="string">&quot;+&quot;</span>, add_fn, Arity::Any),
-    mult = (<span class="string">&quot;*&quot;</span>, mult_fn, Arity::Any),
-    sub = (<span class="string">&quot;-&quot;</span>, sub_fn, Arity::AtLeast(<span class="number">1</span>)),
-    divide = (<span class="string">&quot;/&quot;</span>, divide_fn, Arity::AtLeast(<span class="number">1</span>)),
-    less = (<span class="string">&quot;&lt;&quot;</span>, less_fn, Arity::Exact(<span class="number">2</span>)),
-    equal = (<span class="string">&quot;=&quot;</span>, equal_fn, Arity::Exact(<span class="number">2</span>)),
-    more = (<span class="string">&quot;&gt;&quot;</span>, more_fn, Arity::Exact(<span class="number">2</span>)),
-    abs = (<span class="string">&quot;abs&quot;</span>, abs_fn, Arity::Exact(<span class="number">1</span>)),
-    sqrt = (<span class="string">&quot;sqrt&quot;</span>, sqrt_fn, Arity::Exact(<span class="number">1</span>)),
-    square = (<span class="string">&quot;square&quot;</span>, square_fn, Arity::Exact(<span class="number">1</span>)),
-    expt = (<span class="string">&quot;expt&quot;</span>, expt_fn, Arity::Exact(<span class="number">2</span>)),
-    min = (<span class="string">&quot;min&quot;</span>, min_fn, Arity::AtLeast(<span class="number">1</span>)),
-    max = (<span class="string">&quot;max&quot;</span>, max_fn, Arity::AtLeast(<span class="number">1</span>)),
-    floor = (<span class="string">&quot;floor&quot;</span>, floor_fn, Arity::Exact(<span class="number">1</span>)),
-    ceiling = (<span class="string">&quot;ceiling&quot;</span>, ceiling_fn, Arity::Exact(<span class="number">1</span>)),
-    truncate = (<span class="string">&quot;truncate&quot;</span>, truncate_fn, Arity::Exact(<span class="number">1</span>)),
-    round = (<span class="string">&quot;round&quot;</span>, round_fn, Arity::Exact(<span class="number">1</span>)),
-    is_integer = (<span class="string">&quot;integer?&quot;</span>, integer_fn, Arity::Exact(<span class="number">1</span>)),
-    modulo = (<span class="string">&quot;modulo&quot;</span>, modulo_fn, Arity::Exact(<span class="number">2</span>)),
-    quotient = (<span class="string">&quot;quotient&quot;</span>, quotient_fn, Arity::Exact(<span class="number">2</span>)),
-    remainder = (<span class="string">&quot;remainder&quot;</span>, remainder_fn, Arity::Exact(<span class="number">2</span>)),
+    add = (<span class="string">"+"</span>, add_fn, Arity::Any),
+    mult = (<span class="string">"*"</span>, mult_fn, Arity::Any),
+    sub = (<span class="string">"-"</span>, sub_fn, Arity::AtLeast(<span class="number">1</span>)),
+    divide = (<span class="string">"/"</span>, divide_fn, Arity::AtLeast(<span class="number">1</span>)),
+    less = (<span class="string">"&lt;"</span>, less_fn, Arity::Exact(<span class="number">2</span>)),
+    equal = (<span class="string">"="</span>, equal_fn, Arity::Exact(<span class="number">2</span>)),
+    more = (<span class="string">"&gt;"</span>, more_fn, Arity::Exact(<span class="number">2</span>)),
+    abs = (<span class="string">"abs"</span>, abs_fn, Arity::Exact(<span class="number">1</span>)),
+    sqrt = (<span class="string">"sqrt"</span>, sqrt_fn, Arity::Exact(<span class="number">1</span>)),
+    square = (<span class="string">"square"</span>, square_fn, Arity::Exact(<span class="number">1</span>)),
+    expt = (<span class="string">"expt"</span>, expt_fn, Arity::Exact(<span class="number">2</span>)),
+    min = (<span class="string">"min"</span>, min_fn, Arity::AtLeast(<span class="number">1</span>)),
+    max = (<span class="string">"max"</span>, max_fn, Arity::AtLeast(<span class="number">1</span>)),
+    floor = (<span class="string">"floor"</span>, floor_fn, Arity::Exact(<span class="number">1</span>)),
+    ceiling = (<span class="string">"ceiling"</span>, ceiling_fn, Arity::Exact(<span class="number">1</span>)),
+    truncate = (<span class="string">"truncate"</span>, truncate_fn, Arity::Exact(<span class="number">1</span>)),
+    round = (<span class="string">"round"</span>, round_fn, Arity::Exact(<span class="number">1</span>)),
+    is_integer = (<span class="string">"integer?"</span>, integer_fn, Arity::Exact(<span class="number">1</span>)),
+    modulo = (<span class="string">"modulo"</span>, modulo_fn, Arity::Exact(<span class="number">2</span>)),
+    quotient = (<span class="string">"quotient"</span>, quotient_fn, Arity::Exact(<span class="number">2</span>)),
+    remainder = (<span class="string">"remainder"</span>, remainder_fn, Arity::Exact(<span class="number">2</span>)),
 }
 
 <span class="kw">fn </span>add_fn(args: Exprs, env: <span class="kw-2">&amp;mut </span>EnvRef) -&gt; ProcedureResult {
@@ -477,7 +479,7 @@
             (Expr::Float(lhs), Expr::Integer(rhs)) =&gt; <span class="prelude-val">Ok</span>(Expr::Float(lhs + rhs <span class="kw">as </span>f64)),
             (Expr::Float(lhs), Expr::Float(rhs)) =&gt; <span class="prelude-val">Ok</span>(Expr::Float(lhs + rhs)),
             (lhs, rhs) =&gt; <span class="prelude-val">Err</span>(<span class="macro">runtime_error!</span>(
-                <span class="string">&quot;expected integers or floats for +, got {} and {}&quot;</span>,
+                <span class="string">"expected integers or floats for +, got {} and {}"</span>,
                 lhs.kind(),
                 rhs.kind(),
             )),
@@ -499,7 +501,7 @@
         (Expr::Float(lhs), Expr::Integer(rhs)) =&gt; <span class="prelude-val">Ok</span>(Expr::Float(lhs - rhs <span class="kw">as </span>f64)),
         (Expr::Float(lhs), Expr::Float(rhs)) =&gt; <span class="prelude-val">Ok</span>(Expr::Float(lhs - rhs)),
         (lhs, rhs) =&gt; <span class="prelude-val">Err</span>(<span class="macro">runtime_error!</span>(
-            <span class="string">&quot;expected integers or floats -, got {} and {}&quot;</span>,
+            <span class="string">"expected integers or floats -, got {} and {}"</span>,
             lhs,
             rhs
         )),
@@ -515,7 +517,7 @@
             (Expr::Float(lhs), Expr::Integer(rhs)) =&gt; <span class="prelude-val">Ok</span>(Expr::Float(lhs * rhs <span class="kw">as </span>f64)),
             (Expr::Float(lhs), Expr::Float(rhs)) =&gt; <span class="prelude-val">Ok</span>(Expr::Float(lhs * rhs)),
             (lhs, rhs) =&gt; <span class="prelude-val">Err</span>(<span class="macro">runtime_error!</span>(
-                <span class="string">&quot;expected integers or floats for *, got {} and {}&quot;</span>,
+                <span class="string">"expected integers or floats for *, got {} and {}"</span>,
                 lhs.kind(),
                 rhs.kind()
             )),
@@ -537,7 +539,7 @@
         (Expr::Float(lhs), Expr::Integer(rhs)) =&gt; <span class="prelude-val">Ok</span>(Expr::Float(lhs / rhs <span class="kw">as </span>f64)),
         (Expr::Float(lhs), Expr::Float(rhs)) =&gt; <span class="prelude-val">Ok</span>(Expr::Float(lhs / rhs)),
         (lhs, rhs) =&gt; <span class="prelude-val">Err</span>(<span class="macro">runtime_error!</span>(
-            <span class="string">&quot;expected integers or floats for /, got {} and {}&quot;</span>,
+            <span class="string">"expected integers or floats for /, got {} and {}"</span>,
             lhs.kind(),
             rhs.kind()
         )),
@@ -556,7 +558,7 @@
         (Expr::Float(lhs), Expr::Float(rhs)) =&gt; Expr::Boolean(lhs &lt; rhs),
         (lhs, rhs) =&gt; {
             <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">runtime_error!</span>(
-                <span class="string">&quot;expected integers or floats for &lt;, got {} and {}&quot;</span>,
+                <span class="string">"expected integers or floats for &lt;, got {} and {}"</span>,
                 lhs.kind(),
                 rhs.kind()
             ))
@@ -577,7 +579,7 @@
         (Expr::Float(lhs), Expr::Float(rhs)) =&gt; Expr::Boolean(lhs == rhs),
         (lhs, rhs) =&gt; {
             <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">runtime_error!</span>(
-                <span class="string">&quot;expected integers or floats for =, got {} and {}&quot;</span>,
+                <span class="string">"expected integers or floats for =, got {} and {}"</span>,
                 lhs.kind(),
                 rhs.kind()
             ))
@@ -598,7 +600,7 @@
         (Expr::Float(rhs), Expr::Float(lhs)) =&gt; Expr::Boolean(rhs &gt; lhs),
         (lhs, rhs) =&gt; {
             <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">runtime_error!</span>(
-                <span class="string">&quot;expected integers or floats for &gt;, got {} and {}&quot;</span>,
+                <span class="string">"expected integers or floats for &gt;, got {} and {}"</span>,
                 lhs.kind(),
                 rhs.kind()
             ))
@@ -613,7 +615,7 @@
         Expr::Integer(n) =&gt; <span class="prelude-val">Ok</span>(Expr::Integer(n.abs())),
         Expr::Float(f) =&gt; <span class="prelude-val">Ok</span>(Expr::Float(f.abs())),
         <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(<span class="macro">runtime_error!</span>(
-            <span class="string">&quot;expected integer or float for abs, got {}&quot;</span>,
+            <span class="string">"expected integer or float for abs, got {}"</span>,
             args[<span class="number">0</span>].kind()
         )),
     })
@@ -625,7 +627,7 @@
         Expr::Integer(n) <span class="kw">if </span><span class="kw-2">*</span>n &gt;= <span class="number">0 </span>=&gt; <span class="prelude-val">Ok</span>(Expr::Float(((<span class="kw-2">*</span>n) <span class="kw">as </span>f64).sqrt())),
         Expr::Float(f) <span class="kw">if </span><span class="kw-2">*</span>f &gt;= <span class="number">0.0 </span>=&gt; <span class="prelude-val">Ok</span>(Expr::Float(f.sqrt())),
         <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(<span class="macro">runtime_error!</span>(
-            <span class="string">&quot;expected non-negative integer or float for sqrt, got {}&quot;</span>,
+            <span class="string">"expected non-negative integer or float for sqrt, got {}"</span>,
             args[<span class="number">0</span>].kind()
         )),
     })
@@ -637,7 +639,7 @@
         Expr::Integer(n) =&gt; <span class="prelude-val">Ok</span>(Expr::Integer(n * n)),
         Expr::Float(f) =&gt; <span class="prelude-val">Ok</span>(Expr::Float(f * f)),
         <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(<span class="macro">runtime_error!</span>(
-            <span class="string">&quot;expected integer or float for square, got {}&quot;</span>,
+            <span class="string">"expected integer or float for square, got {}"</span>,
             args[<span class="number">0</span>].kind()
         )),
     }
@@ -656,7 +658,7 @@
         (Expr::Float(base), Expr::Integer(exp)) =&gt; <span class="prelude-val">Ok</span>(Expr::Float(base.powi(<span class="kw-2">*</span>exp <span class="kw">as </span>i32))),
         (Expr::Float(base), Expr::Float(exp)) =&gt; <span class="prelude-val">Ok</span>(Expr::Float(base.powf(<span class="kw-2">*</span>exp))),
         <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(<span class="macro">runtime_error!</span>(
-            <span class="string">&quot;expected integers or floats for expt, got {} and {}&quot;</span>,
+            <span class="string">"expected integers or floats for expt, got {} and {}"</span>,
             base.kind(),
             exponent.kind()
         )),
@@ -671,7 +673,7 @@
             Expr::Integer(n) =&gt; <span class="prelude-val">Ok</span>(acc.min(n <span class="kw">as </span>f64)),
             Expr::Float(f) =&gt; <span class="prelude-val">Ok</span>(acc.min(f)),
             <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(<span class="macro">runtime_error!</span>(
-                <span class="string">&quot;expected integers or floats for min, got {}&quot;</span>,
+                <span class="string">"expected integers or floats for min, got {}"</span>,
                 arg.kind()
             )),
         })<span class="question-mark">?</span>;
@@ -686,7 +688,7 @@
             Expr::Integer(n) =&gt; <span class="prelude-val">Ok</span>(acc.max(n <span class="kw">as </span>f64)),
             Expr::Float(f) =&gt; <span class="prelude-val">Ok</span>(acc.max(f)),
             <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(<span class="macro">runtime_error!</span>(
-                <span class="string">&quot;expected integers or floats for max, got {}&quot;</span>,
+                <span class="string">"expected integers or floats for max, got {}"</span>,
                 arg.kind()
             )),
         })<span class="question-mark">?</span>;
@@ -699,7 +701,7 @@
         Expr::Integer(n) =&gt; <span class="prelude-val">Ok</span>(Expr::Float(<span class="kw-2">*</span>n <span class="kw">as </span>f64)),
         Expr::Float(f) =&gt; <span class="prelude-val">Ok</span>(Expr::Float(f.floor())),
         <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(<span class="macro">runtime_error!</span>(
-            <span class="string">&quot;expected integer or float for floor, got {}&quot;</span>,
+            <span class="string">"expected integer or float for floor, got {}"</span>,
             args[<span class="number">0</span>].kind()
         )),
     })
@@ -711,7 +713,7 @@
         Expr::Integer(n) =&gt; <span class="prelude-val">Ok</span>(Expr::Float(<span class="kw-2">*</span>n <span class="kw">as </span>f64)),
         Expr::Float(f) =&gt; <span class="prelude-val">Ok</span>(Expr::Float(f.ceil())),
         <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(<span class="macro">runtime_error!</span>(
-            <span class="string">&quot;expected integer or float for ceiling, got {}&quot;</span>,
+            <span class="string">"expected integer or float for ceiling, got {}"</span>,
             args[<span class="number">0</span>].kind()
         )),
     })
@@ -723,7 +725,7 @@
         Expr::Integer(n) =&gt; <span class="prelude-val">Ok</span>(Expr::Float(<span class="kw-2">*</span>n <span class="kw">as </span>f64)),
         Expr::Float(f) =&gt; <span class="prelude-val">Ok</span>(Expr::Float(f.trunc())),
         <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(<span class="macro">runtime_error!</span>(
-            <span class="string">&quot;expected integer or float for truncate, got {}&quot;</span>,
+            <span class="string">"expected integer or float for truncate, got {}"</span>,
             args[<span class="number">0</span>].kind()
         )),
     })
@@ -735,7 +737,7 @@
         Expr::Integer(n) =&gt; <span class="prelude-val">Ok</span>(Expr::Float(<span class="kw-2">*</span>n <span class="kw">as </span>f64)),
         Expr::Float(f) =&gt; <span class="prelude-val">Ok</span>(Expr::Float(f.round())),
         <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(<span class="macro">runtime_error!</span>(
-            <span class="string">&quot;expected integer or float for round, got {}&quot;</span>,
+            <span class="string">"expected integer or float for round, got {}"</span>,
             args[<span class="number">0</span>].kind()
         )),
     })
@@ -758,34 +760,34 @@
     <span class="kw">match </span>(dividend, divisor) {
         (Expr::Integer(lhs), Expr::Integer(rhs)) =&gt; {
             <span class="kw">if </span><span class="kw-2">*</span>rhs == <span class="number">0 </span>{
-                <span class="prelude-val">Err</span>(<span class="macro">runtime_error!</span>(<span class="string">&quot;division by zero in quotient&quot;</span>))
+                <span class="prelude-val">Err</span>(<span class="macro">runtime_error!</span>(<span class="string">"division by zero in quotient"</span>))
             } <span class="kw">else </span>{
                 <span class="prelude-val">Ok</span>(Expr::Integer(lhs / rhs))
             }
         }
         (Expr::Integer(lhs), Expr::Float(rhs)) =&gt; {
             <span class="kw">if </span><span class="kw-2">*</span>rhs == <span class="number">0.0 </span>{
-                <span class="prelude-val">Err</span>(<span class="macro">runtime_error!</span>(<span class="string">&quot;division by zero in quotient&quot;</span>))
+                <span class="prelude-val">Err</span>(<span class="macro">runtime_error!</span>(<span class="string">"division by zero in quotient"</span>))
             } <span class="kw">else </span>{
                 <span class="prelude-val">Ok</span>(Expr::Float(((<span class="kw-2">*</span>lhs) <span class="kw">as </span>f64) / rhs))
             }
         }
         (Expr::Float(lhs), Expr::Integer(rhs)) =&gt; {
             <span class="kw">if </span><span class="kw-2">*</span>rhs == <span class="number">0 </span>{
-                <span class="prelude-val">Err</span>(<span class="macro">runtime_error!</span>(<span class="string">&quot;division by zero in quotient&quot;</span>))
+                <span class="prelude-val">Err</span>(<span class="macro">runtime_error!</span>(<span class="string">"division by zero in quotient"</span>))
             } <span class="kw">else </span>{
                 <span class="prelude-val">Ok</span>(Expr::Float(lhs / (<span class="kw-2">*</span>rhs <span class="kw">as </span>f64)))
             }
         }
         (Expr::Float(lhs), Expr::Float(rhs)) =&gt; {
             <span class="kw">if </span><span class="kw-2">*</span>rhs == <span class="number">0.0 </span>{
-                <span class="prelude-val">Err</span>(<span class="macro">runtime_error!</span>(<span class="string">&quot;division by zero in quotient&quot;</span>))
+                <span class="prelude-val">Err</span>(<span class="macro">runtime_error!</span>(<span class="string">"division by zero in quotient"</span>))
             } <span class="kw">else </span>{
                 <span class="prelude-val">Ok</span>(Expr::Float(lhs / rhs))
             }
         }
         <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(<span class="macro">runtime_error!</span>(
-            <span class="string">&quot;expected integers or floats for quotient, got {} and {}&quot;</span>,
+            <span class="string">"expected integers or floats for quotient, got {} and {}"</span>,
             dividend.kind(),
             divisor.kind()
         )),
@@ -800,34 +802,34 @@
     <span class="kw">match </span>(dividend, divisor) {
         (Expr::Integer(lhs), Expr::Integer(rhs)) =&gt; {
             <span class="kw">if </span><span class="kw-2">*</span>rhs == <span class="number">0 </span>{
-                <span class="prelude-val">Err</span>(<span class="macro">runtime_error!</span>(<span class="string">&quot;division by zero in remainder&quot;</span>))
+                <span class="prelude-val">Err</span>(<span class="macro">runtime_error!</span>(<span class="string">"division by zero in remainder"</span>))
             } <span class="kw">else </span>{
                 <span class="prelude-val">Ok</span>(Expr::Integer(lhs % rhs))
             }
         }
         (Expr::Integer(lhs), Expr::Float(rhs)) =&gt; {
             <span class="kw">if </span><span class="kw-2">*</span>rhs == <span class="number">0.0 </span>{
-                <span class="prelude-val">Err</span>(<span class="macro">runtime_error!</span>(<span class="string">&quot;division by zero in remainder&quot;</span>))
+                <span class="prelude-val">Err</span>(<span class="macro">runtime_error!</span>(<span class="string">"division by zero in remainder"</span>))
             } <span class="kw">else </span>{
                 <span class="prelude-val">Ok</span>(Expr::Float(((<span class="kw-2">*</span>lhs) <span class="kw">as </span>f64) % rhs))
             }
         }
         (Expr::Float(lhs), Expr::Integer(rhs)) =&gt; {
             <span class="kw">if </span><span class="kw-2">*</span>rhs == <span class="number">0 </span>{
-                <span class="prelude-val">Err</span>(<span class="macro">runtime_error!</span>(<span class="string">&quot;division by zero in remainder&quot;</span>))
+                <span class="prelude-val">Err</span>(<span class="macro">runtime_error!</span>(<span class="string">"division by zero in remainder"</span>))
             } <span class="kw">else </span>{
                 <span class="prelude-val">Ok</span>(Expr::Float(lhs % (<span class="kw-2">*</span>rhs <span class="kw">as </span>f64)))
             }
         }
         (Expr::Float(lhs), Expr::Float(rhs)) =&gt; {
             <span class="kw">if </span><span class="kw-2">*</span>rhs == <span class="number">0.0 </span>{
-                <span class="prelude-val">Err</span>(<span class="macro">runtime_error!</span>(<span class="string">&quot;division by zero in remainder&quot;</span>))
+                <span class="prelude-val">Err</span>(<span class="macro">runtime_error!</span>(<span class="string">"division by zero in remainder"</span>))
             } <span class="kw">else </span>{
                 <span class="prelude-val">Ok</span>(Expr::Float(lhs % rhs))
             }
         }
         <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(<span class="macro">runtime_error!</span>(
-            <span class="string">&quot;expected integers or floats for remainder, got {} and {}&quot;</span>,
+            <span class="string">"expected integers or floats for remainder, got {} and {}"</span>,
             dividend.kind(),
             divisor.kind()
         )),
@@ -842,7 +844,7 @@
     <span class="kw">match </span>(dividend, divisor) {
         (Expr::Integer(lhs), Expr::Integer(rhs)) =&gt; {
             <span class="kw">if </span><span class="kw-2">*</span>rhs == <span class="number">0 </span>{
-                <span class="prelude-val">Err</span>(<span class="macro">runtime_error!</span>(<span class="string">&quot;division by zero in modulo&quot;</span>))
+                <span class="prelude-val">Err</span>(<span class="macro">runtime_error!</span>(<span class="string">"division by zero in modulo"</span>))
             } <span class="kw">else </span>{
                 <span class="kw">let </span>result = (lhs % rhs + rhs) % rhs;
                 <span class="prelude-val">Ok</span>(Expr::Integer(result))
@@ -850,7 +852,7 @@
         }
         (Expr::Integer(lhs), Expr::Float(rhs)) =&gt; {
             <span class="kw">if </span><span class="kw-2">*</span>rhs == <span class="number">0.0 </span>{
-                <span class="prelude-val">Err</span>(<span class="macro">runtime_error!</span>(<span class="string">&quot;division by zero in modulo&quot;</span>))
+                <span class="prelude-val">Err</span>(<span class="macro">runtime_error!</span>(<span class="string">"division by zero in modulo"</span>))
             } <span class="kw">else </span>{
                 <span class="kw">let </span>result = ((<span class="kw-2">*</span>lhs <span class="kw">as </span>f64) % rhs + rhs) % rhs;
                 <span class="prelude-val">Ok</span>(Expr::Float(result))
@@ -858,7 +860,7 @@
         }
         (Expr::Float(lhs), Expr::Integer(rhs)) =&gt; {
             <span class="kw">if </span><span class="kw-2">*</span>rhs == <span class="number">0 </span>{
-                <span class="prelude-val">Err</span>(<span class="macro">runtime_error!</span>(<span class="string">&quot;division by zero in modulo&quot;</span>))
+                <span class="prelude-val">Err</span>(<span class="macro">runtime_error!</span>(<span class="string">"division by zero in modulo"</span>))
             } <span class="kw">else </span>{
                 <span class="kw">let </span>result = (lhs % (<span class="kw-2">*</span>rhs <span class="kw">as </span>f64) + <span class="kw-2">*</span>rhs <span class="kw">as </span>f64) % <span class="kw-2">*</span>rhs <span class="kw">as </span>f64;
                 <span class="prelude-val">Ok</span>(Expr::Float(result))
@@ -866,14 +868,14 @@
         }
         (Expr::Float(lhs), Expr::Float(rhs)) =&gt; {
             <span class="kw">if </span><span class="kw-2">*</span>rhs == <span class="number">0.0 </span>{
-                <span class="prelude-val">Err</span>(<span class="macro">runtime_error!</span>(<span class="string">&quot;division by zero in modulo&quot;</span>))
+                <span class="prelude-val">Err</span>(<span class="macro">runtime_error!</span>(<span class="string">"division by zero in modulo"</span>))
             } <span class="kw">else </span>{
                 <span class="kw">let </span>result = (lhs % rhs + rhs) % rhs;
                 <span class="prelude-val">Ok</span>(Expr::Float(result))
             }
         }
         <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(<span class="macro">runtime_error!</span>(
-            <span class="string">&quot;expected integers or floats for modulo, got {} and {}&quot;</span>,
+            <span class="string">"expected integers or floats for modulo, got {} and {}"</span>,
             dividend.kind(),
             divisor.kind()
         )),
